@@ -15,7 +15,6 @@ from info_print import printout
 sys.path.append(common_path + "/lib/def_conf")
 from config_function import set_parm, conf_pattern_main, conf_pattern_1, conf_pattern_2, conf_pattern_3, conf_pattern_4, conf_pattern_5
 sys.path.append(common_path + "/lib/cls/construction")
-from build_cluster import main
 import random
 import requests
 import json

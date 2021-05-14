@@ -21,7 +21,7 @@ sys.path.append(common_path + "/lib/cls/construction")
 from build_main import build_main
 import logging
 
-
+os.makedirs(common_path + "/log", exist_ok = True)
 dt_now = datetime.datetime.now()
 log_filename = common_path + "/log/" + dt_now.strftime('%Y_%m_%d_%H_%M_%S.log')
 
