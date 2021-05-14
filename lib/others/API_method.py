@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Tue Nov 10 18:00:15 2020
 
-@author: kurata
-"""
 
 
 import requests

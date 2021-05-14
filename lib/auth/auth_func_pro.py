@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Tue Nov 10 16:09:17 2020
 
-@author: kurata
-"""
 zone="tk1v"
 url="https://secure.sakura.ad.jp/cloud/zone/"+zone+"/api/cloud/1.1"
 

@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Thu Jan  7 14:47:03 2021
 
-@author: kurata
-"""
 
 import os
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
