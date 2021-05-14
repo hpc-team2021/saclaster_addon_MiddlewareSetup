@@ -1,0 +1,9 @@
+{
+    "zone":"tk1v",
+    "head_server_name":"headnode",
+    "head_server_ID":"100001001",
+    "switch_name":"switch_001",
+    "compute_server_name":"computenode",
+    "compute_server_ID":"100001001",
+    "number_of_compute_node":"5"
+}

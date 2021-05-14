@@ -1,0 +1,246 @@
+{
+    "main checker": {
+        "type": "object",
+        "required": [
+            "config_name",
+            "Compute",
+            "Head" 
+        ],
+        "additionalProperties": false,
+        "properties": {
+            "config_name": {
+                "type": "string"
+            },
+            "Compute": {
+                "type": "object",
+                "required": [
+                    "Compute number",
+                    "Compute node"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                    "Compute number": {
+                        "type": "integer"
+                    },
+                    "Compute switch" : {
+                        "type": "boolean"  
+                    },
+                    "Compute node": {
+                        "type": "object",
+                        "required": [
+                            "Node",
+                            "Disk",
+                            "Connection type",
+                            "OS"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                            "Node": {
+                                "type": "object",
+                                "required": [
+                                    "core",
+                                    "memory"
+                                ],
+                                "additionalProperties": false,
+                                "properties": {
+                                    "core": {
+                                        "type": "integer"
+                                    },
+                                    "memory": {
+                                        "type": "integer"
+                                    },
+                                    "NodePlan": {
+                                        "type": "integer"
+                                    }
+                                }
+                            },
+                            "Disk": {
+                                "type": "object",
+                                "required": [
+                                    "Type",
+                                    "Size"
+                                ],
+                                "additionalProperties": false,
+                                "properties": {
+                                    "Type": {
+                                        "type": "string"
+                                    },
+                                    "Size": {
+                                        "type": "integer"
+                                    }
+                                }
+                            },
+                            "Connection type": {
+                                "type": "string"
+                            },
+                            "OS": {
+                                "type": "object",
+                                "required": [
+                                    "name"
+                                ],
+                                "additionalProperties": false,
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "OSPlan": {
+                                        "type": "object",
+                                        "additionalProperties": false,
+                                        "properties": {}
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "Head": {
+                "type": "object",
+                "required": [
+                    "Node",
+                    "Disk",
+                    "Connection type",
+                    "OS"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                    "Node": {
+                        "type": "object",
+                        "required": [
+                            "core",
+                            "memory"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                            "core": {
+                                "type": "integer"
+                            },
+                            "memory": {
+                                "type": "integer"
+                            },
+                            "NodePlan": {
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    "Disk": {
+                        "type": "object",
+                        "required": [
+                            "Type",
+                            "Size"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                            "Type": {
+                                "type": "string"
+                            },
+                            "Size": {
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    "Connection type": {
+                        "type": "string"
+                    },
+                    "OS": {
+                        "type": "object",
+                        "required": [
+                            "name"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "OSPlan": {
+                                "type": "object",
+                                "properties": {}
+                            }
+                        }
+                    }
+                }
+            },
+            "NFS": {
+                "type": "object",
+                "required": [
+                    "NFS"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                    "NFS": {
+                        "type": "boolean"
+                    },
+                    "NFS zone": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {}
+                    }
+                }
+            },
+            "Zone": {
+                "type": "object",
+                "required": [
+                    "Zone",
+                    "Head Zone"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                    "Zone": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {}
+                    },
+                    "Head Zone": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Monitor": {
+                "type": "object",
+                "required": [
+                    "Monitor"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                    "Monitor": {
+                        "type": "boolean"
+                    },
+                    "Monitor type": {
+                        "type": "string"
+                    },
+                    "Monitor key": {
+                        "type": "string"
+                    },
+                    "Monitor level": {
+                        "type": "integer"
+                    }
+                }
+            }
+        }
+    },
+    "NFS_zone_checker": {
+        "type": "object",
+        "required": [
+            "NFS type",
+            "NFS size"
+        ],
+        "additionalProperties": false,
+        "properties": {
+            "NFS type": {
+                "type": "string"
+            },
+            "NFS size": {
+                "type": "integer"
+            },
+            "NFSPlan": {
+                "type": "integer"
+            }
+        }
+    },
+    "Zone_checker": {
+        "type": "integer"
+    },
+    "OS_checker":{
+        "type": "integer"
+    }
+}
