@@ -17,7 +17,7 @@
 
 * 作成者： Sho Tsukiyama（＠ShoTsukiyama）, Keigo Takahira（@k-takahi）, Saki Masui（＠saki0311）
 * 所属： Kyushu Institute of Technology
-* E-mail:
+* E-mail:sakura.hpc2020@gmail.com
 
 * About us: https://qiita.com/hpc2020
 
