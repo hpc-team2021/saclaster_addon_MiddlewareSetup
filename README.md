@@ -6,11 +6,12 @@
 
 "sacluster"の魅力が直感的に伝えわるデモ動画や図解を載せる
 
-詳しい使い方はWikiをご覧ください。
+詳しい使い方は[Wiki](https://github.com/hpc-team2020/sacluster/wiki)をご覧ください。
 
 # Features
 
 "sacluster"のセールスポイントや差別化などを説明する
+![sample.pdf](https://github.com/hpc-team2020/sacluster/files/6598031/sample.pdf)
 
 
 # Author
