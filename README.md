@@ -24,4 +24,4 @@
 
 # License
 
-"sacluster" is under [Appach2.0 license](https://ja.wikipedia.org/wiki/Apache_License).
+sacluster is under [Appach2.0 license](https://www.apache.org/licenses/LICENSE-2.0).
