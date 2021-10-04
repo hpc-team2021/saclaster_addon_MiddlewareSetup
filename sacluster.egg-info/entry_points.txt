@@ -1,0 +1,3 @@
+[console_scripts]
+sc = sacluster.lib.command.command_pro:command_main
+

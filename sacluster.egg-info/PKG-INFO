@@ -1,0 +1,12 @@
+Metadata-Version: 1.1
+Name: sacluster
+Version: 0.0.1
+Summary: This package called sacluster is used to construct, modify, delete, start, stop compute clusters on the sakura cloud.
+Home-page: UNKNOWN
+Author: KIT zyuyo souhatsu group
+Author-email: UNKNOWN
+License: UNKNOWN
+Description: UNKNOWN
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3.7.7
+Classifier: License :: Apache License 2.0
