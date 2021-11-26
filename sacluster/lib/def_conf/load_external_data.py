@@ -20,7 +20,7 @@ def external_data(auth_info, info_list = [1,0,0,0], fp = ""):
     logger.debug('loading external information')
     
     try:
-        with open(path + "/lib/.Ex_info/External_info.json", "r") as f:
+        with open(path + "/lib/.Ex_info/External_info.json", "r", encoding="utf-8") as f:
             data = json.load(f)
     
     except FileNotFoundError as e:

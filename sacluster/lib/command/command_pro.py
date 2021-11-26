@@ -66,7 +66,7 @@ def prior_build(args):
         dt_now = datetime.datetime.now()
         fp_filename = dt_now.strftime('%Y_%m_%d_%H_%M_%S.txt')
         #os.
-        f = open(home_path + "/res/" + fp_filename, "w")
+        f = open(home_path + "/res/" + fp_filename, "w", encoding="utf-8")
         info_list = [1,0,0,1]
     else:
         f = ""
@@ -104,7 +104,7 @@ def prior_start(args):
         dt_now = datetime.datetime.now()
         fp_filename = dt_now.strftime('%Y_%m_%d_%H_%M_%S.txt')
         #os.
-        f = open(home_path + "/res/" + fp_filename, "w")
+        f = open(home_path + "/res/" + fp_filename, "w", encoding="utf-8")
         info_list = [1,0,0,1]
     else:
         f = ""
@@ -130,7 +130,7 @@ def prior_stop(args):
         dt_now = datetime.datetime.now()
         fp_filename = dt_now.strftime('%Y_%m_%d_%H_%M_%S.txt')
         #os.
-        f = open(home_path + "/res/" + fp_filename, "w")
+        f = open(home_path + "/res/" + fp_filename, "w", encoding="utf-8")
         info_list = [1,0,0,1]
     else:
         f = ""
@@ -156,7 +156,7 @@ def prior_modify(args):
         dt_now = datetime.datetime.now()
         fp_filename = dt_now.strftime('%Y_%m_%d_%H_%M_%S.txt')
         #os.
-        f = open(home_path + "/res/" + fp_filename, "w")
+        f = open(home_path + "/res/" + fp_filename, "w", encoding="utf-8")
         info_list = [1,0,0,1]
     else:
         f = ""
@@ -182,7 +182,7 @@ def prior_delete(args):
         dt_now = datetime.datetime.now()
         fp_filename = dt_now.strftime('%Y_%m_%d_%H_%M_%S.txt')
         #os.
-        f = open(home_path + "/res/" + fp_filename, "w")
+        f = open(home_path + "/res/" + fp_filename, "w", encoding="utf-8")
         info_list = [1,0,0,1]
     else:
         f = ""
@@ -214,7 +214,7 @@ def prior_config(args):
         dt_now = datetime.datetime.now()
         fp_filename = dt_now.strftime('%Y_%m_%d_%H_%M_%S.txt')
         #os.
-        f = open(home_path + "/res/" + fp_filename, "w")
+        f = open(home_path + "/res/" + fp_filename, "w", encoding="utf-8")
         info_list = [1,0,0,1]
     else:
         f = ""
@@ -246,7 +246,7 @@ def prior_ps(args):
         dt_now = datetime.datetime.now()
         fp_filename = dt_now.strftime('%Y_%m_%d_%H_%M_%S.txt')
         #os.
-        f = open(home_path + "/res/" + fp_filename, "w")
+        f = open(home_path + "/res/" + fp_filename, "w", encoding="utf-8")
         info_list = [1,0,0,1]
     else:
         f = ""
@@ -325,8 +325,8 @@ def command_main():
     if hasattr(args, 'handler'):
         args.handler(args)
 
-#if __name__ == "__main__":
-    #command_main()
+if __name__ == "__main__":
+    command_main()
 
 
 
