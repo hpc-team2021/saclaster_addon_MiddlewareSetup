@@ -407,12 +407,32 @@ class build_sacluster:
             node_planid = self.configuration_info["server plan ID for head node"]
             com_index = False
             #param = {"Server":{"Name":node_name,"ServerPlan":{"ID":node_planid},"Tags":[self.cluster_id, self.date_modified],"ConnectedSwitches":[{"Scope":"shared"}],"InterfaceDriver":self.configuration_info["connection type for head node"]},"Count":0}
-            param = {"Server":{"Name":node_name,"ServerPlan":{"ID":node_planid},"Tags":[self.cluster_id, self.date_modified],"ConnectedSwitches":[{"Scope":"shared"}]},"Count":0}
+            param = {
+                "Server":{
+                    "Name":node_name,
+                    "ServerPlan":{
+                        "ID":node_planid
+                    },
+                    "Tags":[self.cluster_id, self.date_modified],
+                    "ConnectedSwitches":[{"Scope":"shared"}]
+                },
+                "Count":0
+            }
         else:
             node_planid = self.configuration_info["server plan ID for compute node"]
             com_index = True
             #param = {"Server":{"Name":node_name,"ServerPlan":{"ID":node_planid},"Tags":[self.cluster_id, self.date_modified],"ConnectedSwitches":[{"ID": head_switch_id}],"InterfaceDriver": self.configuration_info["connection type for compute node"]},"Count":0}
-            param = {"Server":{"Name":node_name,"ServerPlan":{"ID":node_planid},"Tags":[self.cluster_id, self.date_modified],"ConnectedSwitches":[{"ID": head_switch_id}]},"Count":0}
+            param = {
+                "Server":{
+                    "Name":node_name,
+                    "ServerPlan":{
+                        "ID":node_planid
+                    },
+                    "Tags":[self.cluster_id, self.date_modified],
+                    "ConnectedSwitches":[{"ID": head_switch_id}]
+                },
+                "Count":0
+            }
             
             
         if(self.api_index == True):
@@ -488,7 +508,23 @@ class build_sacluster:
         elif disk_type == "HDD":
             disk_type_id = 2
         
-        param = {"Disk":{"Name":disk_name,"Plan":{"ID":disk_type_id}, "Connection":self.configuration_info["connection type for head node"] ,"SizeMB":disk_size,"SourceArchive":{"Availability": "available","ID":os_type},"Tags":[self.cluster_id]},"Config":{"Password":self.configuration_info["password"],"HostName":self.configuration_info["username"]}}
+        param = {
+            "Disk":{
+                "Name":disk_name,
+                "Plan":{
+                    "ID":disk_type_id}, 
+                    "Connection":self.configuration_info["connection type for head node"] ,
+                    "SizeMB":disk_size,
+                    "SourceArchive":{
+                        "Availability": "available",
+                        "ID":os_type
+                    },
+                    "Tags":[self.cluster_id]},
+                    "Config":{
+                        "Password":self.configuration_info["password"],
+                        "HostName":self.configuration_info["username"]
+                    }
+                }
     
         if (self.api_index == True):
             while(True):
@@ -519,7 +555,13 @@ class build_sacluster:
             logger.debug("creating shared switch")
             switch_name = "Switch for compute node"
     
-        param = {"Switch":{"Name":switch_name,"Tags":[self.cluster_id]},"Count":0}
+        param = {
+            "Switch":{
+                "Name":switch_name,
+                "Tags":[self.cluster_id]
+            },
+            "Count":0
+        }
     
         if (self.api_index == True):
             while(True):
@@ -545,7 +587,23 @@ class build_sacluster:
         nfs_name = "NFS"
         ip = str(ipaddress.ip_address('192.168.1.200'))
             
-        param = {"Appliance":{"Class":"nfs","Name":nfs_name,"Plan":{"ID":self.configuration_info["NFS plan ID"][zone]},"Tags":[self.cluster_id],"Remark":{"Network":{"NetworkMaskLen":24},"Servers":[{"IPAddress":ip}],"Switch":{"ID":switch_id}}}} 
+        param = {
+            "Appliance":{
+                "Class":"nfs",
+                "Name":nfs_name,
+                "Plan":{
+                    "ID":self.configuration_info["NFS plan ID"][zone]
+                },
+                "Tags":[self.cluster_id],
+                "Remark":{
+                    "Network":{
+                        "NetworkMaskLen":24
+                    },
+                    "Servers":[{"IPAddress":ip}],
+                    "Switch":{"ID":switch_id}
+                }
+            }
+        } 
     
         if (self.api_index == True):
             while(True):
@@ -592,7 +650,14 @@ class build_sacluster:
         self.printout_cluster("adding nic ……", cls_monitor_level = 3, overwrite = True)
         logger.debug("adding nic")
 
-        add_nic_param = {"Interface":{"Server":{"ID":node_id}}, "Count":0}
+        add_nic_param = {
+            "Interface":{
+                "Server":{
+                    "ID":node_id
+                }
+            },
+            "Count":0
+        }
     
         if (self.api_index == True):
             while(True):
@@ -804,7 +869,11 @@ class build_sacluster:
         self.printout_cluster("", cls_monitor_level = 4)
         
         logger.debug("writing cluster information to head node")
-        desc_param = {"Server":{"Description":json.dumps(cls_info)}}
+        desc_param = {
+            "Server":{
+                "Description":json.dumps(cls_info)
+            }
+        }
         if (self.api_index == True):
             while(True):
                 cluster_info_res = put(self.head_url + self.sub_url[0] + "/" + str(self.all_id_dict["clusterparams"]["server"][self.head_zone]["head"]["node"]["id"]), self.auth_res, desc_param)
