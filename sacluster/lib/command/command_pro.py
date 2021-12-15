@@ -300,7 +300,7 @@ def command_main():
     start_parser.add_argument("-o", "--output", action='store_true', help = "option to provide standard file output in addition to the standard console output")
     start_parser.add_argument("-v", "--verbose", action='store_true', help = "option to output detailed log")
     start_parser.add_argument("-t", "--thread", type=int, default = 1, help = "the number of max threads")
-    start_parser.add_argument("-m", "--middle", action='store_true', help = "middle setup")
+    #start_parser.add_argument("-m", "--middle", action='store_true', help = "middle setup")
     start_parser.set_defaults(handler = prior_start)
 
     stop_parser.add_argument("--dryrun", action='store_false', help = "option to run in trial mode")
