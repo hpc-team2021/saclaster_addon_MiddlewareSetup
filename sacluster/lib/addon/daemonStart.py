@@ -60,7 +60,7 @@ def runCMD_PW (IP_ADDRESS, USER_NAME, PASSWORD, PORT, CMD):
     del ssh, stdin, stdout, stderr
 
 
-def editHost (IP_ADDRESS, numNode):
+def daemonStart (IP_ADDRESS, daemonName):
     # ----------------------------------------------------------
     # サーバーへの接続情報を設定
     USER_NAME = 'root'
@@ -68,13 +68,10 @@ def editHost (IP_ADDRESS, numNode):
     PASSWORD = 'test_passwd'
     # サーバー上で実行するコマンドを設定
     # ----------------------------------------------------------
-    for node in range (numNode+1):
-        if node == 0 :
-            CMD = 'echo "headnode 192.168.1.' + str(254) + '" > /etc/hosts'
-            runCMD_PW (IP_ADDRESS, USER_NAME, PASSWORD, PORT, CMD)
-        else :
-            CMD = 'echo "compute_node_' + str(node) + ' 192.168.1.' + str(node) + '" >> /etc/hosts'
-            runCMD_PW (IP_ADDRESS, USER_NAME, PASSWORD, PORT, CMD)
+    CMD = "ssh 192.168.1.2 | systemctl status" + str(daemonName)
+    runCMD_PW (IP_ADDRESS, USER_NAME, PASSWORD, PORT, CMD)
+
+
 
 if __name__ == '__main__':
      # authentication setting
@@ -107,7 +104,7 @@ if __name__ == '__main__':
         i += 1
     print (s[i+1].replace ("'", ""))
 
-
+    # Set argument
     IP_ADDRESS = s[i+1].replace (",", "").replace("'", "")
-    numNode = 2
-    editHost (IP_ADDRESS, numNode)
+    daemonName = "squid"
+    daemonStart (IP_ADDRESS, daemonName)
