@@ -32,6 +32,8 @@ from ps_main import ps_main
 
 sys.path.append(common_path + "/lib/addon")
 from addon_main import addon_main
+sys.path.append(common_path + "/lib/addon")
+from addon_main import addon_start
 
 
 import logging
@@ -54,54 +56,56 @@ logger.addHandler(file_handler)
 
 
 def prior_build(args):
-    if (args.middle == True):
-        addon_main()
+
+    if(args.verbose == True):
+        logger.debug('Change log level to debag')
+        file_handler.setLevel(logging.DEBUG)
+        logger.addHandler(file_handler)
+        
+    if(args.parents == True and args.dir == None):
+        logger.error('--parents option [-p] requires --input option [-d]')
+        print("error: --parents option [-p] requires --input option [-d] ")
+        sys.exit()
+        
+    if(args.output == True):
+        logger.debug('Create a file for standard output')
+        dt_now = datetime.datetime.now()
+        fp_filename = dt_now.strftime('%Y_%m_%d_%H_%M_%S.txt')
+        #os.
+        f = open(home_path + "/res/" + fp_filename, "w")
+        info_list = [1,0,0,1]
     else:
-        if(args.verbose == True):
-            logger.debug('Change log level to debag')
-            file_handler.setLevel(logging.DEBUG)
-            logger.addHandler(file_handler)
+        f = ""
+        info_list = [1,0,0,0]
         
-        if(args.parents == True and args.dir == None):
-            logger.error('--parents option [-p] requires --input option [-d]')
-            print("error: --parents option [-p] requires --input option [-d] ")
-            sys.exit()
+    if(args.input == None):
+        args.input = ""
+        logger.debug('Set config input path to None')
+    else:
+        logger.debug('Set config input path to ' + args.input)
         
-        if(args.output == True):
-            logger.debug('Create a file for standard output')
-            dt_now = datetime.datetime.now()
-            fp_filename = dt_now.strftime('%Y_%m_%d_%H_%M_%S.txt')
-            #os.
-            f = open(home_path + "/res/" + fp_filename, "w")
-            info_list = [1,0,0,1]
-        else:
-            f = ""
-            info_list = [1,0,0,0]
+    if(args.dir == None):
+        args.dir = ""
+        logger.debug('Set config output path to None')
+    else:
+        logger.debug('Set config output path to ' + args.dir)
         
-        if(args.input == None):
-            args.input = ""
-            logger.debug('Set config input path to None')
-        else:
-            logger.debug('Set config input path to ' + args.input)
+    build_main(args.input, args.dir, args.parents, args.dryrun, f, info_list, args.auto, int(args.thread))
         
-        if(args.dir == None):
-            args.dir = ""
-            logger.debug('Set config output path to None')
-        else:
-            logger.debug('Set config output path to ' + args.dir)
-        
-        build_main(args.input, args.dir, args.parents, args.dryrun, f, info_list, args.auto, int(args.thread))
-        
-        if(args.output == True):
-            printout("Processes for building the cluster were completed", info_type = 0, info_list = [1,0,0,1], fp = f)
-            logger.debug('Close a file for standard output')
-            f.close()
-        else:
-            printout("All processes were completed", info_type = 0, info_list = [1,0,0,0], fp = "")
-    
+    if(args.output == True):
+        printout("Processes for building the cluster were completed", info_type = 0, info_list = [1,0,0,1], fp = f)
+        logger.debug('Close a file for standard output')
+        f.close()
+    else:
+        printout("All processes were completed", info_type = 0, info_list = [1,0,0,0], fp = "")
+
+    if (args.middle == True):
+        start_main(args.dryrun, f, info_list, int(args.thread))
+        addon_main()
     
 
 def prior_start(args):
+ 
     if(args.verbose == True):
         logger.debug('Change log level to debag')
         file_handler.setLevel(logging.DEBUG)
@@ -126,6 +130,10 @@ def prior_start(args):
         f.close()
     else:
         printout("All processes were completed", info_type = 0, info_list = [1,0,0,0], fp = "")
+    
+    if (args.middle == True):
+        addon_start()  
+
 
 def prior_stop(args):
     if(args.verbose == True):
@@ -178,6 +186,7 @@ def prior_modify(args):
         f.close()
     else:
         printout("All processes were completed", info_type = 0, info_list = [1,0,0,0], fp = "")
+
 
 def prior_delete(args):
     if(args.verbose == True):
@@ -300,7 +309,7 @@ def command_main():
     start_parser.add_argument("-o", "--output", action='store_true', help = "option to provide standard file output in addition to the standard console output")
     start_parser.add_argument("-v", "--verbose", action='store_true', help = "option to output detailed log")
     start_parser.add_argument("-t", "--thread", type=int, default = 1, help = "the number of max threads")
-    #start_parser.add_argument("-m", "--middle", action='store_true', help = "middle setup")
+    start_parser.add_argument("-m", "--middle", action='store_true', help = "middle setup")
     start_parser.set_defaults(handler = prior_start)
 
     stop_parser.add_argument("--dryrun", action='store_false', help = "option to run in trial mode")
