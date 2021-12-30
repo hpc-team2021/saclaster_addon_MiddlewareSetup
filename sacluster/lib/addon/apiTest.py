@@ -35,8 +35,30 @@ def main(argv):
     head_url = "https://secure.sakura.ad.jp/cloud/zone/"+ head_zone +"/api/cloud/1.1"
     sub_url = ["/server","/disk","/switch","/interface","/bridge","/tag","/appliance","/power"]
 
+    print('事前準備（認証，ゾーンのURLの指定）が完了')
     # クラスターのID情報を取得する
-    get_cluster_id_info = get(url_list[zone] + sub_url[0], auth_res)
+    get_cluster_serever_info    = get(url_list[zone] + sub_url[0], auth_res)
+    get_cluster_disk_info       = get(url_list[zone] + sub_url[1], auth_res)
+    get_cluster_switch_info     = get(url_list[zone] + sub_url[2], auth_res)
+    get_cluster_interface_info  = get(url_list[zone] + sub_url[3], auth_res)
+    get_cluster_bridge_info     = get(url_list[zone] + sub_url[4], auth_res)
+    get_cluster_tag_info        = get(url_list[zone] + sub_url[5], auth_res)
+    get_cluster_appliance_info  = get(url_list[zone] + sub_url[6], auth_res)
+    get_cluster_power_info      = get(url_list[zone] + sub_url[7], auth_res)
+
+
+    # スイッチの作成
+    param = {
+        "Switch":{
+            "Name":'testSwitch',
+            "Tags":['tagInfo: cluster ID']
+        },
+        "Count":0
+    }
+    switch_response = post(url_list[zone] + sub_url[2], auth_res, param)
+    check,msg = res_check(switch_response, "post")
+
+    print('スイッチの作成')
 
     # サーバの設置
     com_index = False
@@ -46,16 +68,19 @@ def main(argv):
             "ServerPlan":{
                 "ID":100001001
             },
-            "Tags":['tagInfo: cluster ID', 'tagInfo: Data mnodified'],
-            "ConnectedSwitches":[{"Scope":"shared"}]
+            "Tags":['tagInfo: cluster ID', 'tagInfo: Data modified'],
+            # "ConnectedSwitches":[{"Scope":"shared"}]
+             "ConnectedSwitches":[{"ID": switch_response['Switch']['ID']}]
         },
         "Count":0
     }
     server_response = post(url_list[zone] + sub_url[0], auth_res, param)
     check, msg = res_check(server_response, "post", com_index)
 
+    print('サーバの作成（スイッチに接続する）')
 
     # ディスクの追加
+    paramIPAddr = '192.168.100.1'
     param = {
         "Disk":{
             "Name":'testNode',
@@ -65,26 +90,65 @@ def main(argv):
             "SizeMB":20480,     # ディスク容量(MB)
             "SourceArchive":{
                 "Availability": "available",
-                "ID":'113200758639'     # OS のID(Cent7.8)
+                # "ID":'113200758639'     # OS のID(Cent7.8)
+                # "ID":'113200980882'     # OS のID(Cent7.8)
+                "ID":'113300112273'     # OS のID(Cent7.8)
             },
         },
         "Config":{
             "Password":'test',
             "HostName":'test',
+            "UserIPAddress": paramIPAddr,
+            "UserSubnet": {
+                "DefaultRoute": '192.168.100.254',
+                "NetworkMaskLen": 24,
+            }
         }
     }
     disk_res = post(url_list[zone] + sub_url[1], auth_res, param)
     check,msg = res_check(disk_res, "post")
 
+    print('ディスクの追加（オーダーを出しただけ）まで終了')
+
+    # ディスクとサーバの接続
+    url_disk = "/disk/" + str(disk_res["Disk"]["ID"]) + "/to/server/" + str(server_response["Server"]["ID"])
+    server_disk_res = put(url_list[zone] + url_disk, auth_res)
+    check,msg = res_check(server_disk_res, "put")
+
+    print('サーバとディスクの接続')
+
+    # # インターフェースの追加
+    # add_nic_param = {
+    #     "Interface":{
+    #         "Server":{
+    #             "ID":str(server_response["Server"]["ID"])
+    #         }
+    #     },
+    #     "Count":0
+    # }
+    # add_nic_response = post(url_list[zone] + sub_url[3], auth_res, add_nic_param)
+    # check,msg = res_check(add_nic_response, "post")
+
+    # print('インターフェースを追加（使わないからこの処理なくしてもいいかも）')
+
     # ディスク状態が利用可能になるまで待ち続けるコード
     while True:
         get_cluster_disk_info = get(url_list[zone] + sub_url[1], auth_res)
-        diskState = get_cluster_disk_info['Disks'][0]['Availability']
+        for i in range(len(get_cluster_disk_info['Disks'])):
+            str_i = str(i)
+            k = get_cluster_disk_info['Disks'][i]
+            if k['ID'] == disk_res['Disk']['ID']:
+                diskState = k['Availability']
+                break
+
         if diskState == 'available':
             print("it's OK! Available!")
             break
         print('diskState is ' + diskState + ' ... Please wait...')
         time.sleep(10)
+
+    print('ディスクの追加が完了するまで終了')
+
 
     # ディスクの情報の書き換え（IPアドレス）
     paramIPAddr = '192.168.100.1'
@@ -100,42 +164,34 @@ def main(argv):
     diskConf_res = put(putUrl, auth_res, param)
     check,msg = res_check(diskConf_res, "put")
 
-
-    # ディスクとサーバの接続
-    url_disk = "/disk/" + str(disk_res["Disk"]["ID"]) + "/to/server/" + str(server_response["Server"]["ID"])
-    server_disk_res = put(url_list[zone] + url_disk, auth_res)
-    check,msg = res_check(server_disk_res, "put")
-
-
-    # インターフェースの追加
-    add_nic_param = {
-        "Interface":{
-            "Server":{
-                "ID":str(server_response["Server"]["ID"])
-            }
-        },
-        "Count":0
-    }
-    add_nic_response = post(url_list[zone] + sub_url[3], auth_res, add_nic_param)
-    check,msg = res_check(add_nic_response, "post")
+    # クラスターのID情報を取得する
+    get_cluster_serever_info    = get(url_list[zone] + sub_url[0], auth_res)
+    get_cluster_disk_info       = get(url_list[zone] + sub_url[1], auth_res)
+    get_cluster_switch_info     = get(url_list[zone] + sub_url[2], auth_res)
+    get_cluster_interface_info  = get(url_list[zone] + sub_url[3], auth_res)
+    get_cluster_bridge_info     = get(url_list[zone] + sub_url[4], auth_res)
+    get_cluster_tag_info        = get(url_list[zone] + sub_url[5], auth_res)
+    get_cluster_appliance_info  = get(url_list[zone] + sub_url[6], auth_res)
+    get_cluster_power_info      = get(url_list[zone] + sub_url[7], auth_res)
+    print('ディスクの書き換えによりIPアドレスを割り振り')
 
 
-    # スイッチの作成
-    del param
-    param = {
-        "Switch":{
-            "Name":'testSwitch',
-            "Tags":['tagInfo: cluster ID']
-        },
-        "Count":0
-    }
-    switch_response = post(url_list[zone] + sub_url[2], auth_res, param)
-    check,msg = res_check(switch_response, "post")
+    # # スイッチの作成
+    # del param
+    # param = {
+    #     "Switch":{
+    #         "Name":'testSwitch',
+    #         "Tags":['tagInfo: cluster ID']
+    #     },
+    #     "Count":0
+    # }
+    # switch_response = post(url_list[zone] + sub_url[2], auth_res, param)
+    # check,msg = res_check(switch_response, "post")
 
-    # スイッチの接続
-    sub_url_con = "/interface/" + str(add_nic_response["Interface"]["ID"]) + "/to/switch/" + str(switch_response["Switch"]["ID"])
-    connect_switch_response = put(url_list[zone] + sub_url_con, auth_res)
-    check,msg = res_check(connect_switch_response, "put")
+    # # スイッチの接続
+    # sub_url_con = "/interface/" + str(add_nic_response["Interface"]["ID"]) + "/to/switch/" + str(switch_response["Switch"]["ID"])
+    # connect_switch_response = put(url_list[zone] + sub_url_con, auth_res)
+    # check,msg = res_check(connect_switch_response, "put")
 
 
 
