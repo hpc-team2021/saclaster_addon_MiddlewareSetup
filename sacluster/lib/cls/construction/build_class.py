@@ -109,12 +109,12 @@ class build_sacluster:
         
         #id格納のためのdictの初期化
         self.all_id_dict = {}
-        self.all_id_dict["clusterparams"] = {}
-        self.all_id_dict["baseparams"] = {}
+        self.all_id_dict["clusterparams"]   = {}
+        self.all_id_dict["baseparams"]      = {}
         self.all_id_dict["clusterparams"]["server"] = {}
         self.all_id_dict["clusterparams"]["switch"] = {}
         self.all_id_dict["clusterparams"]["bridge"] = {}
-        self.all_id_dict["clusterparams"]["nfs"] = {}
+        self.all_id_dict["clusterparams"]["nfs"]    = {}
         
     #クラスターの構築
     def __call__(self):
@@ -193,15 +193,14 @@ class build_sacluster:
         
         if(self.api_index == True):
             self.global_ip_addr = server_response["Server"]["Interfaces"][0]["IPAddress"]
-        
-            self.all_id_dict["clusterparams"]["server"][zone]["head"]["node"] = {}
-            self.all_id_dict["clusterparams"]["server"][zone]["head"]["node"]["id"] = int(server_response["Server"]["ID"])
-            self.all_id_dict["clusterparams"]["server"][zone]["head"]["node"]["state"] = "down"
-            self.all_id_dict["clusterparams"]["server"][zone]["head"]["node"]["core"] = int(server_response["Server"]["ServerPlan"]["CPU"])
-            self.all_id_dict["clusterparams"]["server"][zone]["head"]["node"]["memory"] = int(server_response["Server"]["ServerPlan"]["MemoryMB"])
-            self.all_id_dict["clusterparams"]["server"][zone]["head"]["nic"] = {}
-            self.all_id_dict["clusterparams"]["server"][zone]["head"]["nic"]["global"] = {}
-            self.all_id_dict["clusterparams"]["server"][zone]["head"]["nic"]["global"]["id"] = int(server_response["Server"]["Interfaces"][0]["ID"])
+            self.all_id_dict["clusterparams"]["server"][zone]["head"]["node"]                   = {}
+            self.all_id_dict["clusterparams"]["server"][zone]["head"]["node"]["id"]             = int(server_response["Server"]["ID"])
+            self.all_id_dict["clusterparams"]["server"][zone]["head"]["node"]["state"]          = "down"
+            self.all_id_dict["clusterparams"]["server"][zone]["head"]["node"]["core"]           = int(server_response["Server"]["ServerPlan"]["CPU"])
+            self.all_id_dict["clusterparams"]["server"][zone]["head"]["node"]["memory"]         = int(server_response["Server"]["ServerPlan"]["MemoryMB"])
+            self.all_id_dict["clusterparams"]["server"][zone]["head"]["nic"]                    = {}
+            self.all_id_dict["clusterparams"]["server"][zone]["head"]["nic"]["global"]          = {}
+            self.all_id_dict["clusterparams"]["server"][zone]["head"]["nic"]["global"]["id"]    = int(server_response["Server"]["Interfaces"][0]["ID"])
         else:
             self.global_ip_addr = "0.0.0.0"
         #ディスクの追加
@@ -211,23 +210,22 @@ class build_sacluster:
         if(self.api_index == True):
             head_server_disk_res = self.connect_server_disk(zone, disk_res["Disk"]["ID"], server_response["Server"]["ID"])
             self.progress_bar(int(20/(1 + self.compute_num)))
-            self.all_id_dict["clusterparams"]["server"][zone]["head"]["disk"] = {}
-            self.all_id_dict["clusterparams"]["server"][zone]["head"]["disk"][0] = {}
-            self.all_id_dict["clusterparams"]["server"][zone]["head"]["disk"][0]["id"] = int(disk_res["Disk"]["ID"])
-            self.all_id_dict["clusterparams"]["server"][zone]["head"]["disk"][0]["size"] = int(disk_res["Disk"]["SizeMB"])
+            self.all_id_dict["clusterparams"]["server"][zone]["head"]["disk"]               = {}
+            self.all_id_dict["clusterparams"]["server"][zone]["head"]["disk"][0]            = {}
+            self.all_id_dict["clusterparams"]["server"][zone]["head"]["disk"][0]["id"]      = int(disk_res["Disk"]["ID"])
+            self.all_id_dict["clusterparams"]["server"][zone]["head"]["disk"][0]["size"]    = int(disk_res["Disk"]["SizeMB"])
         else:
             head_server_disk_res = self.connect_server_disk(zone, 0000,0000)
         #スイッチの作成
         head_switch_id = self.create_switch(zone, head_node_name)
         if(self.api_index == True):
-            self.all_id_dict["clusterparams"]["switch"][zone]["front"] = {}
-            self.all_id_dict["clusterparams"]["switch"][zone]["front"]["id"] = int(head_switch_id)
+            self.all_id_dict["clusterparams"]["switch"][zone]["front"]          = {}
+            self.all_id_dict["clusterparams"]["switch"][zone]["front"]["id"]    = int(head_switch_id)
         self.progress_bar(10)
         #インターフェースの追加
-        
         if(self.api_index == True):
             nic_id = self.add_interface(zone, server_response["Server"]["ID"])
-            self.all_id_dict["clusterparams"]["server"][zone]["head"]["nic"]["front"] = {}
+            self.all_id_dict["clusterparams"]["server"][zone]["head"]["nic"]["front"]       = {}
             self.all_id_dict["clusterparams"]["server"][zone]["head"]["nic"]["front"]["id"] = nic_id
         else:
             nic_id = self.add_interface(zone, 0000)
@@ -332,9 +330,11 @@ class build_sacluster:
     
     def build_one_compute_node(self, i, zone, res_index=False):
         if i < 9:
-            compute_node_name = "compute_node_00"+str(i + 1)
-        elif i >= 9:
-            compute_node_name = "compute_node_0"+str(i + 1)
+            compute_node_name = "computenode00"+str(i + 1)
+        elif 9 <= i and i < 99:
+            compute_node_name = "computenode0"+str(i + 1)
+        elif 99 <= i:
+            compute_node_name = "computenode"+str(i + 1)
 
         #サーバの作成
         if not i in self.all_id_dict["clusterparams"]["server"][zone]["compute"].keys():
@@ -347,18 +347,16 @@ class build_sacluster:
             if(self.api_index == True):
                 if res_index == True:
                     self.progress_bar(int(25/(1 + self.compute_num)))
-                    self.all_id_dict["clusterparams"]["server"][zone]["compute"][i] = {}
-                    self.all_id_dict["clusterparams"]["server"][zone]["compute"][i]["node"] = {}
-                    self.all_id_dict["clusterparams"]["server"][zone]["compute"][i]["node"]["name"] = compute_node_name
-                    self.all_id_dict["clusterparams"]["server"][zone]["compute"][i]["node"]["id"] = int(server_response["Server"]["ID"])
-                    self.all_id_dict["clusterparams"]["server"][zone]["compute"][i]["node"]["state"] = "down"
-                    self.all_id_dict["clusterparams"]["server"][zone]["compute"][i]["node"]["core"] = int(server_response["Server"]["ServerPlan"]["CPU"])
-                    self.all_id_dict["clusterparams"]["server"][zone]["compute"][i]["node"]["memory"] = int(server_response["Server"]["ServerPlan"]["MemoryMB"])
-
-                    self.all_id_dict["clusterparams"]["server"][zone]["compute"][i]["nic"] = {}
-                    self.all_id_dict["clusterparams"]["server"][zone]["compute"][i]["nic"]["front"] = {}
-                    self.all_id_dict["clusterparams"]["server"][zone]["compute"][i]["nic"]["front"]["id"] = int(server_response["Server"]["Interfaces"][0]["ID"])
-
+                    self.all_id_dict["clusterparams"]["server"][zone]["compute"][i]                         = {}
+                    self.all_id_dict["clusterparams"]["server"][zone]["compute"][i]["node"]                 = {}
+                    self.all_id_dict["clusterparams"]["server"][zone]["compute"][i]["node"]["name"]         = compute_node_name
+                    self.all_id_dict["clusterparams"]["server"][zone]["compute"][i]["node"]["id"]           = int(server_response["Server"]["ID"])
+                    self.all_id_dict["clusterparams"]["server"][zone]["compute"][i]["node"]["state"]        = "down"
+                    self.all_id_dict["clusterparams"]["server"][zone]["compute"][i]["node"]["core"]         = int(server_response["Server"]["ServerPlan"]["CPU"])
+                    self.all_id_dict["clusterparams"]["server"][zone]["compute"][i]["node"]["memory"]       = int(server_response["Server"]["ServerPlan"]["MemoryMB"])
+                    self.all_id_dict["clusterparams"]["server"][zone]["compute"][i]["nic"]                  = {}
+                    self.all_id_dict["clusterparams"]["server"][zone]["compute"][i]["nic"]["front"]         = {}
+                    self.all_id_dict["clusterparams"]["server"][zone]["compute"][i]["nic"]["front"]["id"]   = int(server_response["Server"]["Interfaces"][0]["ID"])
 
                     #ディスクの作成
                     disk_res = self.add_disk(zone, compute_node_name)
@@ -366,10 +364,10 @@ class build_sacluster:
                     #ディスクとサーバの接続
                     compute_server_disk_res = self.connect_server_disk(zone, disk_res["Disk"]["ID"], server_response["Server"]["ID"])
                     self.progress_bar(int(20/(1 + self.compute_num)))
-                    self.all_id_dict["clusterparams"]["server"][zone]["compute"][i]["disk"] = {}
-                    self.all_id_dict["clusterparams"]["server"][zone]["compute"][i]["disk"][0] = {}
-                    self.all_id_dict["clusterparams"]["server"][zone]["compute"][i]["disk"][0]["id"] = int(disk_res["Disk"]["ID"])
-                    self.all_id_dict["clusterparams"]["server"][zone]["compute"][i]["disk"][0]["size"] = int(disk_res["Disk"]["SizeMB"])
+                    self.all_id_dict["clusterparams"]["server"][zone]["compute"][i]["disk"]             = {}
+                    self.all_id_dict["clusterparams"]["server"][zone]["compute"][i]["disk"][0]          = {}
+                    self.all_id_dict["clusterparams"]["server"][zone]["compute"][i]["disk"][0]["id"]    = int(disk_res["Disk"]["ID"])
+                    self.all_id_dict["clusterparams"]["server"][zone]["compute"][i]["disk"][0]["size"]  = int(disk_res["Disk"]["SizeMB"])
 
         else:
             server_response = ""
@@ -391,8 +389,8 @@ class build_sacluster:
         for com_id, num in compute_node_list:
             #インターフェースの追加
             com_nic_id = self.add_interface(zone, com_id)
-            self.all_id_dict["clusterparams"]["server"][zone]["compute"][num]["nic"]["back"] = {}
-            self.all_id_dict["clusterparams"]["server"][zone]["compute"][num]["nic"]["back"]["id"] = com_nic_id
+            self.all_id_dict["clusterparams"]["server"][zone]["compute"][num]["nic"]["back"]        = {}
+            self.all_id_dict["clusterparams"]["server"][zone]["compute"][num]["nic"]["back"]["id"]  = com_nic_id
             #スイッチの接続
             connect_switch_res = self.connect_switch(zone, com_switch_id, com_nic_id)
         
@@ -494,12 +492,12 @@ class build_sacluster:
         if "headnode" == disk_name:
             disk_type = self.configuration_info["disk type for head node"]
             disk_size = self.configuration_info["disk size for head node"]
-            os_type = self.configuration_info["OS ID for head node"][zone]
+            os_type   = self.configuration_info["OS ID for head node"][zone]
         
         else:
             disk_type = self.configuration_info["disk type for compute node"]
             disk_size = self.configuration_info["disk size for compute node"]
-            os_type = self.configuration_info["OS ID for compute node"][zone]
+            os_type   = self.configuration_info["OS ID for compute node"][zone]
 
         if disk_type == "SSD":
             disk_type_id = 4
@@ -520,7 +518,7 @@ class build_sacluster:
                     "Tags":[self.cluster_id]},
                     "Config":{
                         "Password":self.configuration_info["password"],
-                        "HostName":self.configuration_info["username"]
+                        "HostName":disk_name
                     }
                 }
     
@@ -608,16 +606,16 @@ class build_sacluster:
                 nfs_res = post(self.url_list[zone] + self.sub_url[6], self.auth_res, param)
                 check,msg = self.res_check(nfs_res, "post")
                 if check == True:
-                    self.all_id_dict["clusterparams"]["nfs"][zone]["id"] = int(nfs_res["Appliance"]["ID"])
-                    self.all_id_dict["clusterparams"]["nfs"][zone]["state"] = "up"
+                    self.all_id_dict["clusterparams"]["nfs"][zone]["id"]        = int(nfs_res["Appliance"]["ID"])
+                    self.all_id_dict["clusterparams"]["nfs"][zone]["state"]     = "up"
                     
                     break
                 else:
                     self.build_error()
         else:
             nfs_res = "API is not used."
-            self.all_id_dict["clusterparams"]["nfs"][zone]["id"] = 0000
-            self.all_id_dict["clusterparams"]["nfs"][zone]["state"] = "down"
+            self.all_id_dict["clusterparams"]["nfs"][zone]["id"]                = 0000
+            self.all_id_dict["clusterparams"]["nfs"][zone]["state"]             = "down"
     
     def create_bridge(self, place):
         self.printout_cluster("creating bridge ……", cls_monitor_level = 2, overwrite = True)
@@ -630,16 +628,16 @@ class build_sacluster:
                 bridge_res = post(self.head_url + self.sub_url[4], self.auth_res, param)
                 check,msg = self.res_check(bridge_res, "post")
                 if check == True:
-                    self.all_id_dict["clusterparams"]["bridge"][place] = {}
-                    self.all_id_dict["clusterparams"]["bridge"][place]["id"] = int(bridge_res["Bridge"]["ID"])
+                    self.all_id_dict["clusterparams"]["bridge"][place]          = {}
+                    self.all_id_dict["clusterparams"]["bridge"][place]["id"]    = int(bridge_res["Bridge"]["ID"])
                     break
                 else:
                     self.build_error()
                 
         else:
             bridge_res = "API is not used."
-            self.all_id_dict["clusterparams"]["bridge"][place] = {}
-            self.all_id_dict["clusterparams"]["bridge"][place]["id"] = 0000
+            self.all_id_dict["clusterparams"]["bridge"][place]                  = {}
+            self.all_id_dict["clusterparams"]["bridge"][place]["id"]            = 0000
     
         
         
@@ -835,17 +833,16 @@ class build_sacluster:
         result_all = []
             
         cls_info = {}
-        cls_info["config name"] = str(self.configuration_info["config name"])
-        cls_info["cluster ID"] = self.cluster_id
-        cls_info["head node ID"] = str(self.all_id_dict["clusterparams"]["server"][self.head_zone]["head"]["node"]["id"])
-        cls_info["number of compute node"] = str(sum([len(self.all_id_dict["clusterparams"]["server"][zone]["compute"]) for zone in self.zone_list]))
-        cls_info["Date modified"] = datetime.datetime.now().strftime("%Y/%m/%d")
-        
-        self.all_id_dict["baseparams"]["config name"] = cls_info["config name"]
-        self.all_id_dict["baseparams"]["compute_number"] = int(cls_info["number of compute node"])
-        self.all_id_dict["baseparams"]["state"] = "All down"
-        self.all_id_dict["baseparams"]["modified_date"] = cls_info["Date modified"]
-        self.all_id_dict["baseparams"]["global_ipaddress"] = self.global_ip_addr
+        cls_info["config name"]                 = str(self.configuration_info["config name"])
+        cls_info["cluster ID"]                  = self.cluster_id
+        cls_info["head node ID"]                = str(self.all_id_dict["clusterparams"]["server"][self.head_zone]["head"]["node"]["id"])
+        cls_info["number of compute node"]      = str(sum([len(self.all_id_dict["clusterparams"]["server"][zone]["compute"]) for zone in self.zone_list]))
+        cls_info["Date modified"]               = datetime.datetime.now().strftime("%Y/%m/%d")
+        self.all_id_dict["baseparams"]["config name"]           = cls_info["config name"]
+        self.all_id_dict["baseparams"]["compute_number"]        = int(cls_info["number of compute node"])
+        self.all_id_dict["baseparams"]["state"]                 = "All down"
+        self.all_id_dict["baseparams"]["modified_date"]         = cls_info["Date modified"]
+        self.all_id_dict["baseparams"]["global_ipaddress"]      = self.global_ip_addr
         
         
         self.printout_cluster("", cls_monitor_level = 4)
@@ -887,9 +884,9 @@ class build_sacluster:
     
     #id格納のためのdictの初期化(各ゾーン)
     def initialize_id_params(self, zone):
-        self.all_id_dict["clusterparams"]["server"][zone] = {}
-        self.all_id_dict["clusterparams"]["switch"][zone] = {}
-        self.all_id_dict["clusterparams"]["nfs"][zone] = {}
+        self.all_id_dict["clusterparams"]["server"][zone]   = {}
+        self.all_id_dict["clusterparams"]["switch"][zone]   = {}
+        self.all_id_dict["clusterparams"]["nfs"][zone]      = {}
         
     def delete_id_params(self, zone):
         if(self.all_id_dict["clusterparams"]["nfs"][zone] == {}):
