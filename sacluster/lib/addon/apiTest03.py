@@ -66,11 +66,15 @@ def main(argv):
     node_dict = params.get_node_info()
     disk_dict = params.get_disk_info()
 
+    print('##################################')
+    print('######## ゾーン情報の表示 ########')
     for zone, url in params.url_list.items():
         node_list = node_dict[zone]
+        disk_list = list(disk_dict[zone].keys())
         if(len(node_list) != 0):
             for i in range(len(node_list)):
                 desp = node_list[i]["Description"]
+                print('nodeID : ' + node_list[i]["ID"] + ' ---> diskID : ' + node_list[i]['Disks'][0]['ID'] + ' /// nodeName : ' + node_list[i]['Name'])
                 #インターフェース数:2、Tagにcluster IDとData modifiedを含む
                 if(len(node_list[i]["Interfaces"]) == 2):
                     if(node_list[i]["Interfaces"][0]["IPAddress"] != None or node_list[i]["Interfaces"][0]["IPAddress"] != None):
@@ -84,6 +88,7 @@ def main(argv):
                                 cluster_id = params.get_cluster_id(info)
                                 if(len(cluster_id) == 6):
                                     print(str(cluster_id) + ' in ' + zone + ' zone')
+
         else:
             pass
 
@@ -141,7 +146,6 @@ def main(argv):
     get_cluster_tag_info        = get(url_list[zone] + sub_url[5], auth_res)
     get_cluster_appliance_info  = get(url_list[zone] + sub_url[6], auth_res)
     get_cluster_power_info      = get(url_list[zone] + sub_url[7], auth_res)
-    print('ディスクの書き換えによりIPアドレスを割り振り')
 
 
     # # スイッチの作成
