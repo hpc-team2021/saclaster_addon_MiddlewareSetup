@@ -30,7 +30,7 @@ def assignIpAddress (cls_bil):
             compute_node_name = "computenode"+str(i + 1)
         
         print ("Setting IP Address to disk for " + compute_node_name)
-        diskId = cls_bil.all_id_dict["clusterparams"]["server"]["tk1b"]["compute"][i]["disk"][0]["id"]
+        diskId = cls_bil.all_id_dict["clusterparams"]["server"][cls_bil.head_zone]["compute"][i]["disk"][0]["id"]
         waitDisk (cls_bil, diskId)
         updataDisk (cls_bil, i, diskId)
     return 0
@@ -41,8 +41,9 @@ def waitDisk (cls_bil, diskId):
     diskState = 'uploading'
     index = 0
     flag = 0
+    zone = cls_bil.head_zone
     # ディスク状態が利用可能になるまで待ち続けるコード
-    get_cluster_disk_info = get(cls_bil.url_list["tk1b"] + cls_bil.sub_url[1], cls_bil.auth_res)
+    get_cluster_disk_info = get(cls_bil.url_list[zone] + cls_bil.sub_url[1], cls_bil.auth_res)
     for i in range(len(get_cluster_disk_info['Disks'])):
             str_i = str(i)
             k = get_cluster_disk_info['Disks'][i]
@@ -59,7 +60,7 @@ def waitDisk (cls_bil, diskId):
         print ('Setting IP address is failed')
         sys.exit ()
     while True:
-        get_cluster_disk_info = get(cls_bil.url_list["tk1b"] + cls_bil.sub_url[1], cls_bil.auth_res)
+        get_cluster_disk_info = get(cls_bil.url_list[zone] + cls_bil.sub_url[1], cls_bil.auth_res)
         diskState = get_cluster_disk_info['Disks'][index]['Availability']
         if diskState == 'available':
             print("it's OK! Available!")
@@ -79,7 +80,7 @@ def updataDisk (cls_bil, ipAddressSequense, diskId):
       }
     }
 
-    zone = "tk1b"
+    zone = cls_bil.head_zone
     putUrl = cls_bil.url_list[zone] + cls_bil.sub_url[1] + '/' + str (diskId) + '/config'
     disk_res = put (putUrl, cls_bil.auth_res, param)
     check, msg = cls_bil.res_check (disk_res, "put")
