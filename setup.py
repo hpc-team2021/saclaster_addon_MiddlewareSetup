@@ -32,7 +32,7 @@ if __name__ == "__main__":
         #include_package_data=True,
         install_requires = _requires_from_file('requirements.txt'),
         #packages = setuptools.find_packages(),
-        packages = ["sacluster", "sacluster.lib", "sacluster.lib.command", "sacluster.lib.auth", "sacluster.lib.cls", "sacluster.lib.cls.construction", "sacluster.lib.cls.delete", "sacluster.lib.cls.modify", "sacluster.lib.cls.start", "sacluster.lib.cls.stop", "sacluster.lib.cls.config", "sacluster.lib.cls.ps", "sacluster.lib.def_conf", "sacluster.lib.notif", "sacluster.lib.others","sacluster.lib.addon"],
+        packages = ["sacluster", "sacluster.lib", "sacluster.lib.command", "sacluster.lib.auth", "sacluster.lib.cls", "sacluster.lib.cls.construction", "sacluster.lib.cls.delete", "sacluster.lib.cls.modify", "sacluster.lib.cls.start", "sacluster.lib.cls.stop", "sacluster.lib.cls.config", "sacluster.lib.cls.ps", "sacluster.lib.def_conf", "sacluster.lib.notif", "sacluster.lib.others","sacluster.lib.addon","sacluster.lib.addon.setupIp"],
         #packages=find_packages(where = "lib"),
         #package_dir={"": "sacluster", "sacluster": "log"},
         package_data = {
