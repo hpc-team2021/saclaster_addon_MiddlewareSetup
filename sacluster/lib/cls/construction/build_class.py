@@ -296,7 +296,6 @@ class build_sacluster:
         logger.debug("start building compute nodes in " + zone)
         self.all_id_dict["clusterparams"]["server"][zone]["compute"] = {}
         n = self.configuration_info["the number of compute node in " + zone]
-            
         
         with futures.ThreadPoolExecutor(max_workers = self.max_workers, thread_name_prefix="thread") as executor:
         
@@ -515,12 +514,13 @@ class build_sacluster:
                         "Availability": "available",
                         "ID":os_type
                     },
-                    "Tags":[self.cluster_id]},
-                    "Config":{
-                        "Password":self.configuration_info["password"],
-                        "HostName":disk_name
-                    }
-                }
+                    "Tags":[self.cluster_id]
+                    },
+            "Config":{
+                "Password":self.configuration_info["password"],
+                "HostName":disk_name,
+            }
+        }
     
         if (self.api_index == True):
             while(True):
