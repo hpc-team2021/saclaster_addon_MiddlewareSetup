@@ -96,7 +96,7 @@ class get_params:
                 pass
                 #print("Count zero")
                 
-        self.check_parameters()
+        # self.check_parameters()
             
             
     def get_node_info(self):
