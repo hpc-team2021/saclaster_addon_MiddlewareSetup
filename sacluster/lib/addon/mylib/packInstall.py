@@ -1,21 +1,24 @@
-#import subprocess
-#subprocess.run(["ls"])
 
+import sys
+import time
+import logging
+import tqdm
+import numpy as np
 import os
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 common_path = os.path.abspath("../../..")
 
-#import sys
-#sys.path.append(common_path + "/lib/auth")
-#from auth_func_pro import authentication_cli
+sys.path.append(common_path + "/lib/others")
+from API_method import get, post, put, delete
+sys.path.append(common_path + "/lib/auth")
+from auth_func_pro import authentication_cli
 
-#sys.path.append (common_path + "/lib/others")
-#from API_method import get, post, put, delete
-#from info_print import printout
-
+#並列処理を行う
+import asyncio
 import paramiko 
 
 def packInstall():
+    #ヘッドノード
     IP_ADDRESS = '133.242.50.16'
     PORT = 22
     USER = 'root'
@@ -29,8 +32,13 @@ def packInstall():
     #接続
     client.connect(IP_ADDRESS, PORT, USER, PASSWORD)
 
-    #cmdの実行ここでインストール?
-    stdin, stdout, stderr = client.exec_command('yum list')
+    #cmdの実行ここでインストール
+    stdin, stdout, stderr = client.exec_command('yum -y install nfs-utils')
+    #次の処理まで待機(一秒待つ)
+    #time.sleep(5)
+    #stdin, stdout, stderr = client.exec_command('yum -y remove nfs-utils')
+    #time.sleep(5)
+    #stdin, stdout, stderr = client.exec_command('yum list')
 
     print(stdout)
 
@@ -47,5 +55,11 @@ def packInstall():
     del client, stdin, stdout, stderr
 
 if __name__ == '__main__':
-    IP_ADDRESS = '153.125.129.109'
     packInstall ()
+
+#プログレスバー
+import time
+from tqdm import tqdm
+ 
+for i in tqdm(range(100)):
+    time.sleep(0.01)
