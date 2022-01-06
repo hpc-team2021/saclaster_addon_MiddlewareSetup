@@ -27,11 +27,11 @@ from info_print import printout
 
 class get_params:
     def __init__(self, ext_info, auth_res , info_list = [1,0,0,0], f = "", api_index = True):
-        self.auth_res = auth_res
-        self.info_list = info_list
-        self.api_index = api_index
-        self.ext_info = ext_info
-        self.f = f
+        self.auth_res   = auth_res
+        self.info_list  = info_list
+        self.api_index  = api_index
+        self.ext_info   = ext_info
+        self.f          = f
         
         #set url
         self.url_list = {}
@@ -96,7 +96,7 @@ class get_params:
                 pass
                 #print("Count zero")
                 
-        self.check_parameters()
+        # self.check_parameters()
             
             
     def get_node_info(self):
@@ -182,13 +182,13 @@ class get_params:
     
     def initialize_params(self, cluster_id):
         logger.debug('Initializing a dict object (' + cluster_id + ")")
-        self.cluster_info_all[cluster_id] = {}
-        self.cluster_info_all[cluster_id]["baseparams"] = {}
-        self.cluster_info_all[cluster_id]["clusterparams"] = {}
-        self.cluster_info_all[cluster_id]["clusterparams"]["server"] = {}
-        self.cluster_info_all[cluster_id]["clusterparams"]["switch"] = {}
-        self.cluster_info_all[cluster_id]["clusterparams"]["bridge"] = {}
-        self.cluster_info_all[cluster_id]["clusterparams"]["nfs"] = {}
+        self.cluster_info_all[cluster_id]                               = {}
+        self.cluster_info_all[cluster_id]["baseparams"]                 = {}
+        self.cluster_info_all[cluster_id]["clusterparams"]              = {}
+        self.cluster_info_all[cluster_id]["clusterparams"]["server"]    = {}
+        self.cluster_info_all[cluster_id]["clusterparams"]["switch"]    = {}
+        self.cluster_info_all[cluster_id]["clusterparams"]["bridge"]    = {}
+        self.cluster_info_all[cluster_id]["clusterparams"]["nfs"]       = {}
     
     def set_base_params(self, cluster_id, info):
         logger.debug("Setting baseparams.config_name (" + cluster_id + ")")
@@ -198,7 +198,7 @@ class get_params:
         #self.cluster_info_all[cluster_id]["baseparams"]["number_of_compute_node"] = int(info["number of compute node"])
         
     def set_switch_info(self, node_info, cluster_id, zone):
-        self.cluster_info_all[cluster_id]["clusterparams"]["switch"][zone] = {}
+        self.cluster_info_all[cluster_id]["clusterparams"]["switch"][zone]          = {}
         self.cluster_info_all[cluster_id]["clusterparams"]["switch"][zone]["front"] = {}
         
         if(node_info["Interfaces"][0]["IPAddress"] != None):
@@ -213,38 +213,38 @@ class get_params:
             self.cluster_info_all[cluster_id]["clusterparams"]["switch"][zone]["front"]["id"] = int(node_info["Interfaces"][0]["Switch"]["ID"])
         
     def set_head_node_info(self, node_info, cluster_id, head_zone, disk_dict):
-        self.cluster_info_all[cluster_id]["clusterparams"]["server"][head_zone] = {}
-        self.cluster_info_all[cluster_id]["clusterparams"]["server"][head_zone]["head"] = {}
-        self.cluster_info_all[cluster_id]["clusterparams"]["server"][head_zone]["head"]["node"] = {}
+        self.cluster_info_all[cluster_id]["clusterparams"]["server"][head_zone]                             = {}
+        self.cluster_info_all[cluster_id]["clusterparams"]["server"][head_zone]["head"]                     = {}
+        self.cluster_info_all[cluster_id]["clusterparams"]["server"][head_zone]["head"]["node"]             = {}
         logger.debug("Setting clusterparams.server.{head zone}.head.node.id (" + cluster_id + ")")
-        self.cluster_info_all[cluster_id]["clusterparams"]["server"][head_zone]["head"]["node"]["id"] = int(node_info["ID"])
+        self.cluster_info_all[cluster_id]["clusterparams"]["server"][head_zone]["head"]["node"]["id"]       = int(node_info["ID"])
         logger.debug("Setting clusterparams.server.{head zone}.head.node.core (" + cluster_id + ")")
-        self.cluster_info_all[cluster_id]["clusterparams"]["server"][head_zone]["head"]["node"]["core"] = int(node_info["ServerPlan"]["CPU"])
+        self.cluster_info_all[cluster_id]["clusterparams"]["server"][head_zone]["head"]["node"]["core"]     = int(node_info["ServerPlan"]["CPU"])
         logger.debug("Setting clusterparams.server.{head zone}.head.node.memory (" + cluster_id + ")")
-        self.cluster_info_all[cluster_id]["clusterparams"]["server"][head_zone]["head"]["node"]["memory"] = int(node_info["ServerPlan"]["MemoryMB"])
+        self.cluster_info_all[cluster_id]["clusterparams"]["server"][head_zone]["head"]["node"]["memory"]   = int(node_info["ServerPlan"]["MemoryMB"])
         logger.debug("Setting clusterparams.server.{head zone}.head.node.state (" + cluster_id + ")")
-        self.cluster_info_all[cluster_id]["clusterparams"]["server"][head_zone]["head"]["node"]["state"] = node_info["Instance"]["Status"]
-        self.cluster_info_all[cluster_id]["clusterparams"]["server"][head_zone]["head"]["nic"] = {}
+        self.cluster_info_all[cluster_id]["clusterparams"]["server"][head_zone]["head"]["node"]["state"]    = node_info["Instance"]["Status"]
+        self.cluster_info_all[cluster_id]["clusterparams"]["server"][head_zone]["head"]["nic"]              = {}
         if(node_info["Interfaces"][0]["IPAddress"] == None):
-            self.cluster_info_all[cluster_id]["clusterparams"]["server"][head_zone]["head"]["nic"]["front"] = {}
-            self.cluster_info_all[cluster_id]["clusterparams"]["server"][head_zone]["head"]["nic"]["front"]["id"] = int(node_info["Interfaces"][0]["ID"])
-            self.cluster_info_all[cluster_id]["clusterparams"]["server"][head_zone]["head"]["nic"]["global"] = {}
-            self.cluster_info_all[cluster_id]["clusterparams"]["server"][head_zone]["head"]["nic"]["global"]["id"] = int(node_info["Interfaces"][1]["ID"])
+            self.cluster_info_all[cluster_id]["clusterparams"]["server"][head_zone]["head"]["nic"]["front"]         = {}
+            self.cluster_info_all[cluster_id]["clusterparams"]["server"][head_zone]["head"]["nic"]["front"]["id"]   = int(node_info["Interfaces"][0]["ID"])
+            self.cluster_info_all[cluster_id]["clusterparams"]["server"][head_zone]["head"]["nic"]["global"]        = {}
+            self.cluster_info_all[cluster_id]["clusterparams"]["server"][head_zone]["head"]["nic"]["global"]["id"]  = int(node_info["Interfaces"][1]["ID"])
         else:
-            self.cluster_info_all[cluster_id]["clusterparams"]["server"][head_zone]["head"]["nic"]["front"] = {}
-            self.cluster_info_all[cluster_id]["clusterparams"]["server"][head_zone]["head"]["nic"]["front"]["id"] = int(node_info["Interfaces"][1]["ID"])
-            self.cluster_info_all[cluster_id]["clusterparams"]["server"][head_zone]["head"]["nic"]["global"] = {}
-            self.cluster_info_all[cluster_id]["clusterparams"]["server"][head_zone]["head"]["nic"]["global"]["id"] = int(node_info["Interfaces"][0]["ID"])
+            self.cluster_info_all[cluster_id]["clusterparams"]["server"][head_zone]["head"]["nic"]["front"]         = {}
+            self.cluster_info_all[cluster_id]["clusterparams"]["server"][head_zone]["head"]["nic"]["front"]["id"]   = int(node_info["Interfaces"][1]["ID"])
+            self.cluster_info_all[cluster_id]["clusterparams"]["server"][head_zone]["head"]["nic"]["global"]        = {}
+            self.cluster_info_all[cluster_id]["clusterparams"]["server"][head_zone]["head"]["nic"]["global"]["id"]  = int(node_info["Interfaces"][0]["ID"])
         
         self.cluster_info_all[cluster_id]["clusterparams"]["server"][head_zone]["head"]["disk"] = {}
         if(node_info["Disks"] != []):
             for i in range(len(node_info["Disks"])):
-                self.cluster_info_all[cluster_id]["clusterparams"]["server"][head_zone]["head"]["disk"][i] = {}
+                self.cluster_info_all[cluster_id]["clusterparams"]["server"][head_zone]["head"]["disk"][i]                  = {}
                 logger.debug("Setting clusterparams.server.{head zone}.head.disk." + str(i) + ".id (" + cluster_id + ")")
-                self.cluster_info_all[cluster_id]["clusterparams"]["server"][head_zone]["head"]["disk"][i]["id"] = int(node_info["Disks"][i]["ID"])
-                self.cluster_info_all[cluster_id]["clusterparams"]["server"][head_zone]["head"]["disk"][i]["size"] = int(node_info["Disks"][i]["SizeMB"])
-                self.cluster_info_all[cluster_id]["clusterparams"]["server"][head_zone]["head"]["disk"][i]["connection"] = node_info["Disks"][i]["Connection"]
-                self.cluster_info_all[cluster_id]["clusterparams"]["server"][head_zone]["head"]["disk"][i]["type"] = int(node_info["Disks"][i]["Plan"]["ID"])
+                self.cluster_info_all[cluster_id]["clusterparams"]["server"][head_zone]["head"]["disk"][i]["id"]            = int(node_info["Disks"][i]["ID"])
+                self.cluster_info_all[cluster_id]["clusterparams"]["server"][head_zone]["head"]["disk"][i]["size"]          = int(node_info["Disks"][i]["SizeMB"])
+                self.cluster_info_all[cluster_id]["clusterparams"]["server"][head_zone]["head"]["disk"][i]["connection"]    = node_info["Disks"][i]["Connection"]
+                self.cluster_info_all[cluster_id]["clusterparams"]["server"][head_zone]["head"]["disk"][i]["type"]          = int(node_info["Disks"][i]["Plan"]["ID"])
                 if(disk_dict[head_zone][int(node_info["Disks"][i]["ID"])]["SourceArchive"] != None):
                     if(disk_dict[head_zone][int(node_info["Disks"][i]["ID"])]["SourceArchive"]["Name"] in list(self.ext_info["OS"].keys())):
                         self.cluster_info_all[cluster_id]["clusterparams"]["server"][head_zone]["head"]["disk"][i]["os"] = disk_dict[head_zone][int(node_info["Disks"][i]["ID"])]["SourceArchive"]["Name"]
@@ -263,14 +263,14 @@ class get_params:
         self.cluster_info_all[cluster_id]["clusterparams"]["bridge"] = {}
         if(switch_info["Bridge"] != None):
             logger.debug("Setting clusterparams.bridge.front.id (" + cluster_id + ")")
-            self.cluster_info_all[cluster_id]["clusterparams"]["bridge"]["front"] = {}
-            self.cluster_info_all[cluster_id]["clusterparams"]["bridge"]["front"]["id"] = int(switch_info["Bridge"]["ID"])
+            self.cluster_info_all[cluster_id]["clusterparams"]["bridge"]["front"]           = {}
+            self.cluster_info_all[cluster_id]["clusterparams"]["bridge"]["front"]["id"]     = int(switch_info["Bridge"]["ID"])
             logger.debug("Getting switch informations from bridge information (" + cluster_id + ")")
             switch_list = switch_info["Bridge"]["Info"]["Switches"]
             for sw in switch_list:
                 logger.debug("Setting clusterparams.switch.{zone}.front.id (" + cluster_id + ")")
-                self.cluster_info_all[cluster_id]["clusterparams"]["switch"][sw['Zone']['Name']] = {}
-                self.cluster_info_all[cluster_id]["clusterparams"]["switch"][sw['Zone']['Name']]["front"] = {}
+                self.cluster_info_all[cluster_id]["clusterparams"]["switch"][sw['Zone']['Name']]                = {}
+                self.cluster_info_all[cluster_id]["clusterparams"]["switch"][sw['Zone']['Name']]["front"]       = {}
                 self.cluster_info_all[cluster_id]["clusterparams"]["switch"][sw['Zone']['Name']]["front"]["id"] = int(sw['ID'])
         else:
             logger.debug("Switch in front area does not connect to bridge (" + cluster_id + ")")
@@ -300,16 +300,16 @@ class get_params:
                     logger.debug("The node is regarded as compute node. (" + cluster_id + ")")
                     if(zone not in self.cluster_info_all[cluster_id]["clusterparams"]["server"]):
                         logger.debug("Initializing clusterparams.server.{zone} (" + cluster_id + ")")
-                        self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone] = {}
+                        self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]              = {}
                     if("compute" not in self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]):
                         logger.debug("Initializing clusterparams.server.{zone}.compute (" + cluster_id + ")")
-                        self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"] = {}
+                        self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"]   = {}
                         
-                    self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count] = {}
-                    self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["node"] = {}
-                    self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["disk"] = {}
+                    self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]                = {}
+                    self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["node"]        = {}
+                    self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["disk"]        = {}
                     logger.debug("Setting clusterparams.server.{zone}.compute.{number}.node.id (" + cluster_id + ")")
-                    self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["node"]["id"] = int(node["ID"])
+                    self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["node"]["id"]  = int(node["ID"])
                     
                     if("compute_node_" in node["Name"]):
                         if(node["Name"].replace("compute_node_", "").isdecimal() == True and len(node["Name"].replace("compute_node_", "")) == 3):
@@ -331,29 +331,29 @@ class get_params:
                         self.delete_ids.append(cluster_id)
                     
                     logger.debug("Setting clusterparams.server.{zone}.compute.{number}.node.core (" + cluster_id + ")")
-                    self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["node"]["name"] = node["Name"]
+                    self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["node"]["name"]    = node["Name"]
                     logger.debug("Setting clusterparams.server.{zone}.compute.{number}.node.name (" + cluster_id + ")")
-                    self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["node"]["core"] = int(node["ServerPlan"]["CPU"])
+                    self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["node"]["core"]    = int(node["ServerPlan"]["CPU"])
                     logger.debug("Setting clusterparams.server.{zone}.compute.{number}.node.memory (" + cluster_id + ")")
-                    self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["node"]["memory"] = int(node["ServerPlan"]["MemoryMB"])
-                    self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["nic"] = {}
+                    self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["node"]["memory"]  = int(node["ServerPlan"]["MemoryMB"])
+                    self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["nic"]             = {}
                     
                     index_all_list.append(interface_num)
                     if(interface_num == 1):
-                        self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["nic"]["front"] = {}
-                        self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["nic"]["front"]["id"] = int(node["Interfaces"][0]["ID"])
-                        self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["nic"]["back"] = None
-                        self.cluster_info_all[cluster_id]["clusterparams"]["switch"][zone]["back"] = None
-                        self.cluster_info_all[cluster_id]["clusterparams"]["bridge"]["back"] = None
+                        self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["nic"]["front"]        = {}
+                        self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["nic"]["front"]["id"]  = int(node["Interfaces"][0]["ID"])
+                        self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["nic"]["back"]         = None
+                        self.cluster_info_all[cluster_id]["clusterparams"]["switch"][zone]["back"]                                  = None
+                        self.cluster_info_all[cluster_id]["clusterparams"]["bridge"]["back"]                                        = None
                     elif(interface_num == 2): 
                         #if("back" not in self.cluster_info_all[cluster_id]["clusterparams"]["switch"][zone]):
                             #self.cluster_info_all[cluster_id]["clusterparams"]["switch"][zone]["back"] = {}
                             
                         if(int(node["Interfaces"][0]["Switch"]["ID"]) == switch_info["front"]["id"]):
                             if("back" not in self.cluster_info_all[cluster_id]["clusterparams"]["switch"][zone] or self.cluster_info_all[cluster_id]["clusterparams"]["switch"][zone]["back"] == None):
-                                self.cluster_info_all[cluster_id]["clusterparams"]["switch"][zone]["back"] = {}
+                                self.cluster_info_all[cluster_id]["clusterparams"]["switch"][zone]["back"]          = {}
                                 logger.debug("Setting clusterparams.switch.{zone}.back.id (" + cluster_id + ")")
-                                self.cluster_info_all[cluster_id]["clusterparams"]["switch"][zone]["back"]["id"] = int(node["Interfaces"][1]["Switch"]["ID"])
+                                self.cluster_info_all[cluster_id]["clusterparams"]["switch"][zone]["back"]["id"]    = int(node["Interfaces"][1]["Switch"]["ID"])
                             else:
                                 if(int(node["Interfaces"][1]["Switch"]["ID"]) != self.cluster_info_all[cluster_id]["clusterparams"]["switch"][zone]["back"]["id"]):
                                     logger.info("The cluster with cluster id of " + cluster_id + " cannot be operated by sacluster. The network structure is wrong (switch).")
@@ -363,8 +363,8 @@ class get_params:
                                 back_switch_info = self.get_switch_info(zone, self.cluster_info_all[cluster_id]["clusterparams"]["switch"][zone]["back"]["id"])
                                 if("back" not in self.cluster_info_all[cluster_id]["clusterparams"]["bridge"] or self.cluster_info_all[cluster_id]["clusterparams"]["bridge"]["back"] == None):
                                     logger.debug("Setting clusterparams.bridge.back.id (" + cluster_id + ")")
-                                    self.cluster_info_all[cluster_id]["clusterparams"]["bridge"]["back"] = {}
-                                    self.cluster_info_all[cluster_id]["clusterparams"]["bridge"]["back"]["id"] = int(back_switch_info["Bridge"]["ID"])
+                                    self.cluster_info_all[cluster_id]["clusterparams"]["bridge"]["back"]        = {}
+                                    self.cluster_info_all[cluster_id]["clusterparams"]["bridge"]["back"]["id"]  = int(back_switch_info["Bridge"]["ID"])
                                 else:
                                     if(self.cluster_info_all[cluster_id]["clusterparams"]["bridge"]["back"]["id"] != int(back_switch_info["Bridge"]["ID"])):
                                         logger.info("The cluster with cluster id of " + cluster_id + " cannot be operated by sacluster. The network structure is wrong (bridge).")
@@ -386,40 +386,40 @@ class get_params:
                                 back_switch_info = self.get_switch_info(zone, self.cluster_info_all[cluster_id]["clusterparams"]["switch"][zone]["back"]["id"])
                                 if("back" not in self.cluster_info_all[cluster_id]["clusterparams"]["bridge"] or self.cluster_info_all[cluster_id]["clusterparams"]["bridge"]["back"] == None):                            
                                     logger.debug("Setting clusterparams.bridge.back.id (" + cluster_id + ")")
-                                    self.cluster_info_all[cluster_id]["clusterparams"]["bridge"]["back"] = {}
-                                    self.cluster_info_all[cluster_id]["clusterparams"]["bridge"]["back"]["id"] = int(back_switch_info["Bridge"]["ID"])
+                                    self.cluster_info_all[cluster_id]["clusterparams"]["bridge"]["back"]        = {}
+                                    self.cluster_info_all[cluster_id]["clusterparams"]["bridge"]["back"]["id"]  = int(back_switch_info["Bridge"]["ID"])
                                 else:
                                     if(self.cluster_info_all[cluster_id]["clusterparams"]["bridge"]["back"]["id"] != int(back_switch_info["Bridge"]["ID"])):
                                         logger.info("The cluster with cluster id of " + cluster_id + " cannot be operated by sacluster. The network structure is wrong (bridge).")
                                         self.delete_ids.append(cluster_id)
                             else:
-                                self.cluster_info_all[cluster_id]["clusterparams"]["bridge"]["back"] = None
+                                self.cluster_info_all[cluster_id]["clusterparams"]["bridge"]["back"]            = None
                             
                         if(int(node["Interfaces"][0]["Switch"]["ID"]) == switch_info["front"]["id"]):
-                            self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["nic"]["front"] = {}
-                            self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["nic"]["front"]["id"] = int(node["Interfaces"][0]["ID"])
-                            self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["nic"]["back"] = {}
-                            self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["nic"]["back"]["id"] = int(node["Interfaces"][1]["ID"])
+                            self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["nic"]["front"]        = {}
+                            self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["nic"]["front"]["id"]  = int(node["Interfaces"][0]["ID"])
+                            self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["nic"]["back"]         = {}
+                            self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["nic"]["back"]["id"]   = int(node["Interfaces"][1]["ID"])
                         else:
-                            self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["nic"]["front"] = {}
-                            self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["nic"]["front"]["id"] = int(node["Interfaces"][1]["ID"])
-                            self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["nic"]["back"] = {}
-                            self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["nic"]["back"]["id"] = int(node["Interfaces"][0]["ID"])
+                            self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["nic"]["front"]        = {}
+                            self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["nic"]["front"]["id"]  = int(node["Interfaces"][1]["ID"])
+                            self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["nic"]["back"]         = {}
+                            self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["nic"]["back"]["id"]   = int(node["Interfaces"][0]["ID"])
                     else:
                         logger.info("The cluster with cluster id of " + cluster_id + " cannot be operated by sacluster. Some nodes have interfaces > 2")
                         self.delete_ids.append(cluster_id)
                     
                     if(node["Disks"] != []):
                         for i in range(len(node["Disks"])):
-                            self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["disk"][i] = {}
+                            self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["disk"][i]                 = {}
                             logger.debug("Setting clusterparams.server.{zone}.compute.{number_1}.disk.{number_2}.id (" + cluster_id + ")")
-                            self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["disk"][i]["id"] = int(node["Disks"][i]["ID"])
-                            self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["disk"][i]["size"] = int(node["Disks"][i]["SizeMB"])
-                            self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["disk"][i]["connection"] = node["Disks"][i]["Connection"]
-                            self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["disk"][i]["type"] = int(node["Disks"][i]["Plan"]["ID"])
+                            self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["disk"][i]["id"]           = int(node["Disks"][i]["ID"])
+                            self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["disk"][i]["size"]         = int(node["Disks"][i]["SizeMB"])
+                            self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["disk"][i]["connection"]   = node["Disks"][i]["Connection"]
+                            self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["disk"][i]["type"]         = int(node["Disks"][i]["Plan"]["ID"])
                             if(disk_dict[zone][int(node["Disks"][i]["ID"])]["SourceArchive"] != None):
                                 if(disk_dict[zone][int(node["Disks"][i]["ID"])]["SourceArchive"]["Name"] in list(self.ext_info["OS"].keys())):
-                                    self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["disk"][i]["os"] = disk_dict[zone][int(node["Disks"][i]["ID"])]["SourceArchive"]["Name"]
+                                    self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][count]["disk"][i]["os"]   = disk_dict[zone][int(node["Disks"][i]["ID"])]["SourceArchive"]["Name"]
                                 else:
                                     logger.info("The cluster with cluster id of " + cluster_id + " cannot be operated by sacluster. OS does not support in sacluster. (" + cluster_id + ")")
                                     self.delete_ids.append(cluster_id)
@@ -439,9 +439,9 @@ class get_params:
                     all_com_count += 1
          
             if(len(node_name_number) != 0 and len(node_name_number) == len(self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"])):
-                new_index_list = np.argsort(node_name_number)
-                new_compute_info = {}
-                count_name = 0
+                new_index_list      = np.argsort(node_name_number)
+                new_compute_info    = {}
+                count_name          = 0
                 for i in new_index_list:
                     new_compute_info[count_name] = self.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["compute"][i]
                     count_name += 1
@@ -500,24 +500,24 @@ class get_params:
             #self.cluster_info_all[cluster_id]["clusterparams"]["nfs"] = None
             
     def generate_sample_params(self):
-        self.cluster_info_all["000000"] = {}
-        self.cluster_info_all["000000"]["baseparams"] = {}
-        self.cluster_info_all["000000"]["baseparams"]['compute_number'] = 2
-        self.cluster_info_all["000000"]["baseparams"]['config_name'] = "dryrun_mode"
-        self.cluster_info_all["000000"]["baseparams"]['global_ipaddress'] = "000.000.000.000"
-        self.cluster_info_all["000000"]["baseparams"]['modified_date'] = str(datetime.datetime.now().strftime("%Y_%m_%d"))
-        self.cluster_info_all["000000"]["baseparams"]['state'] = 'All down'
-        self.cluster_info_all["000000"]["clusterparams"] = {}
-        self.cluster_info_all["000000"]["clusterparams"]['bridge'] = {'back': {'id': 000000000000}, 'front': {'id': 000000000000}}
-        self.cluster_info_all["000000"]["clusterparams"]['nfs'] = {'is1b': {'id': '000000000000', 'state': 'down'}, 'is1a': {'id': '000000000000', 'state': 'down'}}
-        self.cluster_info_all["000000"]["clusterparams"]['server'] = {}
-        self.cluster_info_all["000000"]["clusterparams"]['server']['is1b'] = {}
-        self.cluster_info_all["000000"]["clusterparams"]['server']['is1a'] = {}
-        self.cluster_info_all["000000"]["clusterparams"]['server']['is1b']['compute'] = {0: {'disk': {0:{'connection': 'virtio', 'id': 000000000000, 'os': 'Ubuntu Server 18.04.5 LTS 64bit', 'size': 20480, 'type': 4}}, 'nic':{'back': {'id': 000000000000}, 'front': {'id': 000000000000}}, 'node': {'core': 1, 'id': 000000000000, 'memory': 1024, 'name': 'compute_node_001', 'state': 'down'}}}
-        self.cluster_info_all["000000"]["clusterparams"]['server']['is1a']['compute'] = {0: {'disk': {0:{'connection': 'virtio', 'id': 000000000000, 'os': 'Ubuntu Server 18.04.5 LTS 64bit', 'size': 20480, 'type': 4}}, 'nic':{'back': {'id': 000000000000}, 'front': {'id': 000000000000}}, 'node': {'core': 1, 'id': 000000000000, 'memory': 1024, 'name': 'compute_node_001', 'state': 'down'}}}
-        self.cluster_info_all["000000"]["clusterparams"]['server']['is1a']['head'] = {'disk': {0:{'connection': 'virtio', 'id': 000000000000, 'os': 'Ubuntu Server 18.04.5 LTS 64bit', 'size': 20480, 'type': 4}}, 'nic':{'back': {'id': 000000000000}, 'front': {'id': 000000000000}}, 'node': {'core': 1, 'id': 000000000000, 'memory': 1024, 'name': 'compute_node_001', 'state': 'down'}}
-        self.cluster_info_all["000000"]["clusterparams"]['switch'] = {}
-        self.cluster_info_all["000000"]["clusterparams"]['switch'] = {'is1a': {'front': {'id': 000000000000},'back': {'id': 000000000000}}, 'is1b': {'front': {'id': 000000000000},'back': {'id': 000000000000}}}
+        self.cluster_info_all["000000"]                                     = {}
+        self.cluster_info_all["000000"]["baseparams"]                       = {}
+        self.cluster_info_all["000000"]["baseparams"]['compute_number']     = 2
+        self.cluster_info_all["000000"]["baseparams"]['config_name']        = "dryrun_mode"
+        self.cluster_info_all["000000"]["baseparams"]['global_ipaddress']   = "000.000.000.000"
+        self.cluster_info_all["000000"]["baseparams"]['modified_date']      = str(datetime.datetime.now().strftime("%Y_%m_%d"))
+        self.cluster_info_all["000000"]["baseparams"]['state']              = 'All down'
+        self.cluster_info_all["000000"]["clusterparams"]                                = {}
+        self.cluster_info_all["000000"]["clusterparams"]['bridge']                      = {'back': {'id': 000000000000}, 'front': {'id': 000000000000}}
+        self.cluster_info_all["000000"]["clusterparams"]['nfs']                         = {'is1b': {'id': '000000000000', 'state': 'down'}, 'is1a': {'id': '000000000000', 'state': 'down'}}
+        self.cluster_info_all["000000"]["clusterparams"]['server']                      = {}
+        self.cluster_info_all["000000"]["clusterparams"]['server']['is1b']              = {}
+        self.cluster_info_all["000000"]["clusterparams"]['server']['is1a']              = {}
+        self.cluster_info_all["000000"]["clusterparams"]['server']['is1b']['compute']   = {0: {'disk': {0:{'connection': 'virtio', 'id': 000000000000, 'os': 'Ubuntu Server 18.04.5 LTS 64bit', 'size': 20480, 'type': 4}}, 'nic':{'back': {'id': 000000000000}, 'front': {'id': 000000000000}}, 'node': {'core': 1, 'id': 000000000000, 'memory': 1024, 'name': 'compute_node_001', 'state': 'down'}}}
+        self.cluster_info_all["000000"]["clusterparams"]['server']['is1a']['compute']   = {0: {'disk': {0:{'connection': 'virtio', 'id': 000000000000, 'os': 'Ubuntu Server 18.04.5 LTS 64bit', 'size': 20480, 'type': 4}}, 'nic':{'back': {'id': 000000000000}, 'front': {'id': 000000000000}}, 'node': {'core': 1, 'id': 000000000000, 'memory': 1024, 'name': 'compute_node_001', 'state': 'down'}}}
+        self.cluster_info_all["000000"]["clusterparams"]['server']['is1a']['head']      = {'disk': {0:{'connection': 'virtio', 'id': 000000000000, 'os': 'Ubuntu Server 18.04.5 LTS 64bit', 'size': 20480, 'type': 4}}, 'nic':{'back': {'id': 000000000000}, 'front': {'id': 000000000000}}, 'node': {'core': 1, 'id': 000000000000, 'memory': 1024, 'name': 'compute_node_001', 'state': 'down'}}
+        self.cluster_info_all["000000"]["clusterparams"]['switch']                      = {}
+        self.cluster_info_all["000000"]["clusterparams"]['switch']                      = {'is1a': {'front': {'id': 000000000000},'back': {'id': 000000000000}}, 'is1b': {'front': {'id': 000000000000},'back': {'id': 000000000000}}}
         
             
     def check_parameters(self):
@@ -529,10 +529,10 @@ class get_params:
     def show_cluster_info(self):
         #if(self.api_index == True and len(self.cluster_info_all) != 0):
         if(len(self.cluster_info_all) != 0):
-            col = ["id"]
-            index = []
-            df = []
-            count = 1
+            col                 = ["id"]
+            index               = []
+            df                  = []
+            count               = 1
             config_name_max_len = 0
             for key, val in self.cluster_info_all.items():
                 index.append(count)
@@ -601,43 +601,3 @@ class get_params:
                     index = False
                 
         return index, obj
-            
-            
-        
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
