@@ -18,9 +18,6 @@ sys.path.append(common_path + "/lib/others")
 from API_method import get, post, put, delete
 from info_print import printout
 
-sys.path.append(common_path + "/lib/addon/setupIP")
-from assignIp import assignIpAddress
-
 sys.path.append(common_path + "/lib/addon/mylib")
 from editHost import editHost
 

@@ -2,7 +2,6 @@
 import os
 from re import A
 
-from sacluster.lib.addon.setupIP.setupIpEth0 import setupIpEth0
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 common_path = os.path.abspath("../..")
 
