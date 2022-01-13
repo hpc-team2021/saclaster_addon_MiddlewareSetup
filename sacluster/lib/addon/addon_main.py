@@ -21,12 +21,17 @@ from info_print import printout
 sys.path.append(common_path + "/lib/addon/setupIP")
 from assignIp import assignIpAddress
 
+sys.path.append(common_path + "/lib/addon/mylib")
+from editHost import editHost
+
+
 def addon_main():
     print("アドオンの関数")
-
-def setIp (cls_bil):
-    print ("Set Private IP Address")
-    assignIpAddress (cls_bil)
+    editHost()
+    swhichFWZone()
+    portOpen()
+    proxySetup()
+    monitorSetup()
 
 def addon_start():
     print("ミドルウェアの起動")

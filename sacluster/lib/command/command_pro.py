@@ -1,6 +1,8 @@
 
 import os
 from re import A
+
+from sacluster.lib.addon.setupIP.setupIpEth0 import setupIpEth0
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 common_path = os.path.abspath("../..")
 
@@ -31,9 +33,11 @@ sys.path.append(common_path + "/lib/cls/ps")
 from ps_main import ps_main
 
 sys.path.append(common_path + "/lib/addon")
-from addon_main import addon_main
-sys.path.append(common_path + "/lib/addon")
-from addon_main import addon_start, setIp
+from addon_main import addon_main, addon_start
+
+sys.path.append(common_path + "/lib/addon/setupIP")
+from setupIpEth0 import setupIpEth0
+
 
 
 import logging
@@ -100,8 +104,11 @@ def prior_build(args):
         printout("All processes were completed", info_type = 0, info_list = [1,0,0,0], fp = "")
 
     if (args.middle == True):
-        setIp (cls_bil)
-        #start_main(args.dryrun, f, info_list, int(args.thread))
+        setupIpEth0 (cls_bil)
+
+        start_main(args.dryrun, f, info_list, int(args.thread))
+        #eth1のIP設定の関数
+        #ミドルウェアセットアップ
         addon_main()
     
 
