@@ -48,7 +48,6 @@ def packInstall():
     USER2 = 'root'
     PASSWORD2 = 'test01pw'
 
-
     head = (IP_ADDRESS1,PORT1)
     compute = (IP_ADDRESS2, PORT2)
     transport1 = headnode.get_transport()
