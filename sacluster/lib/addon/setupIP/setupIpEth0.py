@@ -73,11 +73,11 @@ def waitDisk (cls_bil, diskId):
     print('ディスクの追加が完了するまで終了')
 
 def updataDisk (cls_bil, ipAddressSequense, diskId):
-    ipAddress = "192.168.1." + str (ipAddressSequense + 1)
+    ipAddress = "192.168.100." + str (ipAddressSequense + 1)
     param = {
         "UserIPAddress": ipAddress,
         "UserSubnet": {
-            "DefaultRoute": '192.168.1.254',
+            "DefaultRoute": '192.168.100.254',
             "NetworkMaskLen": 24
       }
     }
