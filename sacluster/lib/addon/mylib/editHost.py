@@ -1,80 +1,141 @@
-import os
 import sys
 import time
 import logging
-import paramiko
-import string
-import json
+from paramiko import channel
+import tqdm
+import numpy as np
+import os
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+common_path = os.path.abspath("../../..")
 
-from numpy.lib.shape_base import tile
-
-logger = logging.getLogger ("sacluster").getChild (os.path.basename (__file__))
-
-from os.path import expanduser
-home_path = expanduser ("~") + "/sacluster"
-os.makedirs (home_path, exist_ok = True)
-
-common_path = "../.."
-os.chdir (os.path.dirname (os.path.abspath (__file__)))
-
-sys.path.append (common_path + "/lib/others")
+sys.path.append(common_path + "/lib/others")
 from API_method import get, post, put, delete
-import get_params
-import get_cluster_id
-from info_print import printout
-
-sys.path.append (common_path + "/lib/auth")
+sys.path.append(common_path + "/lib/auth")
 from auth_func_pro import authentication_cli
 
-sys.path.append (common_path + "/lib/def_conf")
-from load_external_data import external_data
+#並列処理を行う
+import asyncio
+import paramiko 
 
-# login to node via SSH, run command & write into /etc/hosts 
-def runCMD_PW (IP_ADDRESS, USER_NAME, PASSWORD, PORT, CMD):
-    # Create SSH client
-    ssh = paramiko.SSHClient ()
-    ssh.set_missing_host_key_policy (paramiko.AutoAddPolicy())
-    ssh.connect (IP_ADDRESS, PORT, USER_NAME, PASSWORD)
+def hostsCompute(IpAddress, USER_NAME, Password, PORT, numNode, nodeIndex):
+    #管理ノード
+    IP_ADDRESS1 = IpAddress
+    PORT1 = PORT
+    USER1 = USER_NAME
+    PASSWORD1 = Password
+
+    # Connect to Head Node
+    headnode = paramiko.SSHClient()
+    headnode.set_missing_host_key_policy(paramiko.WarningPolicy())
+    print("hostnode connecting...")
+    headnode.connect(hostname=IP_ADDRESS1, port=PORT1, username=USER1, password=PASSWORD1)
+    print('hostnode connected')
+
+    # Head Node --> Compute Node
+    # Login Info
+    IP_ADDRESS2 = '192.168.1.' + str (nodeIndex)
+    PORT2 = PORT
+    USER2 = USER_NAME
+    PASSWORD2 = Password  
+
+    head = (IP_ADDRESS1,PORT1)
+    compute = (IP_ADDRESS2, PORT2)
+    transport1 = headnode.get_transport()
+    channel1 = transport1.open_channel("direct-tcpip", compute, head)
+    computenode = paramiko.SSHClient()
+    computenode.set_missing_host_key_policy(paramiko.WarningPolicy())
+
+    print("compurenode connecting...")
+    computenode.connect(hostname=IP_ADDRESS2,username=USER2,password=PASSWORD2,sock=channel1)
+    print('computenode connected')
 
     # Execute command & store the result
-    stdin, stdout, stderr = ssh.exec_command (CMD)
+    for j in range(numNode + 1):
+        if j == 0:
+            CMD = 'echo "headnode 192.168.100.254" > /etc/hosts'
+            stdin, stdout, stderr = computenode.exec_command (CMD)
+        else:
+            if j < 10:
+                index = '00' + str (j)
+            elif (j > 10) & (j < 100):
+                index = '0' + str (j)
+            CMD = 'echo "computenode' + str(index) + ' 192.168.100.' + str(j) + '" >> /etc/hosts'
+            stdin, stdout, stderr = computenode.exec_command (CMD)
 
-    # Store standard output
-    cmd_result = ''
-    for line in stdout :
-        cmd_result += line
-    print (cmd_result)
+        # Store standard output
+        cmd_result = ''
+        for line in stdout :
+            cmd_result += line
+        print (cmd_result)
+        
+        # Store error output
+        cmd_err = ''
+        for line in stderr :
+            cmd_err += line
+        if cmd_err == '' :
+            print (end = '') # output nothing. 
+        else :
+            print (cmd_err)
+            sys.exit ()
+
+    # Close Connection
+    computenode.close()
+    headnode.close()
+    del headnode, computenode, stdin, stdout, stderr
     
-    # Store error output
-    cmd_err = ''
-    for line in stderr :
-        cmd_err += line
-    if cmd_err == '' :
-        print (end = '') # output nothing. 
-    else :
-        print (cmd_err)
-        sys.exit ()
+
+# Login to node via SSH, run command & write into /etc/hosts on Headnode
+def hostsHead (IpAddress, USER_NAME, Password, PORT, numNode):
+    # Create SSH client
+    headnode = paramiko.SSHClient ()
+    headnode.set_missing_host_key_policy (paramiko.AutoAddPolicy())
+    headnode.connect (IpAddress, PORT, USER_NAME, Password)
+
+    # Execute command & store the result
+    for i in range(numNode + 1):
+        if i == 0:
+            CMD = 'echo "headnode 192.168.100.254" > /etc/hosts'
+            stdin, stdout, stderr = headnode.exec_command (CMD)
+        else:
+            if i < 10:
+                index = '00' + str (i)
+            elif (i > 10) & (i < 100):
+                index = '0' + str (i)
+            CMD = 'echo "computenode' + str(index) + ' 192.168.100.' + str(i) + '" >> /etc/hosts'
+            stdin, stdout, stderr = headnode.exec_command (CMD)
+
+        # Store standard output
+        cmd_result = ''
+        for line in stdout :
+            cmd_result += line
+        print (cmd_result)
+    
+        # Store error output
+        cmd_err = ''
+        for line in stderr :
+            cmd_err += line
+        if cmd_err == '' :
+            print (end = '') # output nothing. 
+        else :
+            print (cmd_err)
+            sys.exit ()
 
     # close connection
-    ssh.close ()
-    del ssh, stdin, stdout, stderr
+    headnode.close ()
+    del headnode, stdin, stdout, stderr
 
-
-def editHost (IP_ADDRESS, numNode):
+def editHost (IpAddress, Password, numNode):
     # ----------------------------------------------------------
     # サーバーへの接続情報を設定
     USER_NAME = 'root'
     PORT = 22
-    PASSWORD = 'test_passwd'
     # サーバー上で実行するコマンドを設定
     # ----------------------------------------------------------
-    for node in range (numNode+1):
-        if node == 0 :
-            CMD = 'echo "headnode 192.168.1.' + str(254) + '" > /etc/hosts'
-            runCMD_PW (IP_ADDRESS, USER_NAME, PASSWORD, PORT, CMD)
+    for nodeIndex in range (numNode+1):
+        if nodeIndex == 0 :
+            hostsHead(IpAddress, USER_NAME, Password, PORT, numNode)
         else :
-            CMD = 'echo "compute_node_' + str(node) + ' 192.168.1.' + str(node) + '" >> /etc/hosts'
-            runCMD_PW (IP_ADDRESS, USER_NAME, PASSWORD, PORT, CMD)
+            hostsCompute (IpAddress, USER_NAME, Password, PORT, numNode, nodeIndex)
 
 if __name__ == '__main__':
      # authentication setting
@@ -82,9 +143,9 @@ if __name__ == '__main__':
 
     #set url
     url_list = {}
-    head_zone = 'is1b'
-    zone      = 'is1b'
-    zone_list = ['is1b']
+    head_zone = 'tk1b'
+    zone      = 'tk1b'
+    zone_list = ['tk1b']
     for zone in zone_list:
         url_list[zone] = "https://secure.sakura.ad.jp/cloud/zone/"+ zone +"/api/cloud/1.1"
     head_url = "https://secure.sakura.ad.jp/cloud/zone/"+ head_zone +"/api/cloud/1.1"
@@ -93,21 +154,7 @@ if __name__ == '__main__':
     # Read cluster infomation
     get_cluster_id_info = get(url_list[zone] + sub_url[0], auth_res)
     
-    s = str (get_cluster_id_info).split ()
-    i = 0
-    while not ('testNode2' in s[i]) :
-        i += 1
-    print (s[i])
-
-    while not ('Interfaces' in s[i]) :
-        i += 1
-    print (s[i])
-
-    while not ('IPAddress' in s[i]) :
-        i += 1
-    print (s[i+1].replace ("'", ""))
-
-
-    IP_ADDRESS = s[i+1].replace (",", "").replace("'", "")
-    numNode = 2
-    editHost (IP_ADDRESS, numNode)
+    numNode = 1 # 辻さんのコードを利用して個数を取得する必要あり．
+    IpAddress = '163.43.144.138'
+    Password = 'test_passwd'
+    editHost (IpAddress, Password, numNode)
