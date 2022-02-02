@@ -1,6 +1,7 @@
 # クラスターの構成を取得してＩＰアドレスの割り振りの自動化
 # 引数１：  クラスターID
 # 引数２：  クラスター情報(関数)
+# 引数３：  クラスターのパスワード
 
 from ast import Pass
 import string
@@ -61,7 +62,7 @@ def setupIpEth1(clusterID, params, nodePassword):
         'USER'      :'root',
         'PASSWORD'  :nodePassword
     }
-    # setupIpEth1_head(headInfo, command)
+    setupIpEth1_head(headInfo, command)
 
     for iComputenode in range(nComputenode):
         command = [
