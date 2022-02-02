@@ -108,7 +108,7 @@ def prior_build(args):
         start_main(args.dryrun, f, info_list, int(args.thread))
         #eth1のIP設定の関数
         #ミドルウェアセットアップ
-        addon_main()
+        addon_main(cls_bil.cluster_id.split(": ")[1])
     
 
 def prior_start(args):
