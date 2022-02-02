@@ -23,7 +23,7 @@ from editHost import editHost
 from getClusterInfo import getClusterInfo
 sys.path.append(common_path + "/lib/addon/setupIP")
 from setupIpEth1 import setupIpEth1
-from switchFWZoon import swhichFWZoom
+import switchFWZone
 sys.path.append(common_path + "/lib/addon/setupProxy")
 from proxySetup import proxySetup
 
@@ -34,7 +34,7 @@ def addon_main(clusterID):
     params = getClusterInfo()                               # メモ：クラスター情報を取得して変数に入れました
     setupIpEth1(clusterID, params, nodePassword='test')     # メモ：コンピュートノードに対する操作確認できないから誰か確認お願いします
     editHost()
-    swhichFWZoom()                                          # <-- 森保さん，これ関数名変じゃないですか？インポート文も修正しておいてください
+    swhichFWZone()                                          # <-- 森保さん，これ関数名変じゃないですか？インポート文も修正しておいてください
     # portOpen()
     proxySetup(clusterID, params, nodePassword='test')      # メモ：ファイアウォールの設定してないとコンピュートノードから外部に通信できないので注意
     # monitorSetup()
