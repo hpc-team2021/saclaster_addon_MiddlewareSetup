@@ -5,24 +5,34 @@ from paramiko import channel
 import tqdm
 import numpy as np
 import os
+import asyncio
+import paramiko 
+import json
+
+# User defined Library
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 common_path = os.path.abspath("../../..")
 
 sys.path.append(common_path + "/lib/others")
 from API_method import get, post, put, delete
+
 sys.path.append(common_path + "/lib/auth")
 from auth_func_pro import authentication_cli
 
-#並列処理を行う
-import asyncio
-import paramiko 
+sys.path.append (common_path + "/lib/addon/mylib")
+from getClusterInfo import getClusterInfo
 
-def hostsCompute(IpAddress, USER_NAME, Password, PORT, numNode, nodeIndex):
-    #管理ノード
-    IP_ADDRESS1 = IpAddress
+# Edit /etc/hosts on compute node.
+# Noted!!
+# The target file could be diffrent among each OS & version.
+# Need to check the file to edit 
+def hostsCompute(headIp, USER_NAME, nodePassword, PORT, nComputenode, nodeIndex):
+    # Head node info #####
+    IP_ADDRESS1 = headIp
     PORT1 = PORT
     USER1 = USER_NAME
-    PASSWORD1 = Password
+    PASSWORD1 = nodePassword
+    ######################
 
     # Connect to Head Node
     headnode = paramiko.SSHClient()
@@ -32,11 +42,12 @@ def hostsCompute(IpAddress, USER_NAME, Password, PORT, numNode, nodeIndex):
     print('hostnode connected')
 
     # Head Node --> Compute Node
-    # Login Info
-    IP_ADDRESS2 = '192.168.1.' + str (nodeIndex)
+    # Login Info (Compute node) ###############
+    IP_ADDRESS2 = '192.168.100.' + str (nodeIndex)
     PORT2 = PORT
     USER2 = USER_NAME
-    PASSWORD2 = Password  
+    PASSWORD2 = nodePassword
+    ########################################### 
 
     head = (IP_ADDRESS1,PORT1)
     compute = (IP_ADDRESS2, PORT2)
@@ -50,7 +61,7 @@ def hostsCompute(IpAddress, USER_NAME, Password, PORT, numNode, nodeIndex):
     print('computenode connected')
 
     # Execute command & store the result
-    for j in range(numNode + 1):
+    for j in range(nComputenode + 1):
         if j == 0:
             CMD = 'echo "headnode 192.168.100.254" > /etc/hosts'
             stdin, stdout, stderr = computenode.exec_command (CMD)
@@ -124,37 +135,49 @@ def hostsHead (IpAddress, USER_NAME, Password, PORT, numNode):
     headnode.close ()
     del headnode, stdin, stdout, stderr
 
-def editHost (IpAddress, Password, numNode):
+def editHost (clusterID, params, nodePassword):
     # ----------------------------------------------------------
-    # サーバーへの接続情報を設定
+    # Common parameters to connect to nodes
     USER_NAME = 'root'
     PORT = 22
-    # サーバー上で実行するコマンドを設定
     # ----------------------------------------------------------
-    for nodeIndex in range (numNode+1):
+    
+    # Parameters
+    headIp  = "255.255.255.255"
+    nComputenode = 0
+    node_dict = params.get_node_info()
+    disk_dict = params.get_disk_info()
+
+    # 1. Get the global IP of Head node
+    # 2. Count the compute nodes in the target cluster
+    for zone, url in params.url_list.items():
+        node_list = node_dict[zone]
+        disk_list = list(disk_dict[zone].keys())
+        if(len(node_list) != 0):
+            for i in range(len(node_list)):
+                print(clusterID + ':' + node_list[i]["Tags"][0] + ' | ' + node_list[i]['Name'])
+                if (clusterID in node_list[i]["Tags"][0] and 'headnode' in node_list[i]['Name']):
+                    headIp = node_list[i]['Interfaces'][0]['IPAddress']
+                elif (clusterID in node_list[i]["Tags"][0] and 'computenode' in node_list[i]['Name']):
+                    nComputenode += 1
+                else:
+                    pass
+        else:
+            print (zone + " has no nodes")
+            pass
+
+    for nodeIndex in range (nComputenode+1):
         if nodeIndex == 0 :
-            hostsHead(IpAddress, USER_NAME, Password, PORT, numNode)
+            hostsHead(headIp, USER_NAME, nodePassword, PORT, nComputenode)
         else :
-            hostsCompute (IpAddress, USER_NAME, Password, PORT, numNode, nodeIndex)
+            hostsCompute (headIp, USER_NAME, nodePassword, PORT, nComputenode, nodeIndex)
 
 if __name__ == '__main__':
      # authentication setting
     auth_res = authentication_cli(fp = '', info_list = [1,0,0,0], api_index = True)
-
-    #set url
-    url_list = {}
-    head_zone = 'tk1b'
-    zone      = 'tk1b'
-    zone_list = ['tk1b']
-    for zone in zone_list:
-        url_list[zone] = "https://secure.sakura.ad.jp/cloud/zone/"+ zone +"/api/cloud/1.1"
-    head_url = "https://secure.sakura.ad.jp/cloud/zone/"+ head_zone +"/api/cloud/1.1"
-    sub_url = ["/server","/disk","/switch","/interface","/bridge","/tag","/appliance","/power"]
-
-    # Read cluster infomation
-    get_cluster_id_info = get(url_list[zone] + sub_url[0], auth_res)
     
-    numNode = 1 # 辻さんのコードを利用して個数を取得する必要あり．
-    IpAddress = '163.43.144.138'
-    Password = 'test_passwd'
-    editHost (IpAddress, Password, numNode)
+    # Prepare Argument
+    params = getClusterInfo()
+    clusterID = "983867"
+
+    editHost (clusterID, params, nodePassword = "test")
