@@ -1,83 +1,127 @@
-
+import os
 import sys
 import time
 import logging
-from paramiko import channel
-import tqdm
-import numpy as np
-import os
+import ast
+
+from numpy.lib.shape_base import tile
+
+logger = logging.getLogger("sacluster").getChild(os.path.basename(__file__))
+
+from os.path import expanduser
+home_path = expanduser("~") + "/sacluster"
+os.makedirs(home_path, exist_ok = True)
+
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 common_path = os.path.abspath("../../..")
 
 sys.path.append(common_path + "/lib/others")
 from API_method import get, post, put, delete
+import get_params
+from info_print import printout
+
 sys.path.append(common_path + "/lib/auth")
 from auth_func_pro import authentication_cli
 
-#並列処理を行う
-import asyncio
-import paramiko 
+sys.path.append(common_path + "/lib/def_conf")
+from load_external_data import external_data
 
-def packInstall():
+import paramiko 
+import getpass
+import json
+
+
+def packInstall(clusterID,params,nodePassword):
+
+    IPADDRESS1  = "255.255.255.255"
+    computenum = 0
+    ZONE = " "
+
+    node_dict = params.get_node_info()
+    disk_dict = params.get_disk_info()
+
+    for zone, url in params.url_list.items():
+        node_list = node_dict[zone]
+        disk_list = list(disk_dict[zone].keys())        
+
+        if(len(node_list) != 0):
+            for i in range(len(node_list)):
+                desp = node_list[i]["Description"]
+                if(clusterID in node_list[i]["Tags"][0]):
+                    if(node_list[i]["Interfaces"][0]["IPAddress"] != None):
+                        IPADDRESS1 = node_list[i]["Interfaces"][0]["IPAddress"]
+                        print("IP: " + IPADDRESS1)
+                        ZONE = node_list[i]["Zone"]["Name"]
+                        print("ZONE: " + ZONE)
+
+                        if("CentOS" in params.cluster_info_all[clusterID]["clusterparams"]["server"][ZONE]["head"]["disk"][0]["os"]):
+                            CMD1 = "hostname" #jsonファイルを読み込む
+                            CMD2 = "hostname -I" #jsonファイルを読み込む
+                            print("CentOS")
+
+                        elif("Ubnt" in params.cluster_info_all[clusterID]["clusterparams"]["server"][ZONE]["head"]["disk"][0]["os"]):
+                            CMD1 =  "hostname -I"
+                            CMD2 =  "hostname"
+                            print("Ubnt")
+
+                        else:
+                            print("NO_name")
+
+                    else:
+                        computenum +=1
+                
+                else:
+                    pass
+
+        else:
+            pass
+
+    ssh_connect(IPADDRESS1,nodePassword,computenum,CMD1,CMD2)
+    
+
+def ssh_connect(IPADDRESS1,nodePassword,computenum,CMD1,CMD2):
     #管理ノード
-    IP_ADDRESS1 = '133.242.50.16'
     PORT1 = 22
     USER1 = 'root'
-    PASSWORD1 = 'test01pw'
-    KYE='~/.ssh/id_rsa.pub'
-
-
+    
     #管理ノードに接続
     headnode = paramiko.SSHClient()
     headnode.set_missing_host_key_policy(paramiko.WarningPolicy())
 
     print("hostnode connecting...")
-    headnode.connect(hostname=IP_ADDRESS1, port=PORT1, username=USER1, password=PASSWORD1)
+    headnode.connect(hostname=IPADDRESS1, port=PORT1, username=USER1, password=nodePassword)
     print('hostnode connected')
 
-#コマンド実行
-    stdin, stdout, stderr = headnode.exec_command('hostname')
+    stdin, stdout, stderr = headnode.exec_command(CMD1)
     time.sleep(1)
     hostname = stdout.read().decode()
     print('hostname_head = %s' % hostname)
 
-    #管理->計算ノード
-    #計算ノード
-    IP_ADDRESS2 = '192.168.100.1'
-    PORT2 = 22
-    USER2 = 'root'
-    PASSWORD2 = 'test01pw'
+    for i in range(1, computenum+1):
+        #管理->計算ノード
+        #計算ノード
+        IPADDRESS2 = '192.168.100.' + str(i)
+        PORT2 = 22
+        USER2 = 'root'
 
-    head = (IP_ADDRESS1,PORT1)
-    compute = (IP_ADDRESS2, PORT2)
-    transport1 = headnode.get_transport()
-    channel1 = transport1.open_channel("direct-tcpip", compute, head)
-    computenode = paramiko.SSHClient()
-    computenode.set_missing_host_key_policy(paramiko.WarningPolicy())
+        head = (IPADDRESS1,PORT1)
+        compute = (IPADDRESS2, PORT2)
+        transport1 = headnode.get_transport()
+        channel1 = transport1.open_channel("direct-tcpip", compute, head)
+        computenode = paramiko.SSHClient()
+        computenode.set_missing_host_key_policy(paramiko.WarningPolicy())
+        print("compurenode connecting...")
+        computenode.connect(hostname=IPADDRESS2,username=USER2,password=nodePassword,sock=channel1)
+        print('computenode connected')
+        
+        stdin, stdout, stderr = computenode.exec_command(CMD2)
+        time.sleep(1)
+        hostname = stdout.read().decode()
+        print('hostname_compute01 = %s' % hostname)
 
-    print("compurenode connecting...")
-    computenode.connect(hostname=IP_ADDRESS2,username=USER2,password=PASSWORD2,sock=channel1)
-    print('computenode connected')
-
-#コマンド実行
-    (stdin, stdout, stderr) = computenode.exec_command('yum -y install ypbind')
-    time.sleep(1)
-    hostname = stdout.read().decode()
-    print('hostname_compute = %s' % hostname)
-
-    # コマンド実行結果を変数に格納
-    #cmd_result = ''
-    #for line in stdout:
-     #   cmd_result += line
-
-    # 実行結果を出力
-    #print(cmd_result)
-
-    #コネクションを閉じる
     headnode.close()
     computenode.close()
-    del headnode, computenode, stdin, stdout, stderr
+    del headnode, stdin, stdout, stderr
 
 if __name__ == '__main__':
-    packInstall ()
-
+    packInstall2 (clusterID = '285208', nodePassword = 'test')

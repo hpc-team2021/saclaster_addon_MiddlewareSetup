@@ -22,6 +22,7 @@ sys.path.append(common_path + "/lib/addon/mylib")
 from editHost import editHost
 from getClusterInfo import getClusterInfo
 from portOpen import portOpen
+from packInstall import packInstall
 sys.path.append(common_path + "/lib/addon/setupIP")
 from setupIpEth1 import setupIpEth1
 from switchFWZone import switchFWZone
@@ -33,20 +34,21 @@ def addon_main(clusterID):
 
     print("アドオンの関数")
     params = getClusterInfo()                               # メモ：クラスター情報を取得して変数に入れました
-    setupIpEth1(clusterID, params, nodePassword='test')     # メモ：コンピュートノードに対する操作確認できないから誰か確認お願いします
+    #setupIpEth1(clusterID, params, nodePassword='test')     # メモ：コンピュートノードに対する操作確認できないから誰か確認お願いします
     # editHost()
-    swhichFWZone()
+    #switchFWZone(clusterID,params,nodePassword='test')
+    packInstall(clusterID,params,nodePassword='test')
     
-    portOpen(clusterID, params, nodePassword='test',    
-            changeTarget = "HEAD",                          # "HEAD", "COMP", "ALL" のいずれかを選択
-            ports        = [4000, 4001], 
-            protocols    = ['udp', 'tcp'])
-    proxySetup(clusterID, params, nodePassword='test')      # メモ：ファイアウォールの設定してないとコンピュートノードから外部に通信できないので注意
+    #portOpen(clusterID, params, nodePassword='test',    
+      #      changeTarget = "HEAD",                          # "HEAD", "COMP", "ALL" のいずれかを選択
+       #     ports        = [4000, 4001], 
+        #    protocols    = ['udp', 'tcp'])
+    #proxySetup(clusterID, params, nodePassword='test')      # メモ：ファイアウォールの設定してないとコンピュートノードから外部に通信できないので注意
     # monitorSetup()
 
 def addon_start():
     print("ミドルウェアの起動")
 
 if __name__ == '__main__':
-    clusterID = "576968"
+    clusterID = "108477"
     sys.exit(addon_main(clusterID))
