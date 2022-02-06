@@ -51,10 +51,10 @@ def portOpen(clusterID, params, nodePassword, changeTarget, ports, protocols):
             pass
 
     # ヘッドノードに対する操作と接続情報を与える
-    if object == "HEAD" or object == "ALL":
+    if changeTarget == "HEAD" or changeTarget == "ALL":
         command = []
         for i, port in enumerate(ports):
-            command[end+1] = 'firewall-cmd --permanent --zone=trusted --add-port=' + str(port) + '/' + protocols[i]
+            command.append('firewall-cmd --permanent --zone=trusted --add-port=' + str(port) + '/' + protocols[i]) 
 
         headInfo = {
             'IP_ADDRESS':IP_ADDRESS1,
@@ -64,11 +64,11 @@ def portOpen(clusterID, params, nodePassword, changeTarget, ports, protocols):
         }
         setupPortEth1_head(headInfo, command)
 
-    if object == "COMP" or object == "ALL":
+    if changeTarget == "COMP" or changeTarget == "ALL":
         for iComputenode in range(nComputenode):
             command = []
             for i, port in enumerate(ports):
-                command[end+1] = 'firewall-cmd --permanent --zone=trusted --add-port=' + str(port) + '/' + protocols[i]
+                command.append('firewall-cmd --permanent --zone=trusted --add-port=' + str(port) + '/' + protocols[i])
 
             IP_ADDRESS2 = '192.168.100.' + str(iComputenode+1)
             compInfo = {
