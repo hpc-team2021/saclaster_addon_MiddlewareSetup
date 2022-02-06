@@ -30,6 +30,9 @@ import paramiko
 import getpass
 import json
 
+#with open('C:\pg\population.json') as f:
+   # jsn = json.load(f)
+
 
 def packInstall(clusterID,params,nodePassword):
 
@@ -50,22 +53,19 @@ def packInstall(clusterID,params,nodePassword):
                 if(clusterID in node_list[i]["Tags"][0]):
                     if(node_list[i]["Interfaces"][0]["IPAddress"] != None):
                         IPADDRESS1 = node_list[i]["Interfaces"][0]["IPAddress"]
-                        print("IP: " + IPADDRESS1)
                         ZONE = node_list[i]["Zone"]["Name"]
-                        print("ZONE: " + ZONE)
-
+                        
                         if("CentOS" in params.cluster_info_all[clusterID]["clusterparams"]["server"][ZONE]["head"]["disk"][0]["os"]):
-                            CMD1 = "hostname" #jsonファイルを読み込む
-                            CMD2 = "hostname -I" #jsonファイルを読み込む
-                            print("CentOS")
+                            HEAD_CMD = "hostname" #jsonファイルを読み込む
+                            #HEAD_CMD = jsn["OS"] + jsn[] +jsn[]
+                            COMPUTE_CMD = "hostname -I" #jsonファイルを読み込む
 
-                        elif("Ubnt" in params.cluster_info_all[clusterID]["clusterparams"]["server"][ZONE]["head"]["disk"][0]["os"]):
-                            CMD1 =  "hostname -I"
-                            CMD2 =  "hostname"
-                            print("Ubnt")
-
+                        elif("Ubuntu" in params.cluster_info_all[clusterID]["clusterparams"]["server"][ZONE]["head"]["disk"][0]["os"]):
+                            HEAD_CMD =  "hostname -I"
+                            COMPUTE_CMD =  "hostname"
+                           
                         else:
-                            print("NO_name")
+                            pass
 
                     else:
                         computenum +=1
@@ -76,10 +76,10 @@ def packInstall(clusterID,params,nodePassword):
         else:
             pass
 
-    ssh_connect(IPADDRESS1,nodePassword,computenum,CMD1,CMD2)
+    ssh_connect(IPADDRESS1,nodePassword,computenum,HEAD_CMD,COMPUTE_CMD)
     
 
-def ssh_connect(IPADDRESS1,nodePassword,computenum,CMD1,CMD2):
+def ssh_connect(IPADDRESS1,nodePassword,computenum,HEAD_CMD,COMPUTE_CMD):
     #管理ノード
     PORT1 = 22
     USER1 = 'root'
@@ -92,7 +92,7 @@ def ssh_connect(IPADDRESS1,nodePassword,computenum,CMD1,CMD2):
     headnode.connect(hostname=IPADDRESS1, port=PORT1, username=USER1, password=nodePassword)
     print('hostnode connected')
 
-    stdin, stdout, stderr = headnode.exec_command(CMD1)
+    stdin, stdout, stderr = headnode.exec_command(HEAD_CMD)
     time.sleep(1)
     hostname = stdout.read().decode()
     print('hostname_head = %s' % hostname)
@@ -114,7 +114,7 @@ def ssh_connect(IPADDRESS1,nodePassword,computenum,CMD1,CMD2):
         computenode.connect(hostname=IPADDRESS2,username=USER2,password=nodePassword,sock=channel1)
         print('computenode connected')
         
-        stdin, stdout, stderr = computenode.exec_command(CMD2)
+        stdin, stdout, stderr = computenode.exec_command(COMPUTE_CMD)
         time.sleep(1)
         hostname = stdout.read().decode()
         print('hostname_compute01 = %s' % hostname)
@@ -124,4 +124,4 @@ def ssh_connect(IPADDRESS1,nodePassword,computenum,CMD1,CMD2):
     del headnode, stdin, stdout, stderr
 
 if __name__ == '__main__':
-    packInstall2 (clusterID = '285208', nodePassword = 'test')
+    packInstall (clusterID = '285208', nodePassword = 'test')
