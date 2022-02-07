@@ -1,0 +1,139 @@
+{
+    "Install":
+    {
+        "Ubuntu":
+        {
+            "Ubuntu20.04": "apt",
+            "Ubuntu21.04": "apt"
+        },
+        "CentOS":
+        {
+            "CentOS7.9": "yum",
+            "CentOS8": "dnf"
+        }
+    }, "// install_comments": "END of Install",
+
+   "Common":
+    {
+        "basic": ["firewall-cmd", "echo", "systemctl", "hostname"],
+        "Firewall":
+        {
+            "reload": "--reload"
+        },
+        "hosts":
+        {
+            "Ubuntu": "",
+            "CentOS": "/etc/hosts"
+        },
+        "Systemctl":
+        {
+            "sub":["start", "stop", "enable", "disable"]
+        }
+    }, "// common_comments": "END of common info",
+
+    "MiddleWare":
+    {
+        "Proxy":
+        {
+            "squid":
+            {
+                "Packege":
+                {
+                    "CentOS7": "squid",
+                    "Ubuntu20.04": "squid"
+                },
+                "Port":
+                {
+                    "CentOS7":
+                    [
+                        "3128/tcp"
+                    ]
+                },
+                "Daemon":
+                {
+                    "CentOS7": "squid"
+                }
+            }, "// squid_comments": "END of squid"
+
+        }, "// proxy_comments": "END of Proxy",
+
+        "Nfs":
+        {
+            "nfs-utils":
+            {
+                "Packege":
+                {
+                    "CentOS7": "yum -y install nfs-utils",
+                    "Ubuntu20.04": "apt -y install nfs-utils"
+                },
+                "Port":
+                {
+                    "CentOS7": 
+                    [
+                        "3128/tcp"
+                    ]
+                },
+                "Daemon":
+                {
+                    "CentOS7":
+                    {
+                        "head": "nfs-server"
+                    }
+                },
+                "Command":
+                {
+
+                }
+            }, "// nfs-utils_comments": "END of nfs-utils"
+
+        }, "// nfs_comments": "END of NFS",
+
+        "Monitor":
+        {
+            "Ganglia":
+            {
+                "Packege": 
+                {
+                    "CentOS7": 
+                    {
+                        "head": "yum -y rrdtool rrdtool-devel ganglia-web ganglia-gmetad ganglia-gmond ganglia-gmond-python httpd httpd-tools apr-devel zlib-devel libconfuse-devel expat-devel pcre-devel",
+                        "compute": "yum -y install ganglia-gmond"
+                    }
+                },
+                "Port":
+                {
+                    "CentOS7": 
+                    {       
+                        "head": 
+                        [
+                            "8649/tcp",
+                            "8649/udp",
+                            "8651/tcp",
+                            "8652/tcp"
+                        ],
+                        "compute": 
+                        [
+                            "8649/tcp",
+                            "8649/udp"
+                        ]
+                    }
+                },
+                "Daemon":
+                {
+                    "CentOS7":
+                    {
+                        "head": "httpd gmond gmetad",
+                        "compute": "gmond"
+                    }
+                }
+            }, "// ganglia_comment": "END of Ganglia"
+
+        }, "// monitor_comment": "END of Monitor",
+
+        "Scheduler":
+        {
+
+        }, "// scheduler_comment": "END of Scheduler"
+
+    }, "// middleware_comment": "END of Middleware"
+}
