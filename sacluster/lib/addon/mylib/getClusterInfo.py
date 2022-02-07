@@ -14,8 +14,8 @@ from os.path import expanduser
 home_path = expanduser("~") + "/sacluster"
 os.makedirs(home_path, exist_ok = True)
 
-common_path = "../../.."
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
+common_path = os.path.abspath("../../..")
 
 sys.path.append(common_path + "/lib/others")
 from API_method import get, post, put, delete

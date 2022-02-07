@@ -5,7 +5,7 @@ import json
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 common_path = os.path.abspath("../../..")
 
-fileName = common_path + "\\lib\\addon\\setting.json"
+fileName = common_path + "\\lib\\addon\\addon.json"
 
 def loadAddonParams ():
     # Load Command data

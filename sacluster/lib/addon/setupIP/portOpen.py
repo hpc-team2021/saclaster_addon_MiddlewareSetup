@@ -37,10 +37,10 @@ fileName = common_path + "\\lib\\addon\\setting.json"
 # Noted!!
 # The Setting could be diffrent among each OS & version.
 # Need to check the file to edit 
-def daemonCompute(addonJson, headIp, targetIp, USER_NAME, PASSWORD, PORT, daemonName):
+def portCompute(addonJson, headIp, targetIp, USER_NAME, PASSWORD, PORT, portService):
     # Command variable
-    cmdMain = addonJson ['Common']['basic'][2]
-    cmdSub = addonJson ['Common']['Systemctl']['sub']
+    cmdMain = addonJson ['Common']['basic'][0]
+    cmdSub = addonJson ['Common']['Port'][portService]
     
     #--------------------
     # Head node Info
@@ -75,7 +75,7 @@ def daemonCompute(addonJson, headIp, targetIp, USER_NAME, PASSWORD, PORT, daemon
     print('computenode connected')
 
     # Execute command & store the result------------------------
-    CMD = cmdMain + str(' ') + cmdSub[0] + str(' ') + daemonName
+    CMD = cmdMain + str(' ') + cmdSub
     stdin, stdout, stderr = computenode.exec_command (CMD)
 
     # Store standard output
@@ -95,7 +95,7 @@ def daemonCompute(addonJson, headIp, targetIp, USER_NAME, PASSWORD, PORT, daemon
         sys.exit ()
     
     # Execute command & store the result -----------------
-    cmdMain + str(' ') + cmdSub[2] + str(' ') + daemonName
+    cmdMain + str(' ') + cmdSub
     stdin, stdout, stderr = computenode.exec_command (CMD)
 
     # Store standard output
@@ -119,10 +119,10 @@ def daemonCompute(addonJson, headIp, targetIp, USER_NAME, PASSWORD, PORT, daemon
     headnode.close()
     del headnode, computenode, stdin, stdout, stderr
 
-# Login to node via SSH, run command & write into /etc/hosts on Headnode
-def daemonHead (addonJson, headIp, USER_NAME, PASSWORD, PORT, daemonName):
-    cmdMain = addonJson ['Common']['basic'][2]
-    cmdSub = addonJson ['Common']['Systemctl']['sub']
+# Login to node via SSH, run command & openthe target port on Headnode
+def portHead (addonJson, headIp, USER_NAME, PASSWORD, PORT, portService):
+    cmdMain = addonJson ['Common']['basic'][0]
+    cmdSub = addonJson ['Common']['Port'][portService]
 
     # Create SSH client
     headnode = paramiko.SSHClient ()
@@ -130,7 +130,7 @@ def daemonHead (addonJson, headIp, USER_NAME, PASSWORD, PORT, daemonName):
     headnode.connect (headIp, PORT, USER_NAME, PASSWORD)
 
     # Execute command & store the result
-    CMD = cmdMain + str(' ') + cmdSub[0] + str(' ') + daemonName
+    CMD = cmdMain + str(' ') + cmdSub
     stdin, stdout, stderr = headnode.exec_command (CMD)
 
     # Store standard output
@@ -150,7 +150,7 @@ def daemonHead (addonJson, headIp, USER_NAME, PASSWORD, PORT, daemonName):
         sys.exit ()
 
     # Execute command & store the result
-    CMD = cmdMain + str(' ') + cmdSub[2] + str(' ') + daemonName
+    CMD = cmdMain + str(' ') + cmdSub[2]
     stdin, stdout, stderr = headnode.exec_command (CMD)
 
     # Store standard output
@@ -174,7 +174,7 @@ def daemonHead (addonJson, headIp, USER_NAME, PASSWORD, PORT, daemonName):
     del headnode, stdin, stdout, stderr
 
 # Main
-def daemonStart (daemonName, addonJson, headIp, targetIp, nodePassword):
+def portOpen (portService, addonJson, headIp, targetIp, nodePassword):
     # ----------------------------------------------------------
     # サーバーへの接続情報を設定
     USER_NAME = 'root'
@@ -183,9 +183,9 @@ def daemonStart (daemonName, addonJson, headIp, targetIp, nodePassword):
     # サーバー上で実行するコマンドを設定
     # ----------------------------------------------------------
     if targetIp == headIp:
-        daemonHead (addonJson, headIp, USER_NAME, PASSWORD, PORT, daemonName)
+        portHead (addonJson, headIp, USER_NAME, PASSWORD, PORT, portService)
     else:
-        daemonCompute (addonJson, headIp, targetIp, USER_NAME, PASSWORD, PORT, daemonName)
+        portCompute (addonJson, headIp, targetIp, USER_NAME, PASSWORD, PORT, portService)
 
 # Unit Test
 if __name__ == '__main__':
@@ -198,7 +198,7 @@ if __name__ == '__main__':
 
     # Prepare Argument-----------------------
     targetIp = "192.168.1.1"
-    daemonName = "squid"
+    portService = "squid"
     nodePassword = "test"
     clusterID = "983867"
     headIp  = "255.255.255.255"
@@ -220,4 +220,4 @@ if __name__ == '__main__':
                     headIp = node_list[i]['Interfaces'][0]['IPAddress']
     
     # Main
-    daemonStart (daemonName, addonJson, headIp, targetIp, nodePassword)
+    portOpen (portService, addonJson, headIp, targetIp, nodePassword)
