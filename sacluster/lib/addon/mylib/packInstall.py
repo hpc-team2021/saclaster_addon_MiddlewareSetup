@@ -26,6 +26,10 @@ from auth_func_pro import authentication_cli
 sys.path.append(common_path + "/lib/def_conf")
 from load_external_data import external_data
 
+sys.path.append (common_path + "/lib/addon/mylib")
+from getClusterInfo import getClusterInfo
+from loadAddonParams    import loadAddonParams
+
 import paramiko 
 import getpass
 import json
@@ -34,8 +38,8 @@ import json
    # jsn = json.load(f)
 
 
-def packInstall(clusterID,params,nodePassword):
-
+def packInstall(clusterID, params, nodePassword, jsonAddonParams, serviceType, serviceName):
+    
     IPADDRESS1  = "255.255.255.255"
     computenum = 0
     ZONE = " "
@@ -54,7 +58,14 @@ def packInstall(clusterID,params,nodePassword):
                     if(node_list[i]["Interfaces"][0]["IPAddress"] != None):
                         IPADDRESS1 = node_list[i]["Interfaces"][0]["IPAddress"]
                         ZONE = node_list[i]["Zone"]["Name"]
-                        
+
+                        OSType = params.cluster_info_all[clusterID]["clusterparams"]["server"][ZONE]["head"]["disk"][0]["os"]
+                        #json
+
+                        HEAD_CMD = jsonAddonParams['MiddleWare'][serviceType][serviceName]['Packege'][OSType]['Head']
+                        COMPUTE_CMD = jsonAddonParams['MiddleWare'][serviceType][serviceName]['Packege'][OSType]['Compute']
+
+                        """
                         if("CentOS" in params.cluster_info_all[clusterID]["clusterparams"]["server"][ZONE]["head"]["disk"][0]["os"]):
                             HEAD_CMD = "hostname" #jsonファイルを読み込む
                             #HEAD_CMD = jsn["OS"] + jsn[] +jsn[]
@@ -67,6 +78,7 @@ def packInstall(clusterID,params,nodePassword):
                         else:
                             pass
 
+                        """
                     else:
                         computenum +=1
                 
@@ -92,10 +104,11 @@ def ssh_connect(IPADDRESS1,nodePassword,computenum,HEAD_CMD,COMPUTE_CMD):
     headnode.connect(hostname=IPADDRESS1, port=PORT1, username=USER1, password=nodePassword)
     print('hostnode connected')
 
-    stdin, stdout, stderr = headnode.exec_command(HEAD_CMD)
-    time.sleep(1)
-    hostname = stdout.read().decode()
-    print('hostname_head = %s' % hostname)
+    for i, CMD in enumerate(HEAD_CMD):
+        stdin, stdout, stderr = headnode.exec_command(CMD)
+        time.sleep(1)
+        hostname = stdout.read().decode()
+        print('hostname_head = %s' % hostname)
 
     for i in range(1, computenum+1):
         #管理->計算ノード
@@ -113,15 +126,18 @@ def ssh_connect(IPADDRESS1,nodePassword,computenum,HEAD_CMD,COMPUTE_CMD):
         print("compurenode connecting...")
         computenode.connect(hostname=IPADDRESS2,username=USER2,password=nodePassword,sock=channel1)
         print('computenode connected')
-        
-        stdin, stdout, stderr = computenode.exec_command(COMPUTE_CMD)
-        time.sleep(1)
-        hostname = stdout.read().decode()
-        print('hostname_compute01 = %s' % hostname)
+
+        for i, CMD in enumerate(COMPUTE_CMD):
+            stdin, stdout, stderr = computenode.exec_command(CMD)
+            time.sleep(1)
+            hostname = stdout.read().decode()
+            print('hostname_compute01 = %s' % hostname)
 
     headnode.close()
     computenode.close()
     del headnode, stdin, stdout, stderr
 
 if __name__ == '__main__':
-    packInstall (clusterID = '285208', nodePassword = 'test')
+    params = getClusterInfo ()
+    jsonAddonParams = loadAddonParams ()
+    packInstall (clusterID = '108477',nodePassword = 'test', params=params ,jsonAddonParams = jsonAddonParams, serviceType="Proxy", serviceName="Squid")
