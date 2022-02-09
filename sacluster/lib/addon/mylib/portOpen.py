@@ -26,11 +26,13 @@ from auth_func_pro import authentication_cli
 import asyncio
 import paramiko 
 
-def portOpen(clusterID, params, nodePassword, changeTarget, ports, protocols):
+def portOpen(clusterID, params, nodePassword, jsonAddonParams, serviceType, serviceName):
 
     # グローバルIPと計算機ノードの数を把握する
     IP_ADDRESS1  = "255.255.255.255"
     nComputenode = 0
+    OSType       = ""
+
 
     node_dict = params.get_node_info()
     disk_dict = params.get_disk_info()
@@ -43,6 +45,7 @@ def portOpen(clusterID, params, nodePassword, changeTarget, ports, protocols):
                 # print(clusterID + ':' + node_list[i]["Tags"][0] + ' | ' + node_list[i]['Name'])
                 if (clusterID in node_list[i]["Tags"][0] and 'headnode' in node_list[i]['Name']):
                     IP_ADDRESS1 = node_list[i]['Interfaces'][0]['IPAddress']
+                    OSType      = disk_dict[zone][disk_list[i]]["SourceArchive"]["Name"]
                 elif (clusterID in node_list[i]["Tags"][0]):
                     nComputenode += 1
                 else:
@@ -51,33 +54,33 @@ def portOpen(clusterID, params, nodePassword, changeTarget, ports, protocols):
             pass
 
     # ヘッドノードに対する操作と接続情報を与える
-    if changeTarget == "HEAD" or changeTarget == "ALL":
+    ports   = jsonAddonParams["MiddleWare"][serviceType][serviceName]["Port"][OSType]["Head"]
+    command = []
+    for i, port in enumerate(ports):
+        command.append('firewall-cmd --permanent --zone=trusted --add-port=' + str(port)) 
+
+    headInfo = {
+        'IP_ADDRESS':IP_ADDRESS1,
+        'PORT'      :22,
+        'USER'      :'root',
+        'PASSWORD'  :nodePassword
+    }
+    setupPortEth1_head(headInfo, command)
+
+    for iComputenode in range(nComputenode):
+        ports   = jsonAddonParams["MiddleWare"][serviceType][serviceName]["Port"][OSType]["Compute"]
         command = []
         for i, port in enumerate(ports):
-            command.append('firewall-cmd --permanent --zone=trusted --add-port=' + str(port) + '/' + protocols[i]) 
+            command.append('firewall-cmd --permanent --zone=trusted --add-port=' + str(port))
 
-        headInfo = {
-            'IP_ADDRESS':IP_ADDRESS1,
+        IP_ADDRESS2 = '192.168.100.' + str(iComputenode+1)
+        compInfo = {
+            'IP_ADDRESS':IP_ADDRESS2,
             'PORT'      :22,
             'USER'      :'root',
             'PASSWORD'  :nodePassword
         }
-        setupPortEth1_head(headInfo, command)
-
-    if changeTarget == "COMP" or changeTarget == "ALL":
-        for iComputenode in range(nComputenode):
-            command = []
-            for i, port in enumerate(ports):
-                command.append('firewall-cmd --permanent --zone=trusted --add-port=' + str(port) + '/' + protocols[i])
-
-            IP_ADDRESS2 = '192.168.100.' + str(iComputenode+1)
-            compInfo = {
-                'IP_ADDRESS':IP_ADDRESS2,
-                'PORT'      :22,
-                'USER'      :'root',
-                'PASSWORD'  :nodePassword
-            }
-            setupPortEth1_comp(headInfo, compInfo, command)
+        setupPortEth1_comp(headInfo, compInfo, command)
 
 
 
@@ -132,8 +135,4 @@ def setupPortEth1_comp(headInfo, compInfo, command):
 
 
 if __name__ == '__main__':
-    ports           = [4000, 4001]
-    protocols       = ['udp', 'tcp']
-    changeTarget    = "HEAD"        # "HEAD", "COMP", "ALL"
-    portOpen(clusterID, params, nodePassword, changeTarget, ports, protocols)
-
+    print('実行に必要になる引数が多すぎるのでaddon_main()でテスト確認した方が早いと思います')
