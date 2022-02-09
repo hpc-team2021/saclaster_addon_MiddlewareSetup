@@ -22,9 +22,6 @@ from start_class import start_sacluster
 sys.path.append(common_path + "/lib/notif")
 from monitor_function import preparing_monitor
 
-sys.path.append(common_path + "/lib/addon")
-from addon_prepare import prepare_main
-
 import build_class
 import logging
 
@@ -32,7 +29,6 @@ logger = logging.getLogger("sacluster").getChild(os.path.basename(__file__))
 #logger = logging.getLogger().getChild(os.path.basename(__file__))
 
 def build_main(in_path, out_path, make_dir_index, api_index, f, info_list, auto_start, max_workers):
-    prepare_main()
 
     logger.debug('Setting authentication info')
     auth_info = authentication_cli(fp = f, info_list  = info_list, api_index = api_index)
