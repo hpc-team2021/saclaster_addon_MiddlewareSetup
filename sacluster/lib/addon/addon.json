@@ -73,10 +73,14 @@
             {
                 "Packege":
                 {
-                    "CentOS7": 
+                    "CentOS 7.9 (2009) 64bit": 
                     {
-                        "Head": "yum -y install squid",
-                        "Compute": "yum -y install squid"
+                        "Head": [
+                            "yum -y install squid",
+                            "yum -y install httpd-tools",
+                            "yum -y update openssl"
+                        ],
+                        "Compute": []
                     },
                     "Ubuntu20.04": 
                     {
@@ -86,7 +90,7 @@
                 },
                 "Port":
                 {
-                    "CentOS7": 
+                    "CentOS 7.9 (2009) 64bit": 
                     {
                         "Head": ["3128/tcp"],
                         "Compute": ["3128/tcp"]
@@ -94,7 +98,7 @@
                 },
                 "Daemon":
                 {
-                    "CentOS7": "squid"
+                    "CentOS 7.9 (2009) 64bit": "squid"
                 }
             }, "// squid_comments": "END of squid"
 
