@@ -1,53 +1,96 @@
 {
-    "Install":
-    {
-        "Ubuntu":
-        {
-            "Ubuntu20.04": "apt",
-            "Ubuntu21.04": "apt"
-        },
-        "CentOS":
-        {
-            "CentOS7.9": "yum",
-            "CentOS8": "dnf"
-        }
-    }, "// install_comments": "END of Install",
-
    "Common":
     {
-        "basic": ["firewall-cmd", "echo", "systemctl", "hostname"],
         "Firewall":
         {
-            "reload": "--reload"
-        },
+            "sub":
+            {
+                "reload": "--reload"
+            },
+            "Proxy":
+            {
+                "Squid":
+                {
+                    "CentOS7.9":
+                    {
+                        "Head": ["firewall-cmd --add-port=3128/tcp --permanent"]
+                    }
+                }
+            },
+            "Nfs":
+            {
+                "Nfs-utils":
+                {
+                    "CentOS7.9":
+                    {
+                        "Head": ["firewall-cmd --add-port=3128/tcp --permanent"],
+                        "Compute": ["firewall-cmd --add-port=3128/tcp --permanent"]
+                    }
+                }
+            },
+            "Monitor":
+            {
+                "Ganglia":
+                {
+                    "CentOS7.9":
+                    {
+                        "Head": 
+                        [
+                            "firewall-cmd --add-port=8649/tcp --permanent", 
+                            "firewall-cmd --add-port=8649/udp --permanent",
+                            "firewall-cmd --add-port=8651/tcp --permanent", 
+                            "firewall-cmd --add-port=8652/tcp --permanent"
+                        ],
+                        "Compute":
+                        [
+                            "firewall-cmd --add-port=8649/tcp --permanent", 
+                            "firewall-cmd --add-port=8649/udp --permanent"
+                        ]
+                    }
+                }
+            }
+        }, "firewall_comment": "End of firewall info",
+
         "hosts":
         {
+            "cmd": ["echo"],
             "Ubuntu": "",
             "CentOS": "/etc/hosts"
         },
+
         "Systemctl":
         {
             "sub":["start", "stop", "enable", "disable"]
         }
+
     }, "// common_comments": "END of common info",
 
     "MiddleWare":
     {
         "Proxy":
         {
-            "squid":
+            "Squid":
             {
                 "Packege":
                 {
-                    "CentOS7": "squid",
-                    "Ubuntu20.04": "squid"
+                    "CentOS7": 
+                    {
+                        "Head": "yum -y install squid",
+                        "Compute": "yum -y install squid"
+                    },
+                    "Ubuntu20.04": 
+                    {
+                        "Head": "yum -y install squid",
+                        "Compute": "yum -y install squid"
+                    }
                 },
                 "Port":
                 {
-                    "CentOS7":
-                    [
-                        "3128/tcp"
-                    ]
+                    "CentOS7": 
+                    {
+                        "Head": ["3128/tcp"],
+                        "Compute": ["3128/tcp"]
+                    }
                 },
                 "Daemon":
                 {
@@ -59,25 +102,34 @@
 
         "Nfs":
         {
-            "nfs-utils":
+            "Nfs-utils":
             {
                 "Packege":
                 {
-                    "CentOS7": "yum -y install nfs-utils",
-                    "Ubuntu20.04": "apt -y install nfs-utils"
+                    "CentOS7":
+                    { 
+                        "Head": "yum -y install nfs-utils",
+                        "Compute": "yum -y install nfs-utils"
+                    },
+                    "Ubuntu20.04": 
+                    {
+                        "Head": "apt -y install nfs-utils",
+                        "Compute": "apt -y install nfs-utils"
+                    }
                 },
                 "Port":
                 {
                     "CentOS7": 
-                    [
-                        "3128/tcp"
-                    ]
+                    {
+                        "Head": ["3128/tcp"],
+                        "Compute": ["3128/tcp"]
+                    }
                 },
                 "Daemon":
                 {
                     "CentOS7":
                     {
-                        "head": "nfs-server"
+                        "Head": "nfs-server"
                     }
                 },
                 "Command":
@@ -96,34 +148,24 @@
                 {
                     "CentOS7": 
                     {
-                        "head": "yum -y rrdtool rrdtool-devel ganglia-web ganglia-gmetad ganglia-gmond ganglia-gmond-python httpd httpd-tools apr-devel zlib-devel libconfuse-devel expat-devel pcre-devel",
-                        "compute": "yum -y install ganglia-gmond"
+                        "Head": "yum -y rrdtool rrdtool-devel ganglia-web ganglia-gmetad ganglia-gmond ganglia-gmond-python httpd httpd-tools apr-devel zlib-devel libconfuse-devel expat-devel pcre-devel",
+                        "Compute": "yum -y install ganglia-gmond"
                     }
                 },
                 "Port":
                 {
                     "CentOS7": 
                     {       
-                        "head": 
-                        [
-                            "8649/tcp",
-                            "8649/udp",
-                            "8651/tcp",
-                            "8652/tcp"
-                        ],
-                        "compute": 
-                        [
-                            "8649/tcp",
-                            "8649/udp"
-                        ]
+                        "Head": ["8649/tcp", "8649/udp", "8651/tcp", "8652/tcp"],
+                        "Compute": ["8649/tcp", "8649/udp"]
                     }
                 },
                 "Daemon":
                 {
                     "CentOS7":
                     {
-                        "head": "httpd gmond gmetad",
-                        "compute": "gmond"
+                        "Head": "httpd gmond gmetad",
+                        "Compute": "gmond"
                     }
                 }
             }, "// ganglia_comment": "END of Ganglia"
