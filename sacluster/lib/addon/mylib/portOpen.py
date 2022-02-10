@@ -54,10 +54,7 @@ def portOpen(clusterID, params, nodePassword, jsonAddonParams, serviceType, serv
             pass
 
     # ヘッドノードに対する操作と接続情報を与える
-    ports   = jsonAddonParams["MiddleWare"][serviceType][serviceName]["Port"][OSType]["Head"]
-    command = []
-    for i, port in enumerate(ports):
-        command.append('firewall-cmd --permanent --zone=trusted --add-port=' + str(port)) 
+    command = jsonAddonParams["Common"]["Firewall"][serviceType][serviceName][OSType]["Head"]
 
     headInfo = {
         'IP_ADDRESS':IP_ADDRESS1,
@@ -68,10 +65,7 @@ def portOpen(clusterID, params, nodePassword, jsonAddonParams, serviceType, serv
     setupPortEth1_head(headInfo, command)
 
     for iComputenode in range(nComputenode):
-        ports   = jsonAddonParams["MiddleWare"][serviceType][serviceName]["Port"][OSType]["Compute"]
-        command = []
-        for i, port in enumerate(ports):
-            command.append('firewall-cmd --permanent --zone=trusted --add-port=' + str(port))
+        command = jsonAddonParams["Common"]["Firewall"][serviceType][serviceName][OSType]["Compute"]
 
         IP_ADDRESS2 = '192.168.100.' + str(iComputenode+1)
         compInfo = {
