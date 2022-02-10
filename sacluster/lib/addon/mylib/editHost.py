@@ -3,7 +3,6 @@ import time
 import logging
 from paramiko import channel
 import tqdm
-import numpy as np
 import os
 import asyncio
 import paramiko 
@@ -21,18 +20,22 @@ from auth_func_pro import authentication_cli
 
 sys.path.append (common_path + "/lib/addon/mylib")
 from getClusterInfo import getClusterInfo
+from loadAddonParams    import loadAddonParams
 
-fileName = common_path + "\\lib\\addon\\setting.json"
+fileName = common_path + "\\lib\\addon\\addon.json"
 
 # Edit /etc/hosts on compute node.
 # Noted!!
 # The target file could be diffrent among each OS & version.
 # Need to check the file to edit 
-def hostsCompute(headIp, USER_NAME, nodePassword, PORT, nComputenode, nodeIndex, jsonAddonParams):
+def hostsCompute(headIp, USER_NAME, nodePassword, PORT, nComputenode, nodeIndex, jsonAddonParams, OSType):
     # Load Command data
-    OSName = "CentOS" # Need to get OS info
-    cmdMain = jsonAddonParams ['Common']['basic'][1]
-    targetFile = jsonAddonParams ['Common']['hosts'][OSName]
+    if 'CentOS' in OSType:
+        osName = 'CentOS'
+    elif 'Ubuntu' in OSType:
+        osName = 'Ubuntu'
+    cmdMain = jsonAddonParams ['Common']['hosts']['cmd']
+    targetFile = jsonAddonParams ['Common']['hosts'][osName]
 
     # Head node info #####
     IP_ADDRESS1 = headIp
@@ -105,11 +108,14 @@ def hostsCompute(headIp, USER_NAME, nodePassword, PORT, nComputenode, nodeIndex,
     
 
 # Login to node via SSH, run command & write into /etc/hosts on Headnode
-def hostsHead (IpAddress, USER_NAME, Password, PORT, numNode, jsonAddonParams):
+def hostsHead (IpAddress, USER_NAME, Password, PORT, numNode, jsonAddonParams, OSType):
     # Load Command data
-    OSName = "CentOS" # Need to get OS info
-    cmdMain = jsonAddonParams ['Common']['basic'][1]
-    targetFile = jsonAddonParams ['Common']['hosts'][OSName]
+    if 'CentOS' in OSType:
+        osName = 'CentOS'
+    elif 'Ubuntu' in OSType:
+        osName = 'Ubuntu'
+    cmdMain = jsonAddonParams ['Common']['hosts']['cmd']
+    targetFile = jsonAddonParams ['Common']['hosts'][osName]
 
     # Create SSH client
     headnode = paramiko.SSHClient ()
@@ -152,30 +158,35 @@ def hostsHead (IpAddress, USER_NAME, Password, PORT, numNode, jsonAddonParams):
     del headnode, stdin, stdout, stderr
 
 # Main
-def editHost (clusterID, clusterInfo, jsonAddonParams, nodePassword):
+def editHost (clusterID, params, nodePassword, jsonAddonParams):
     # ----------------------------------------------------------
     # Common parameters to connect to nodes
     USER_NAME = 'root'
     PORT = 22
+    OSType = ''
     # ----------------------------------------------------------
     
     # Parameters
     headIp  = "255.255.255.255"
     nComputenode = 0
-    node_dict = clusterInfo.get_node_info()
-    disk_dict = clusterInfo.get_disk_info()
+    node_dict = params.get_node_info()
+    disk_dict = params.get_disk_info()
 
     # 1. Get the global IP of Head node
     # 2. Count the compute nodes in the target cluster
-    for zone, url in clusterInfo.url_list.items():
+    for zone, url in params.url_list.items():
         node_list = node_dict[zone]
         disk_list = list(disk_dict[zone].keys())
         if(len(node_list) != 0):
             print (zone + " has nodes")
             for i in range(len(node_list)):
-                print(clusterID + ':' + node_list[i]["Tags"][0] + ' | ' + node_list[i]['Name'])
+                if (len(node_list[i]["Tags"][0]) == 0):
+                    print(clusterID + ':' + 'No Tag' + ' | ' + node_list[i]['Name'])
+                else:
+                    print(clusterID + ':' + node_list[i]["Tags"][0] + ' | ' + node_list[i]['Name'])
                 if (clusterID in node_list[i]["Tags"][0] and 'headnode' in node_list[i]['Name']):
                     headIp = node_list[i]['Interfaces'][0]['IPAddress']
+                    OSType = params.cluster_info_all[clusterID]["clusterparams"]["server"][zone]["head"]["disk"][0]["os"]
                 elif (clusterID in node_list[i]["Tags"][0] and 'computenode' in node_list[i]['Name']):
                     nComputenode += 1
                 else:
@@ -187,16 +198,18 @@ def editHost (clusterID, clusterInfo, jsonAddonParams, nodePassword):
 
     for nodeIndex in range (nComputenode+1):
         if nodeIndex == 0 :
-            hostsHead(headIp, USER_NAME, nodePassword, PORT, nComputenode, jsonAddonParams)
+            hostsHead(headIp, USER_NAME, nodePassword, PORT, nComputenode, jsonAddonParams, OSType)
         else :
-            hostsCompute (headIp, USER_NAME, nodePassword, PORT, nComputenode, nodeIndex, jsonAddonParams)
+            hostsCompute (headIp, USER_NAME, nodePassword, PORT, nComputenode, nodeIndex, jsonAddonParams, OSType)
 
 if __name__ == '__main__':
     # authentication setting
     auth_res = authentication_cli(fp = '', info_list = [1,0,0,0], api_index = True)
-    
-    # Prepare Argument
-    clusterInfo = getClusterInfo()
-    clusterID = "983867"
 
-    editHost (clusterID, clusterInfo, nodePassword = "test")
+    jsonAddonParams = loadAddonParams ()
+
+    # Prepare Argument
+    clusterInfo = getClusterInfo ()
+    clusterID = "983867"
+    
+    editHost (clusterID, clusterInfo, jsonAddonParams, nodePassword = "test")
