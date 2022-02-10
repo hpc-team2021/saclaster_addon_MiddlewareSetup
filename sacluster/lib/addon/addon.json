@@ -3,6 +3,32 @@
     {
         "Firewall":
         {
+            "Zone":{
+                "CentOS 7.9 (2009) 64bit":
+                {
+                    "Head": [
+                        "firewall-cmd --zone=trusted --change-interface=eth1 --permanent",
+                        "firewall-cmd --reload"
+                    ],
+                    "Compute":[
+                        "firewall-cmd --zone=trusted --change-interface=eth0 --permanent",
+                        "firewall-cmd --zone=trusted --change-interface=eth1 --permanent",
+                        "firewall-cmd --reload"
+                    ]
+                },
+                "CentOS Stream 8 (20201203) 64bit":
+                {
+                    "Head": [
+                        "firewall-cmd --zone=trusted --change-interface=eth1 --permanent",
+                        "firewall-cmd --reload"
+                    ],
+                    "Compute":[
+                        "firewall-cmd --zone=trusted --change-interface=eth0 --permanent",
+                        "firewall-cmd --zone=trusted --change-interface=eth1 --permanent",
+                        "firewall-cmd --reload"
+                    ]
+                }
+            },
             "sub":
             {
                 "reload": "--reload"
@@ -11,9 +37,10 @@
             {
                 "Squid":
                 {
-                    "CentOS7.9":
+                    "CentOS 7.9 (2009) 64bit":
                     {
-                        "Head": ["firewall-cmd --add-port=3128/tcp --permanent"]
+                        "Head"      : ["firewall-cmd --permanent --zone=trusted --add-port=3128/tcp"],
+                        "Compute"   : ["firewall-cmd --permanent --zone=trusted --add-port=3128/tcp"]
                     }
                 }
             },
@@ -21,7 +48,7 @@
             {
                 "Nfs-utils":
                 {
-                    "CentOS7.9":
+                    "CentOS 7.9 (2009) 64bit":
                     {
                         "Head": ["firewall-cmd --add-port=3128/tcp --permanent"],
                         "Compute": ["firewall-cmd --add-port=3128/tcp --permanent"]
@@ -32,7 +59,7 @@
             {
                 "Ganglia":
                 {
-                    "CentOS7.9":
+                    "CentOS 7.9 (2009) 64bit":
                     {
                         "Head": 
                         [
@@ -84,16 +111,16 @@
                     },
                     "Ubuntu20.04": 
                     {
-                        "Head": "yum -y install squid",
-                        "Compute": "yum -y install squid"
+                        "Head": "",
+                        "Compute": ""
                     }
                 },
                 "Port":
                 {
                     "CentOS 7.9 (2009) 64bit": 
                     {
-                        "Head": ["3128/tcp"],
-                        "Compute": ["3128/tcp"]
+                        "Head"      : ["3128/tcp"],
+                        "Compute"   : ["3128/tcp"]
                     }
                 },
                 "Daemon":
