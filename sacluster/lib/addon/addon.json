@@ -80,8 +80,8 @@
 
         "hosts":
         {
-            "cmd": ["echo"],
-            "Ubuntu": "",
+            "cmd": "echo",
+            "Ubuntu": "/etc/hosts",
             "CentOS": "/etc/hosts"
         },
 
