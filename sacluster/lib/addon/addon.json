@@ -83,13 +83,7 @@
             "cmd": "echo",
             "Ubuntu": "/etc/hosts",
             "CentOS": "/etc/hosts"
-        },
-
-        "Systemctl":
-        {
-            "sub":["start", "stop", "enable", "disable"]
         }
-
     }, "// common_comments": "END of common info",
 
     "MiddleWare":
@@ -102,11 +96,7 @@
                 {
                     "CentOS 7.9 (2009) 64bit": 
                     {
-                        "Head": [
-                            "yum -y install squid",
-                            "yum -y install httpd-tools",
-                            "yum -y update openssl"
-                        ],
+                        "Head": ["yum -y install squid", "yum -y install httpd-tools", "yum -y update openssl"],
                         "Compute": []
                     },
                     "Ubuntu20.04": 
@@ -125,7 +115,10 @@
                 },
                 "Daemon":
                 {
-                    "CentOS 7.9 (2009) 64bit": "squid"
+                    "CentOS 7.9 (2009) 64bit":
+                        { 
+                            "head": ["systemctl start squid", "systemctl enable squid"]
+                        }
                 }
             }, "// squid_comments": "END of squid"
 
@@ -137,7 +130,7 @@
             {
                 "Packege":
                 {
-                    "CentOS7":
+                    "CentOS 7.9 (2009) 64bit":
                     { 
                         "Head": "yum -y install nfs-utils",
                         "Compute": "yum -y install nfs-utils"
@@ -150,7 +143,7 @@
                 },
                 "Port":
                 {
-                    "CentOS7": 
+                    "CentOS 7.9 (2009) 64bit": 
                     {
                         "Head": ["3128/tcp"],
                         "Compute": ["3128/tcp"]
@@ -158,9 +151,9 @@
                 },
                 "Daemon":
                 {
-                    "CentOS7":
+                    "CentOS 7.9 (2009) 64bit":
                     {
-                        "Head": "nfs-server"
+                        "Head": ["systemctl start nfs-server", "systemctl enable nfs-server"]
                     }
                 },
                 "Command":
@@ -177,7 +170,7 @@
             {
                 "Packege": 
                 {
-                    "CentOS7": 
+                    "CentOS 7.9 (2009) 64bit": 
                     {
                         "Head": "yum -y rrdtool rrdtool-devel ganglia-web ganglia-gmetad ganglia-gmond ganglia-gmond-python httpd httpd-tools apr-devel zlib-devel libconfuse-devel expat-devel pcre-devel",
                         "Compute": "yum -y install ganglia-gmond"
@@ -185,7 +178,7 @@
                 },
                 "Port":
                 {
-                    "CentOS7": 
+                    "CentOS 7.9 (2009) 64bit": 
                     {       
                         "Head": ["8649/tcp", "8649/udp", "8651/tcp", "8652/tcp"],
                         "Compute": ["8649/tcp", "8649/udp"]
@@ -193,10 +186,10 @@
                 },
                 "Daemon":
                 {
-                    "CentOS7":
+                    "CentOS 7.9 (2009) 64bit":
                     {
-                        "Head": "httpd gmond gmetad",
-                        "Compute": "gmond"
+                        "Head": ["systemctl start httpd gmond gmetad", "systemctl start httpd gmond gmetad"],
+                        "Compute": ["systemctl start gmond", "systemctl enable gmond"]
                     }
                 }
             }, "// ganglia_comment": "END of Ganglia"
