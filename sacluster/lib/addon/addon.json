@@ -57,6 +57,11 @@
                     {
                         "Head": ["firewall-cmd --add-port=3128/tcp --permanent"],
                         "Compute": ["firewall-cmd --add-port=3128/tcp --permanent"]
+                    },
+                    "CentOS Stream 8 (20201203) 64bit":
+                    {
+                        "Head": ["firewall-cmd --add-port=3128/tcp --permanent"],
+                        "Compute": ["firewall-cmd --add-port=3128/tcp --permanent"]
                     }
                 }
             },
@@ -78,6 +83,22 @@
                             "firewall-cmd --add-port=8649/tcp --permanent", 
                             "firewall-cmd --add-port=8649/udp --permanent"
                         ]
+                    },
+                    "CentOS Stream 8 (20201203) 64bit":
+                    {
+                        "Head": 
+                        [
+                            "firewall-cmd --add-port=8649/tcp --permanent", 
+                            "firewall-cmd --add-port=8649/udp --permanent",
+                            "firewall-cmd --add-port=8651/tcp --permanent", 
+                            "firewall-cmd --add-port=8652/tcp --permanent"
+                        ],
+                        "Compute":
+                        [
+                            "firewall-cmd --add-port=8649/tcp --permanent", 
+                            "firewall-cmd --add-port=8649/udp --permanent"
+                        ]
+
                     }
                 }
             }
@@ -108,11 +129,22 @@
                     {
                         "Head": "",
                         "Compute": ""
+                    },
+                    "CentOS Stream 8 (20201203) 64bit":
+                    {
+                        "Head": ["yum -y install squid", "yum -y install httpd-tools", "yum -y update openssl"],
+                        "Compute": []
                     }
+
                 },
                 "Port":
                 {
                     "CentOS 7.9 (2009) 64bit": 
+                    {
+                        "Head"      : ["3128/tcp"],
+                        "Compute"   : ["3128/tcp"]
+                    },
+                    "CentOS Stream 8 (20201203) 64bit":
                     {
                         "Head"      : ["3128/tcp"],
                         "Compute"   : ["3128/tcp"]
@@ -121,9 +153,13 @@
                 "Daemon":
                 {
                     "CentOS 7.9 (2009) 64bit":
-                        { 
-                            "head": ["systemctl start squid", "systemctl enable squid"]
-                        }
+                    { 
+                        "head": ["systemctl start squid", "systemctl enable squid"]
+                    },
+                    "CentOS Stream 8 (20201203) 64bit":
+                    {
+                        "head": ["systemctl start squid", "systemctl enable squid"]
+                    }
                 }
             }, "// squid_comments": "END of squid"
 
@@ -144,6 +180,11 @@
                     {
                         "Head": "apt -y install nfs-utils",
                         "Compute": "apt -y install nfs-utils"
+                    },
+                    "CentOS Stream 8 (20201203) 64bit":
+                    {
+                        "Head": "yum -y install nfs-utils",
+                        "Compute": "yum -y install nfs-utils"
                     }
                 },
                 "Port":
@@ -152,11 +193,20 @@
                     {
                         "Head": ["3128/tcp"],
                         "Compute": ["3128/tcp"]
+                    },
+                    "CentOS Stream 8 (20201203) 64bit":
+                    {
+                        "Head": ["3128/tcp"],
+                        "Compute": ["3128/tcp"]
                     }
                 },
                 "Daemon":
                 {
                     "CentOS 7.9 (2009) 64bit":
+                    {
+                        "Head": ["systemctl start nfs-server", "systemctl enable nfs-server"]
+                    },
+                    "CentOS Stream 8 (20201203) 64bit":
                     {
                         "Head": ["systemctl start nfs-server", "systemctl enable nfs-server"]
                     }
@@ -179,6 +229,11 @@
                     {
                         "Head": "yum -y rrdtool rrdtool-devel ganglia-web ganglia-gmetad ganglia-gmond ganglia-gmond-python httpd httpd-tools apr-devel zlib-devel libconfuse-devel expat-devel pcre-devel",
                         "Compute": "yum -y install ganglia-gmond"
+                    },
+                    "CentOS Stream 8 (20201203) 64bit":
+                    {
+                        "Head": "yum -y rrdtool rrdtool-devel ganglia-web ganglia-gmetad ganglia-gmond ganglia-gmond-python httpd httpd-tools apr-devel zlib-devel libconfuse-devel expat-devel pcre-devel",
+                        "Compute": "yum -y install ganglia-gmond"
                     }
                 },
                 "Port":
@@ -187,11 +242,22 @@
                     {       
                         "Head": ["8649/tcp", "8649/udp", "8651/tcp", "8652/tcp"],
                         "Compute": ["8649/tcp", "8649/udp"]
+                    },
+                    "CentOS Stream 8 (20201203) 64bit":
+                    {
+                        "Head": ["8649/tcp", "8649/udp", "8651/tcp", "8652/tcp"],
+                        "Compute": ["8649/tcp", "8649/udp"]
                     }
+                    
                 },
                 "Daemon":
                 {
                     "CentOS 7.9 (2009) 64bit":
+                    {
+                        "Head": ["systemctl start httpd gmond gmetad", "systemctl start httpd gmond gmetad"],
+                        "Compute": ["systemctl start gmond", "systemctl enable gmond"]
+                    },
+                    "CentOS Stream 8 (20201203) 64bit":
                     {
                         "Head": ["systemctl start httpd gmond gmetad", "systemctl start httpd gmond gmetad"],
                         "Compute": ["systemctl start gmond", "systemctl enable gmond"]
