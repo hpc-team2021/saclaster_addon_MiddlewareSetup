@@ -35,12 +35,15 @@ def addon_main(clusterID):
     jsonAddonParams = loadAddonParams ()
 
     setupIpEth1 (clusterID, params, nodePassword = 'test')
+
     editHost    (clusterID, params, nodePassword = 'test', jsonAddonParams = jsonAddonParams)
     swhichFWZone(clusterID, params, nodePassword = 'test', jsonAddonParams = jsonAddonParams)
+
     portOpen    (clusterID, params, nodePassword = 'test', jsonAddonParams = jsonAddonParams, serviceType="Proxy"  , serviceName="Squid")
-    # proxySetup  (clusterID, params, nodePassword = 'test', jsonAddonParams = jsonAddonParams)
-    # portOpen    (clusterID, params, nodePassword = 'test', jsonAddonParams = jsonAddonParams, serviceType="Monitor", serviceName="Ganglia")
-    # monitorSetup (clusterID, params, nodePassword = 'test', jsonAddonParams = jsonAddonParams, serviceType="Monitor" , serviceName="Ganglia")
+    proxySetup  (clusterID, params, nodePassword = 'test', jsonAddonParams = jsonAddonParams, serviceType="Proxy"  , serviceName="Squid")
+
+    portOpen    (clusterID, params, nodePassword = 'test', jsonAddonParams = jsonAddonParams, serviceType="Monitor", serviceName="Ganglia")
+    monitorSetup(clusterID, params, nodePassword = 'test', jsonAddonParams = jsonAddonParams, serviceType="Monitor", serviceName="Ganglia")
 
 def addon_start ():
     print ("ミドルウェアの起動")

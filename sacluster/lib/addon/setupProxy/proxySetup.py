@@ -22,17 +22,21 @@ sys.path.append(common_path + "/lib/auth")
 from auth_func_pro import authentication_cli
 sys.path.append(common_path + "/lib/addon/mylib")
 from getClusterInfo import getClusterInfo
-
+from packInstall    import packInstall
+from daemonStart    import daemonStart
 
 #並列処理を行う
 import asyncio
 import paramiko 
 
-def proxySetup(clusterID, params, nodePassword):
+def proxySetup(clusterID, params, nodePassword, jsonAddonParams, serviceType, serviceName):
 
     # グローバルIPと計算機ノードの数を把握する
     IP_ADDRESS1  = "255.255.255.255"
     nComputenode = 0
+    OSType       = ""
+
+    packInstall(clusterID, params, nodePassword, jsonAddonParams, serviceType, serviceName)
 
     node_dict = params.get_node_info()
     disk_dict = params.get_disk_info()
@@ -42,9 +46,10 @@ def proxySetup(clusterID, params, nodePassword):
         disk_list = list(disk_dict[zone].keys())
         if(len(node_list) != 0):
             for i in range(len(node_list)):
-                print(clusterID + ':' + node_list[i]["Tags"][0] + ' | ' + node_list[i]['Name'])
+                # print(clusterID + ':' + node_list[i]["Tags"][0] + ' | ' + node_list[i]['Name'])
                 if (clusterID in node_list[i]["Tags"][0] and 'headnode' in node_list[i]['Name']):
                     IP_ADDRESS1 = node_list[i]['Interfaces'][0]['IPAddress']
+                    OSType      = disk_dict[zone][disk_list[i]]["SourceArchive"]["Name"]
                 elif (clusterID in node_list[i]["Tags"][0]):
                     nComputenode += 1
                 else:
@@ -52,11 +57,13 @@ def proxySetup(clusterID, params, nodePassword):
         else:
             pass
 
-    # ヘッドノードに対する操作と接続情報を与える
+    headInfo = {
+        'IP_ADDRESS':IP_ADDRESS1,
+        'PORT'      :22,
+        'USER'      :'root',
+        'PASSWORD'  :nodePassword
+    }
     command = [
-        'yum -y install squid',
-        'yum -y install httpd-tools',
-        'yum -y update openssl',
         'echo "acl mynetwork src 192.168.100.0/24"              >> /etc/squid/squid.conf',
         'echo "http_access allow mynetwork"                     >> /etc/squid/squid.conf',
         'echo "forwarded_for off"                               >> /etc/squid/squid.conf',
@@ -64,16 +71,19 @@ def proxySetup(clusterID, params, nodePassword):
         'echo "request_header_access Via deny all"              >> /etc/squid/squid.conf',
         'echo "request_header_access Cache-Control deny all"    >> /etc/squid/squid.conf',
         'htpasswd -b -c /etc/squid/.htpasswd user1 test',
-        'systemctl start squid',
-        'systemctl enable squid'
     ]
-    headInfo = {
-        'IP_ADDRESS':IP_ADDRESS1,
-        'PORT'      :22,
-        'USER'      :'root',
-        'PASSWORD'  :nodePassword
-    }
     setupProxy_head(headInfo, command)
+    daemonStart (
+        addonJson    = jsonAddonParams, 
+        headIp       = IP_ADDRESS1, 
+        targetIp     = IP_ADDRESS1, 
+        nodePassword = nodePassword, 
+        serviceType  = serviceType, 
+        serviceName  = serviceName, 
+        osType       = OSType
+    )
+
+    # コメントアウトした部分はdeamonStart()を実行したらいいんだけど...開発待ち
 
     for iComputenode in range(nComputenode):
         command = [
@@ -89,6 +99,16 @@ def proxySetup(clusterID, params, nodePassword):
             'PASSWORD'  :nodePassword
         }
         setupProxy_comp(headInfo, compInfo, command)
+        daemonStart (
+            addonJson    = jsonAddonParams, 
+            headIp       = IP_ADDRESS1, 
+            targetIp     = IP_ADDRESS2, 
+            nodePassword = nodePassword, 
+            serviceType  = serviceType, 
+            serviceName  = serviceName, 
+            osType       = OSType
+        )
+
 
 
 
@@ -144,6 +164,6 @@ def setupProxy_comp(headInfo, compInfo, command):
 
 if __name__ == '__main__':
     params = getClusterInfo()
-    clusterID = '576968'
+    clusterID = '622276'
     proxySetup(clusterID, params, nodePassword='test')
 

@@ -40,7 +40,7 @@ def setupIpEth1(clusterID, params, nodePassword):
         disk_list = list(disk_dict[zone].keys())
         if(len(node_list) != 0):
             for i in range(len(node_list)):
-                print(clusterID + ':' + node_list[i]["Tags"][0] + ' | ' + node_list[i]['Name'])
+                # print(clusterID + ':' + node_list[i]["Tags"][0] + ' | ' + node_list[i]['Name'])
                 if (clusterID in node_list[i]["Tags"][0] and 'headnode' in node_list[i]['Name']):
                     IP_ADDRESS1 = node_list[i]['Interfaces'][0]['IPAddress']
                 elif (clusterID in node_list[i]["Tags"][0]):
