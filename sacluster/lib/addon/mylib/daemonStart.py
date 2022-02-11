@@ -37,11 +37,10 @@ fileName = common_path + "\\lib\\addon\\setting.json"
 # Noted!!
 # The Setting could be diffrent among each OS & version.
 # Need to check the file to edit 
-def daemonCompute(addonJson, headIp, targetIp, USER_NAME, PASSWORD, PORT, daemonName):
+def daemonCompute(addonJson, headIp, targetIp, USER_NAME, PASSWORD, PORT, serviceType, serviceName, osType):
     # Command variable
-    cmdMain = addonJson ['Common']['basic'][2]
-    cmdSub = addonJson ['Common']['Systemctl']['sub']
-    
+    cmdList = addonJson ['MiddleWare'][serviceType][serviceName]['Daemon'][osType]
+
     #--------------------
     # Head node Info
     IP_ADDRESS1 = headIp
@@ -75,44 +74,24 @@ def daemonCompute(addonJson, headIp, targetIp, USER_NAME, PASSWORD, PORT, daemon
     print('computenode connected')
 
     # Execute command & store the result------------------------
-    CMD = cmdMain + str(' ') + cmdSub[0] + str(' ') + daemonName
-    stdin, stdout, stderr = computenode.exec_command (CMD)
+    for cmd in cmdList:
+        stdin, stdout, stderr = computenode.exec_command (cmd)
 
-    # Store standard output
-    cmd_result = ''
-    for line in stdout :
-        cmd_result += line
-    print (cmd_result)
-        
-    # Store error output
-    cmd_err = ''
-    for line in stderr :
-        cmd_err += line
-    if cmd_err == '' :
-        print (end = '') # output nothing. 
-    else :
-        print (cmd_err)
-        sys.exit ()
-    
-    # Execute command & store the result -----------------
-    cmdMain + str(' ') + cmdSub[2] + str(' ') + daemonName
-    stdin, stdout, stderr = computenode.exec_command (CMD)
-
-    # Store standard output
-    cmd_result = ''
-    for line in stdout :
-        cmd_result += line
-    print (cmd_result)
-        
-    # Store error output
-    cmd_err = ''
-    for line in stderr :
-        cmd_err += line
-    if cmd_err == '' :
-        print (end = '') # output nothing. 
-    else :
-        print (cmd_err)
-        sys.exit ()
+        # Store standard output
+        cmd_result = ''
+        for line in stdout :
+            cmd_result += line
+        print (cmd_result)
+            
+        # Store error output
+        cmd_err = ''
+        for line in stderr :
+            cmd_err += line
+        if cmd_err == '' :
+            print (end = '') # output nothing. 
+        else :
+            print (cmd_err)
+            sys.exit ()
 
     # Close Connection -----------------------------
     computenode.close()
@@ -120,9 +99,8 @@ def daemonCompute(addonJson, headIp, targetIp, USER_NAME, PASSWORD, PORT, daemon
     del headnode, computenode, stdin, stdout, stderr
 
 # Login to node via SSH, run command & write into /etc/hosts on Headnode
-def daemonHead (addonJson, headIp, USER_NAME, PASSWORD, PORT, daemonName):
-    cmdMain = addonJson ['Common']['basic'][2]
-    cmdSub = addonJson ['Common']['Systemctl']['sub']
+def daemonHead (addonJson, headIp, USER_NAME, PASSWORD, PORT, serviceType, serviceName, osType):
+    cmdList = addonJson ['MiddleWare'][serviceType][serviceName]['Daemon'][osType]
 
     # Create SSH client
     headnode = paramiko.SSHClient ()
@@ -130,51 +108,31 @@ def daemonHead (addonJson, headIp, USER_NAME, PASSWORD, PORT, daemonName):
     headnode.connect (headIp, PORT, USER_NAME, PASSWORD)
 
     # Execute command & store the result
-    CMD = cmdMain + str(' ') + cmdSub[0] + str(' ') + daemonName
-    stdin, stdout, stderr = headnode.exec_command (CMD)
+    for cmd in cmdList:
+        stdin, stdout, stderr = headnode.exec_command (cmd)
 
-    # Store standard output
-    cmd_result = ''
-    for line in stdout :
-        cmd_result += line
-    print (cmd_result)
-    
-    # Store error output
-    cmd_err = ''
-    for line in stderr :
-        cmd_err += line
-    if cmd_err == '' :
-        print (end = '') # output nothing. 
-    else :
-        print (cmd_err)
-        sys.exit ()
-
-    # Execute command & store the result
-    CMD = cmdMain + str(' ') + cmdSub[2] + str(' ') + daemonName
-    stdin, stdout, stderr = headnode.exec_command (CMD)
-
-    # Store standard output
-    cmd_result = ''
-    for line in stdout :
-        cmd_result += line
-    print (cmd_result)
-    
-    # Store error output
-    cmd_err = ''
-    for line in stderr :
-        cmd_err += line
-    if cmd_err == '' :
-        print (end = '') # output nothing. 
-    else :
-        print (cmd_err)
-        sys.exit ()
+        # Store standard output
+        cmd_result = ''
+        for line in stdout :
+            cmd_result += line
+        print (cmd_result)
+        
+        # Store error output
+        cmd_err = ''
+        for line in stderr :
+            cmd_err += line
+        if cmd_err == '' :
+            print (end = '') # output nothing. 
+        else :
+            print (cmd_err)
+            sys.exit ()
 
     # close connection
     headnode.close ()
     del headnode, stdin, stdout, stderr
 
 # Main
-def daemonStart (daemonName, addonJson, headIp, targetIp, nodePassword):
+def daemonStart (addonJson, headIp, targetIp, nodePassword, serviceType, serviceName, osType):
     # ----------------------------------------------------------
     # サーバーへの接続情報を設定
     USER_NAME = 'root'
@@ -183,9 +141,9 @@ def daemonStart (daemonName, addonJson, headIp, targetIp, nodePassword):
     # サーバー上で実行するコマンドを設定
     # ----------------------------------------------------------
     if targetIp == headIp:
-        daemonHead (addonJson, headIp, USER_NAME, PASSWORD, PORT, daemonName)
+        daemonHead (addonJson, headIp, USER_NAME, PASSWORD, PORT, serviceType, serviceName, osType)
     else:
-        daemonCompute (addonJson, headIp, targetIp, USER_NAME, PASSWORD, PORT, daemonName)
+        daemonCompute (addonJson, headIp, targetIp, USER_NAME, PASSWORD, PORT, serviceType, serviceName, osType)
 
 # Unit Test
 if __name__ == '__main__':
@@ -198,7 +156,9 @@ if __name__ == '__main__':
 
     # Prepare Argument-----------------------
     targetIp = "192.168.1.1"
-    daemonName = "squid"
+    serviceType = "Proxy"
+    serviceName = "squid"
+    osType = "CentOS 7.9 (2009) 64bit"
     nodePassword = "test"
     clusterID = "983867"
     headIp  = "255.255.255.255"
@@ -220,4 +180,4 @@ if __name__ == '__main__':
                     headIp = node_list[i]['Interfaces'][0]['IPAddress']
     
     # Main
-    daemonStart (daemonName, addonJson, headIp, targetIp, nodePassword)
+    daemonStart (addonJson, headIp, targetIp, nodePassword, serviceType, serviceName, osType)
