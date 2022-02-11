@@ -33,21 +33,30 @@ from proxySetup         import proxySetup
 def addon_main(clusterID):
     params          = getClusterInfo ()
     jsonAddonParams = loadAddonParams ()
+    nodePassword    = get_userPass()
 
-    setupIpEth1 (clusterID, params, nodePassword = 'test')
+    setupIpEth1 (clusterID, params, nodePassword)
 
-    editHost    (clusterID, params, nodePassword = 'test', jsonAddonParams = jsonAddonParams)
-    swhichFWZone(clusterID, params, nodePassword = 'test', jsonAddonParams = jsonAddonParams)
+    editHost    (clusterID, params, nodePassword, jsonAddonParams = jsonAddonParams)
+    swhichFWZone(clusterID, params, nodePassword, jsonAddonParams = jsonAddonParams)
 
-    portOpen    (clusterID, params, nodePassword = 'test', jsonAddonParams = jsonAddonParams, serviceType="Proxy"  , serviceName="Squid")
-    proxySetup  (clusterID, params, nodePassword = 'test', jsonAddonParams = jsonAddonParams, serviceType="Proxy"  , serviceName="Squid")
+    portOpen    (clusterID, params, nodePassword, jsonAddonParams = jsonAddonParams, serviceType="Proxy"  , serviceName="Squid")
+    proxySetup  (clusterID, params, nodePassword, jsonAddonParams = jsonAddonParams, serviceType="Proxy"  , serviceName="Squid")
 
-    portOpen    (clusterID, params, nodePassword = 'test', jsonAddonParams = jsonAddonParams, serviceType="Monitor", serviceName="Ganglia")
-    monitorSetup(clusterID, params, nodePassword = 'test', jsonAddonParams = jsonAddonParams, serviceType="Monitor", serviceName="Ganglia")
+    portOpen    (clusterID, params, nodePassword, jsonAddonParams = jsonAddonParams, serviceType="Monitor", serviceName="Ganglia")
+    monitorSetup(clusterID, params, nodePassword, jsonAddonParams = jsonAddonParams, serviceType="Monitor", serviceName="Ganglia")
 
 def addon_start ():
     print ("ミドルウェアの起動")
     # daemonStart ()
+
+def get_userPass():
+    while True:
+        Password = input('Enter cluster Password : ')
+        Password = Password.strip()
+        if Password != '':
+            break
+    return Password
 
 if __name__ == '__main__':
     clusterID = "927941"
