@@ -41,6 +41,11 @@
                     {
                         "Head"      : ["firewall-cmd --permanent --zone=trusted --add-port=3128/tcp"],
                         "Compute"   : ["firewall-cmd --permanent --zone=trusted --add-port=3128/tcp"]
+                    },
+                    "CentOS Stream 8 (20201203) 64bit":
+                    {
+                        "Head"      : ["firewall-cmd --permanent --zone=trusted --add-port=3128/tcp"],
+                        "Compute"   : ["firewall-cmd --permanent --zone=trusted --add-port=3128/tcp"]
                     }
                 }
             },
