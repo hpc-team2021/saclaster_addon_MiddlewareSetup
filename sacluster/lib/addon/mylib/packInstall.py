@@ -31,12 +31,7 @@ from getClusterInfo import getClusterInfo
 from loadAddonParams    import loadAddonParams
 
 import paramiko 
-import getpass
-import json
-
-#with open('C:\pg\population.json') as f:
-   # jsn = json.load(f)
-
+from tqdm import tqdm
 
 def packInstall(clusterID, params, nodePassword, jsonAddonParams, serviceType, serviceName):
     
@@ -59,8 +54,7 @@ def packInstall(clusterID, params, nodePassword, jsonAddonParams, serviceType, s
                         IPADDRESS1 = node_list[i]["Interfaces"][0]["IPAddress"]
                         ZONE = node_list[i]["Zone"]["Name"]
 
-                        OSType = params.cluster_info_all[clusterID]["clusterparams"]["server"][ZONE]["head"]["disk"][0]["os"]
-                        #json
+                        OSType      = disk_dict[zone][disk_list[i]]["SourceArchive"]["Name"]
 
                         HEAD_CMD = jsonAddonParams['MiddleWare'][serviceType][serviceName]['Packege'][OSType]['Head']
                         COMPUTE_CMD = jsonAddonParams['MiddleWare'][serviceType][serviceName]['Packege'][OSType]['Compute']
@@ -104,11 +98,11 @@ def ssh_connect(IPADDRESS1,nodePassword,computenum,HEAD_CMD,COMPUTE_CMD):
     headnode.connect(hostname=IPADDRESS1, port=PORT1, username=USER1, password=nodePassword)
     print('hostnode connected')
 
-    for i, CMD in enumerate(HEAD_CMD):
+    for CMD in tqdm(HEAD_CMD):
         stdin, stdout, stderr = headnode.exec_command(CMD)
         time.sleep(1)
         hostname = stdout.read().decode()
-        print('hostname_head = %s' % hostname)
+        #print('hostname_head = %s' % hostname)
 
     for i in range(1, computenum+1):
         #管理->計算ノード
@@ -127,11 +121,11 @@ def ssh_connect(IPADDRESS1,nodePassword,computenum,HEAD_CMD,COMPUTE_CMD):
         computenode.connect(hostname=IPADDRESS2,username=USER2,password=nodePassword,sock=channel1)
         print('computenode connected')
 
-        for i, CMD in enumerate(COMPUTE_CMD):
+        for CMD in tqdm(COMPUTE_CMD):
             stdin, stdout, stderr = computenode.exec_command(CMD)
             time.sleep(1)
             hostname = stdout.read().decode()
-            print('hostname_compute01 = %s' % hostname)
+            #print('hostname_compute01 = %s' % hostname)
 
     headnode.close()
     computenode.close()
@@ -140,4 +134,4 @@ def ssh_connect(IPADDRESS1,nodePassword,computenum,HEAD_CMD,COMPUTE_CMD):
 if __name__ == '__main__':
     params = getClusterInfo ()
     jsonAddonParams = loadAddonParams ()
-    packInstall (clusterID = '108477',nodePassword = 'test', params=params ,jsonAddonParams = jsonAddonParams, serviceType="Proxy", serviceName="Squid")
+    packInstall (clusterID = '108477',nodePassword = 'test', params=params ,jsonAddonParams = jsonAddonParams, serviceType="Monitor", serviceName="Ganglia")
