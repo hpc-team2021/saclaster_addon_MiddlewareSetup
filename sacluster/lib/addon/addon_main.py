@@ -38,7 +38,7 @@ def addon_main(clusterID):
     setupIpEth1 (clusterID, params, nodePassword)
 
     editHost    (clusterID, params, nodePassword, jsonAddonParams = jsonAddonParams)
-    swhichFWZone(clusterID, params, nodePassword, jsonAddonParams = jsonAddonParams)
+    switchFWZone(clusterID, params, nodePassword, jsonAddonParams = jsonAddonParams)
 
     portOpen    (clusterID, params, nodePassword, jsonAddonParams = jsonAddonParams, serviceType="Proxy"  , serviceName="Squid")
     proxySetup  (clusterID, params, nodePassword, jsonAddonParams = jsonAddonParams, serviceType="Proxy"  , serviceName="Squid")
