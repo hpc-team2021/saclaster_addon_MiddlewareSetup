@@ -39,7 +39,7 @@ fileName = common_path + "\\lib\\addon\\setting.json"
 # Need to check the file to edit 
 def daemonCompute(addonJson, headIp, targetIp, USER_NAME, PASSWORD, PORT, serviceType, serviceName, osType):
     # Command variable
-    cmdList = addonJson ['MiddleWare'][serviceType][serviceName]['Daemon'][osType]
+    cmdList = addonJson ['MiddleWare'][serviceType][serviceName]['Daemon'][osType]['Compute']
 
     #--------------------
     # Head node Info
@@ -100,7 +100,7 @@ def daemonCompute(addonJson, headIp, targetIp, USER_NAME, PASSWORD, PORT, servic
 
 # Login to node via SSH, run command & write into /etc/hosts on Headnode
 def daemonHead (addonJson, headIp, USER_NAME, PASSWORD, PORT, serviceType, serviceName, osType):
-    cmdList = addonJson ['MiddleWare'][serviceType][serviceName]['Daemon'][osType]
+    cmdList = addonJson ['MiddleWare'][serviceType][serviceName]['Daemon'][osType]['Head']
 
     # Create SSH client
     headnode = paramiko.SSHClient ()

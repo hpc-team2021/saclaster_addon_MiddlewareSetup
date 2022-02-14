@@ -1,0 +1,172 @@
+{
+    "CentOS Stream 8 (20201203) 64bit":
+    {
+        "command": ["echo"],
+        "targetFile":
+        {
+            "gmetad" : "/etc/ganglia/gmetad.conf",
+            "gmond": "/etc/ganglia/gmond.conf",
+            "gangliaConf": "/etc/httpd/conf.d/ganglia.conf"
+        },
+        "gmond":
+        {
+            "comment":
+            [
+                "/* This configuration is as close to 2.5.x default behavior a",
+                "The values closely match ./gmond/metric.h definitions in 2"
+            ],
+            
+            "global":
+            [
+                "globals {",
+                "daemonize = true",
+                "setuid = true",
+                "user = nobody",
+                "host_dmax = 3600",
+                "debug_level = 0",
+                "mute = false",
+                "deaf = false",
+                "allow_extra_data = true",
+                "cleanup_threshold = 300",
+                "gexec = true",
+                "send_metadata_interval = 0",
+                "}"
+            ],
+
+            "cluster": 
+            [
+                "cluster {",
+                "name = \"sacluster\"",
+                "owner = \"my server\"",
+                "latlong = \"unspecified\"",
+                "url = \"unspecified\"",
+                "}"
+            ],
+                
+            "host":
+            [
+                "host {",
+                "location = \"unspecified\"",
+                "}"
+            ],
+                
+            "udp_send_channel":
+            [
+                "udp_send_channel {",
+                "host = ",
+                "port = 8649",
+                "ttl = 1",
+                "# mcast_join = ",
+                "# mcast_if =",
+                "# bind_hostname = yes",
+                "# bind =",
+                "}"
+            ],
+
+            "udp_recv_channel":
+            [
+                "udp_recv_channel {",
+                "port = 8649",
+                "# mcast_join =",
+                "# mcast_if = ",
+                "# bind =",
+                "family = inet4",
+                "}"
+            ],
+                
+            "tcp_accept_channel":
+            [
+                "tcp_accept_channel {",
+                "port = 8649",
+                "# bind =",
+                "# interface = ",
+                "# timeout =",
+                "family = inet4",
+                "}"
+            ],
+
+            "modules":
+            [
+                "modules {",
+                "module {",
+                "  name = \"core_metrics\"",
+                "}",
+                "module {",
+                "  name = \"cpu_module\"",
+                "  path = \"modcppu.so\"",
+                "}",
+                "module {",
+                "  name = \"disk_module\"",
+                "  path = \"moddosk.so\"",
+                "}",
+                "module {",
+                "  name = \"disk_module\"",
+                "  path = \"moddosk.so\"",
+                "}",
+                "module {",
+                "  name = \"load_module\"",
+                "  path = \"modload.so\"",
+                "}",
+                "module {",
+                "  name = \"mem_module\"",
+                "  path = \"modmem.so\"",
+                "}",
+                "module {",
+                "  name = \"net_module\"",
+                "  path = \"modnet.so\"",
+                "}",
+                "module {",
+                "  name = \"proc_module\"",
+                "  path = \"modproc.so\"",
+                "}",
+                "module {",
+                "  name = \"sys_module\"",
+                "  path = \"modsys.so\"",
+                "}"
+            ],
+
+            "collection_group_1":
+            [
+                "collection_group {",
+                "  collect_once = yes",
+                "  time_threshold = 20",
+                "  metric {",
+                "     name = \"heartbeat\"",
+                "  }",
+                "}"
+            ],
+
+            "include":
+            [
+                "include (\"/etc/ganglia/conf.d/*.conf\")"
+            ]
+
+        },"gmond_comment": "End of gmond",
+
+        "gmetad":
+        [
+            "\"data_source \"sacluster\"\" headnode"
+        ],"gmetad_comment": "End of gmetad",
+
+        "gangliaWeb":
+        [
+            "htpasswd -c /etc/httpd/auth.basic"
+        ],"gangliaWeb_comment": "End of gangliaWeb",
+
+        "gangliaConf":
+        [
+            "#",
+            "# Ganglia monitoring system php web frontend",
+            "#",
+            "Alias /ganglia /usr/share/ganglia",
+            " ",
+            "<Location /ganglia>",
+            "AuthType basic",
+            "AuthName \"My Server\"",
+            "AuthBasicProvider file",
+            "AuthUserFile \"/etc/httpd/auth.basic\"",
+            "Require valid-user",
+            "</Location>"
+        ],"gangliaConf_comment": "End of gangliaConf"
+    }
+}
