@@ -29,37 +29,11 @@ from load_external_data import external_data
 def getClusterInfo():
     # 認証周り
     auth_res = authentication_cli(fp = '', info_list = [1,0,0,0], api_index = True)
-    max_workers = 1
-    fp = ""
-    monitor_info_list = [1,0,0,0]
-
-    #set url
-    url_list = {}
-    head_zone = 'is1b'
-    zone      = 'is1b'
-    zone_list = ['is1b']
-    for zone in zone_list:
-        url_list[zone] = "https://secure.sakura.ad.jp/cloud/zone/"+ zone +"/api/cloud/1.1"
-    head_url = "https://secure.sakura.ad.jp/cloud/zone/"+ head_zone +"/api/cloud/1.1"
-    sub_url = ["/server","/disk","/switch","/interface","/bridge","/tag","/appliance","/power"]
-
-    print('事前準備（認証，ゾーンのURLの指定）が完了')
-    # クラスターのID情報を取得する
-    get_cluster_serever_info    = get(url_list[zone] + sub_url[0], auth_res)
-    get_cluster_disk_info       = get(url_list[zone] + sub_url[1], auth_res)
-    get_cluster_switch_info     = get(url_list[zone] + sub_url[2], auth_res)
-    get_cluster_interface_info  = get(url_list[zone] + sub_url[3], auth_res)
-    get_cluster_bridge_info     = get(url_list[zone] + sub_url[4], auth_res)
-    get_cluster_tag_info        = get(url_list[zone] + sub_url[5], auth_res)
-    get_cluster_appliance_info  = get(url_list[zone] + sub_url[6], auth_res)
-    get_cluster_power_info      = get(url_list[zone] + sub_url[7], auth_res)
 
     # 同一IDのホスト名のリストをとってくる
     ext_info = external_data(auth_res, info_list = [1,0,0,0], fp = '')
     params = get_params.get_params(ext_info, auth_res, info_list = [1,0,0,0], f = '', api_index = True)
     params()
-    node_dict = params.get_node_info()
-    disk_dict = params.get_disk_info()
 
     return params
 
