@@ -91,7 +91,6 @@ def daemonCompute(addonJson, headIp, targetIp, USER_NAME, PASSWORD, PORT, servic
             print (end = '') # output nothing. 
         else :
             print (cmd_err)
-            sys.exit ()
 
     # Close Connection -----------------------------
     computenode.close()
@@ -125,7 +124,6 @@ def daemonHead (addonJson, headIp, USER_NAME, PASSWORD, PORT, serviceType, servi
             print (end = '') # output nothing. 
         else :
             print (cmd_err)
-            sys.exit ()
 
     # close connection
     headnode.close ()

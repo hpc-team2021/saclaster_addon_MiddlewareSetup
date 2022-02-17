@@ -200,7 +200,7 @@
                 {
                     "CentOS 7.9 (2009) 64bit":
                     { 
-                        "head": 
+                        "Head": 
                         [
                             "systemctl start squid",
                             "systemctl enable squid"
@@ -208,7 +208,7 @@
                     },
                     "CentOS Stream 8 (20201203) 64bit":
                     {
-                        "head": 
+                        "Head": 
                         [
                             "systemctl start squid", 
                             "systemctl enable squid"
@@ -323,7 +323,7 @@
                     {
                         "Head": 
                         [
-                            "yum -y install rrdtool rrdtool-devel",
+                            "yum -y install rrdtool",
                             "yum -y install ganglia-web ganglia-gmetad ganglia-gmond",
                             "yum -y install httpd httpd-tools",
                             "yum -y install apr-devel zlib-devel libconfuse-devel expat-devel pcre-devel"
@@ -355,7 +355,7 @@
                         "Head": 
                         [
                             "systemctl start httpd gmond gmetad", 
-                            "systemctl start httpd gmond gmetad"
+                            "systemctl enable httpd gmond gmetad"
                         ],
                         "Compute": 
                         [
@@ -368,7 +368,7 @@
                         "Head": 
                         [
                             "systemctl start httpd gmond gmetad",
-                            "systemctl start httpd gmond gmetad"
+                            "systemctl enable httpd gmond gmetad"
                         ],
                         "Compute": 
                         [

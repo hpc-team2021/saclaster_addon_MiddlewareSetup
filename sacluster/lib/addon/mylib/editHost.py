@@ -73,7 +73,7 @@ def hostsCompute(headIp, USER_NAME, nodePassword, PORT, nComputenode, nodeIndex,
     # Execute command & store the result
     for j in range(nComputenode + 1):
         if j == 0:
-            CMD = cmdMain + ' "' + 'headnode 192.168.100.254" > ' + targetFile
+            CMD = cmdMain + ' "' + '192.168.100.254  headnode" > ' + targetFile
             #CMD = 'echo "headnode 192.168.100.254" > /etc/hosts'
             stdin, stdout, stderr = computenode.exec_command (CMD)
         else:
@@ -81,7 +81,7 @@ def hostsCompute(headIp, USER_NAME, nodePassword, PORT, nComputenode, nodeIndex,
                 index = '00' + str (j)
             elif (j > 10) & (j < 100):
                 index = '0' + str (j)
-            CMD = cmdMain + ' "' + 'computenode' + str(index) + ' 192.168.100.254" >> ' + targetFile
+            CMD = cmdMain + ' "' + '   192.168.100.' + str(j) + '  computenode' + str(index) +  '" >> ' + targetFile
             #CMD = 'echo "computenode' + str(index) + ' 192.168.100.' + str(j) + '" >> /etc/hosts'
             stdin, stdout, stderr = computenode.exec_command (CMD)
 
@@ -125,7 +125,7 @@ def hostsHead (IpAddress, USER_NAME, Password, PORT, numNode, jsonAddonParams, O
     # Execute command & store the result
     for i in range(numNode + 1):
         if i == 0:
-            CMD = cmdMain + ' "' + 'headnode 192.168.100.254" > ' + targetFile
+            CMD = cmdMain + ' "' + '192.168.100.254  headnode" > ' + targetFile
             #CMD = 'echo "headnode 192.168.100.254" > /etc/hosts'
             stdin, stdout, stderr = headnode.exec_command (CMD)
         else:
@@ -133,8 +133,8 @@ def hostsHead (IpAddress, USER_NAME, Password, PORT, numNode, jsonAddonParams, O
                 index = '00' + str (i)
             elif (i > 10) & (i < 100):
                 index = '0' + str (i)
-            CMD = cmdMain + ' "' + 'computenode' + str(index) + ' 192.168.100.254" >> ' + targetFile
-            # CMD = 'echo "computenode' + str(index) + ' 192.168.100.' + str(i) + '" >> /etc/hosts'
+            CMD = cmdMain + ' "' + ' 192.168.100.' + str(i) + '  computenode' + str(index)  +  '" >> ' + targetFile
+            # CMD = 'echo "computenode' + str(index) + '    192.168.100.' + str(i) + '" >> /etc/hosts'
             stdin, stdout, stderr = headnode.exec_command (CMD)
 
         # Store standard output
@@ -180,17 +180,17 @@ def editHost (clusterID, params, nodePassword, jsonAddonParams):
         if(len(node_list) != 0):
             print (zone + " has nodes")
             for i in range(len(node_list)):
-                if (len(node_list[i]["Tags"][0]) == 0):
+                if (len(node_list[i]["Tags"]) == 0):
                     print(clusterID + ':' + 'No Tag' + ' | ' + node_list[i]['Name'])
                 else:
                     print(clusterID + ':' + node_list[i]["Tags"][0] + ' | ' + node_list[i]['Name'])
-                if (clusterID in node_list[i]["Tags"][0] and 'headnode' in node_list[i]['Name']):
-                    headIp = node_list[i]['Interfaces'][0]['IPAddress']
-                    OSType = params.cluster_info_all[clusterID]["clusterparams"]["server"][zone]["head"]["disk"][0]["os"]
-                elif (clusterID in node_list[i]["Tags"][0] and 'computenode' in node_list[i]['Name']):
-                    nComputenode += 1
-                else:
-                    pass
+                    if (clusterID in node_list[i]["Tags"][0] and 'headnode' in node_list[i]['Name']):
+                        headIp = node_list[i]['Interfaces'][0]['IPAddress']
+                        OSType = disk_dict[zone][disk_list[i]]["SourceArchive"]["Name"]
+                    elif (clusterID in node_list[i]["Tags"][0] and 'computenode' in node_list[i]['Name']):
+                        nComputenode += 1
+                    else:
+                        pass
             print (" ")
         else:
             print (zone + " has no nodes")
@@ -210,6 +210,6 @@ if __name__ == '__main__':
 
     # Prepare Argument
     clusterInfo = getClusterInfo ()
-    clusterID = "983867"
-    
-    editHost (clusterID, clusterInfo, jsonAddonParams, nodePassword = "test")
+    clusterID = "138658"
+    nodePassword = 'test'
+    editHost (clusterID, clusterInfo, nodePassword, jsonAddonParams)

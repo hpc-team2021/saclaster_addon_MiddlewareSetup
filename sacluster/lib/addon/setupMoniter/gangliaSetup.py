@@ -1,5 +1,6 @@
 import json
 from operator import index
+import re
 import string
 import sys
 import time
@@ -26,8 +27,8 @@ def gangliaSetup (headIp, nComputenode, nodePassword, jsonAddonParams, OSType):
     jsonGanglia = json.load(json_open)
 
     # Ganglia Setting
-    gangliaHead (headIp, nComputenode, nodePassword, jsonAddonParams, jsonGanglia, OSType)
-    # gangliaComp (headIp, nComputenode, nodePassword, jsonAddonParams, jsonGanglia, OSType)
+    # gangliaHead (headIp, nComputenode, nodePassword, jsonAddonParams, jsonGanglia, OSType)
+    gangliaComp (headIp, nComputenode, nodePassword, jsonAddonParams, jsonGanglia, OSType)
 
     print ("Ganglia Setting is done")
 # % End of gangliaSetup ()   
@@ -55,13 +56,13 @@ def gangliaHead (headIp, nComputenode, nodePassword, jsonAddonParams, jsonGangli
     gmondConfSetup (jsonGanglia[OSType], nComputenode, nodeClient = headnode, hostname = 'headnode')
 
     # gmetad.conf setting
-    #gmetadConfSetup (jsonGanglia[OSType], nodeClient = headnode)
+    gmetadConfSetup (jsonGanglia[OSType], nodeClient = headnode)
 
     # ganglia.conf setting
-    #gangliaConfSetup (jsonGanglia[OSType], nodeClient = headnode)
+    gangliaConfSetup (jsonGanglia[OSType], nodeClient = headnode)
     
     # web monitor password setting 
-    #webPasswdSetting (jsonGanglia[OSType], nodeClient = headnode)
+    # webPasswdSetting (jsonGanglia[OSType], nodeClient = headnode)
     
     headnode.close()
     del headnode
@@ -132,12 +133,25 @@ def gmondConfSetup (jsonGanglia, nComputenode, nodeClient, hostname):
     cmd = cmdMain + str (" ' ' > ") + targetFile
     nodeClient.exec_command (cmd)
 
+    # global conf
+    confVal = conf['global']
+    for i, setting in enumerate(confVal):
+        cmd = cmdMain + str (" '") + setting \
+            + str ("' >> ") + targetFile
+        nodeClient.exec_command (cmd)
+    
+    cmd = cmdMain + str (" ' ' >> ") + targetFile
+    nodeClient.exec_command (cmd)
+
     # clustre conf
     confVal = conf['cluster']
     for i, setting in enumerate(confVal):
         cmd = cmdMain + str (" '") + setting \
             + str ("' >> ") + targetFile
         nodeClient.exec_command (cmd)
+    
+    cmd = cmdMain + str (" ' ' >> ") + targetFile
+    nodeClient.exec_command (cmd)
     
     # host conf
     confVal = conf['host']
@@ -146,6 +160,9 @@ def gmondConfSetup (jsonGanglia, nComputenode, nodeClient, hostname):
             + str ("' >> ") + targetFile
         nodeClient.exec_command (cmd)
     
+    cmd = cmdMain + str (" ' ' >> ") + targetFile
+    nodeClient.exec_command (cmd)
+
     # udp_send_channel conf
     confVal = conf['udp_send_channel']
     for i in range (nComputenode + 1):
@@ -169,23 +186,26 @@ def gmondConfSetup (jsonGanglia, nComputenode, nodeClient, hostname):
                 cmd = cmdMain + str (" '") + setting \
                     + str ("' >> ") + targetFile
                 nodeClient.exec_command (cmd)
+        
+        cmd = cmdMain + str (" ' ' >> ") + targetFile
+        nodeClient.exec_command (cmd)
     
     # recv_channel conf
-    if hostname == 'headnode':
+    # if hostname == 'headnode':
         
-        # udp_recv_channel conf
-        confVal = conf['udp_recv_channel']
-        for i, setting in enumerate(confVal):
-            cmd = cmdMain + str (" '") + setting \
-                + str ("' >> ") + targetFile
-            nodeClient.exec_command (cmd)
+    # udp_recv_channel conf
+    confVal = conf['udp_recv_channel']
+    for i, setting in enumerate(confVal):
+        cmd = cmdMain + str (" '") + setting \
+            + str ("' >> ") + targetFile
+        nodeClient.exec_command (cmd)
 
-        # tcp_recv_channel conf
-        confVal = conf['tcp_accept_channel']
-        for i, setting in enumerate(confVal):
-            cmd = cmdMain + str (" '") + setting \
-                + str ("' >> ") + targetFile
-            nodeClient.exec_command (cmd)
+    # tcp_recv_channel conf
+    confVal = conf['tcp_accept_channel']
+    for i, setting in enumerate(confVal):
+        cmd = cmdMain + str (" '") + setting \
+            + str ("' >> ") + targetFile
+        nodeClient.exec_command (cmd)
 # End of gmondConfSetup ()
 
 #######################
@@ -195,27 +215,61 @@ def webPasswdSetting (jsonGanglia, nodeClient):
     cmdMain = jsonGanglia['gangliaWeb'][0]
     print ("Setting for Web Monitoring Service")
     userName = input ("Enter User Name for Web Login -->")
-    command = cmdMain + str("" ) + userName
-    stdin, stdout, stderr = nodeClient.exec_command(command, get_pty = True)
-            
+    command = cmdMain + str(" ") + userName + '\n'
+    shell = nodeClient.invoke_shell ()
+    shell.recv (1000)
+    # stdin, stdout, stderr = nodeClient.exec_command(command, get_pty = True)
+    # stdin, stdout, stderr = shell.send(command)
+
+    
+    shell.send(command)
+    output=''
+    while True:
+        output = output + shell.recv(1000).decode('utf-8')
+        if(re.search('[Pp]assword',output)):
+            output=''
+            break
+    
+    # Enter Password
+    monitorPassword = input ('Enter web monitor password to login --> ')
+    shell.send(monitorPassword + "\n")
+
+    while True:
+        output = output + shell.recv(1000).decode('utf-8')
+        if(re.search('[Pp]assword',output)):
+            output=''
+            break
+    
+    # Enter Password Again
+    shell.send(monitorPassword + "\n")
+
+    while True:
+        output = shell.recv(1000).decode('utf-8')
+        if(re.search('#',output)):
+            print(output)
+            output=''
+            break
+
     # Enter password
-    while len(stdout.channel.in_buffer) == 0:
+    #while len(stdout.channel.in_buffer) == 0:
         # Wait until getting password prompt
-        print ("Getting password prompt ...")
-        time.sleep(1)
-    monitorPassword = input ('Enter web monitor password to login -->')
-    stdin.channel.send(monitorPassword + "\n")
+    #    print ("Getting password prompt ...")
+    #    time.sleep(1)
+    #monitorPassword = input ('Enter web monitor password to login --> ')
+    #stdin.channel.send(monitorPassword + "\n")
             
     # Enter passwd again
+    """
     while len(stdout.channel.in_buffer) == 0:
         # Wait until getting password prompt
         print ("Getting password prompt")
         time.sleep(1)
     # monitorPassword = input ('Enter web monitor password to login  -->')
     stdin.channel.send(monitorPassword + "\n")
+    """
 
-    out = stdout.read().decode()
-    print('head_stdout = %s' % out)
+    # out = stdout.read().decode()
+    # print('head_stdout = %s' % out)
 # % End of webMonitorSetting ()
 
 #######################
@@ -239,6 +293,9 @@ def gangliaConfSetup (jsonGanglia, nodeClient):
     cmdMain = jsonGanglia["command"][0]
     targetFile = jsonGanglia["targetFile"]["gangliaConf"]
     confSetting = jsonGanglia["gangliaConf"]
+
+    cmd = cmdMain + str (" ' ' > ") + targetFile
+    nodeClient.exec_command (cmd)
 
     for i, setting in enumerate (confSetting):
         cmd = cmdMain + str (" '") \
