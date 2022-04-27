@@ -173,7 +173,8 @@ def setting_compute(ext_info, all_params, set_list, fp = "", info_list = [1,0,0,
     set_list.loc["Compute"] = ["Compute   ", "already", "required    "]
     
     if(param["Compute number"] > 1):
-        param["Compute switch"] = [False, True][conf_pattern_3("Compute switch", ["False","True"], "False", info_list = info_list, fp = fp)]
+        candidate = ext_info["Compute switch"]
+        param["Compute switch"] = ext_info["Compute switch"][conf_pattern_3("Compute switch", candidate, candidate[0], info_list = info_list, fp = fp)]
         set_parm("Compute switch", str(param["Compute switch"]), info_list = info_list, fp = fp)
         logger.debug('setting compute switch')
     else:
