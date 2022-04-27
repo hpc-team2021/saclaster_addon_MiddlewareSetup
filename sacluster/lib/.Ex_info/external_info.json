@@ -130,6 +130,7 @@
             "4096": 1001012040
         }
     },
+    
     "OS": {
         "CentOS Stream 8 (20201203) 64bit": {
             "tk1a":113202012325,
@@ -138,7 +139,7 @@
             "is1b":113202012331,
             "tk1v":113202012336
         },
-        "CsntOS 7.9 (2009) 64bit":{
+        "CentOS 7.9 (2009) 64bit":{
             "tk1a":113300112270,
             "tk1b":113300112271,
             "is1a":113202013807,
@@ -161,5 +162,18 @@
             "Messages are sent at the beginning and ending of building each equipment",
             "Messages are sent at the beginning and ending of all processing"
         ]
+    },
+    "IP_addr":{
+        "base": 192,
+        "front": 168,
+        "back": 169,
+        "zone_seg": {
+            "head":0,
+            "tk1a":1,
+            "tk1b":2,
+            "is1a":3,
+            "is1b":4,
+            "tk1v":5
+        }
     }
 }
