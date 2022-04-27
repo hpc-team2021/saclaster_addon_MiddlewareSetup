@@ -31,12 +31,12 @@ import logging
 logger = logging.getLogger("sacluster").getChild(os.path.basename(__file__))
 #logger = logging.getLogger().getChild(os.path.basename(__file__))
 
-def build_main(in_path, out_path, make_dir_index, api_index, f, info_list, auto_start, max_workers):
+def build_main(in_path, out_path, make_dir_index, api_index, f, info_list, auto_start, max_workers, middle_index):
     logger.debug('Setting authentication info')
     auth_info = authentication_cli(fp = f, info_list  = info_list, api_index = api_index)
     
     logger.debug('loading external data')
-    ext_info = external_data(auth_info, info_list = info_list, fp = f)
+    ext_info = external_data(auth_info, info_list = info_list, fp = f, middle_index = middle_index)
     
     logger.debug('Checking cloud states')
     ext_info = check_cloud_state(ext_info, auth_info, info_list = info_list, fp = f, api_index = api_index, func_type = "build")
