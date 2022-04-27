@@ -1,27 +1,27 @@
 {
     "Zone": {
         "tk1a": {
-            "minimum": 1,
+            "minimum": 2,
             "maximum": 50,
             "Type": "practice"
         },
         "tk1b": {
-            "minimum": 1,
+            "minimum": 2,
             "maximum": 50,
             "Type": "practice"
         },
         "is1a": {
-            "minimum": 1,
+            "minimum": 2,
             "maximum": 50,
             "Type": "practice"
         },
         "is1b": {
-            "minimum": 1,
+            "minimum": 2,
             "maximum": 50,
             "Type": "practice"
         },
         "tk1v": {
-            "minimum": 1,
+            "minimum": 2,
             "maximum": 50,
             "Type": "test"
         }
