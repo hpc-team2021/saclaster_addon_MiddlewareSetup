@@ -99,7 +99,6 @@ def proxySetup(clusterID, params, nodePassword, jsonAddonParams, serviceType, se
             'PASSWORD'  :nodePassword
         }
         setupProxy_comp(headInfo, compInfo, command)
-        """
         daemonStart (
             addonJson    = jsonAddonParams, 
             headIp       = IP_ADDRESS1, 
@@ -109,7 +108,6 @@ def proxySetup(clusterID, params, nodePassword, jsonAddonParams, serviceType, se
             serviceName  = serviceName, 
             osType       = OSType
         )
-        """
 
 
 

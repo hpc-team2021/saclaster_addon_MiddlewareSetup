@@ -65,12 +65,10 @@ def waitDisk (cls_bil, diskId):
         get_cluster_disk_info = get(cls_bil.url_list[zone] + cls_bil.sub_url[1], cls_bil.auth_res)
         diskState = get_cluster_disk_info['Disks'][index]['Availability']
         if diskState == 'available':
-            print("it's OK! Available!")
+            print('diskState is ' + diskState + " it's OK! Run updataDisk() ...")
             break
         print('diskState is ' + diskState + ' ... Please wait...')
         time.sleep(10)
-
-    print('ディスクの追加が完了するまで終了')
 
 def updataDisk (cls_bil, ipAddressSequense, diskId):
     ipAddress = "192.168.100." + str (ipAddressSequense + 1)

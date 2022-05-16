@@ -204,7 +204,8 @@
                         [
                             "systemctl start squid",
                             "systemctl enable squid"
-                        ]
+                        ],
+                        "Compute":[]
                     },
                     "CentOS Stream 8 (20201203) 64bit":
                     {
@@ -212,7 +213,8 @@
                         [
                             "systemctl start squid", 
                             "systemctl enable squid"
-                        ]
+                        ],
+                        "Compute":[]
                     }
                 }
             }, "// squid_comments": "END of squid"

@@ -28,7 +28,8 @@ from setupIpEth1        import setupIpEth1
 from switchFWZone       import switchFWZone
 sys.path.append(common_path + "/lib/addon/setupProxy")
 from proxySetup         import proxySetup
-
+sys.path.append(common_path + "/lib/addon/setupMoniter")
+from monitorSetup       import monitorSetup
 
 def addon_main(clusterID):
     params          = getClusterInfo ()
@@ -59,5 +60,5 @@ def get_userPass():
     return Password
 
 if __name__ == '__main__':
-    clusterID = "927941"
+    clusterID = "779987"
     sys.exit (addon_main (clusterID))
