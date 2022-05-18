@@ -64,6 +64,8 @@ def build_main(in_path, out_path, make_dir_index, api_index, f, info_list, auto_
         str_cls = start_sacluster(cls_bil.all_id_dict, auth_info, fp = f, info_list = info_list, api_index = api_index)
         str_cls()
     
+    return cls_bil
+
     #main(build_params, auth_info, fp = f , info_list = info_list, monitor_info_list = info_list_cluster, api_index = api_index)
     #logger.debug('Start building the cluster')
     #main(build_params, auth_info = auth_info, fp = f , info_list = info_list, api_index = api_index)

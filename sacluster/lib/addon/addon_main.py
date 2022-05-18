@@ -36,8 +36,6 @@ def addon_main(clusterID):
     jsonAddonParams = loadAddonParams ()
     nodePassword    = get_userPass()
 
-    setupIpEth1 (clusterID, params, nodePassword)
-
     editHost    (clusterID, params, nodePassword, jsonAddonParams = jsonAddonParams)
     switchFWZone(clusterID, params, nodePassword, jsonAddonParams = jsonAddonParams)
 

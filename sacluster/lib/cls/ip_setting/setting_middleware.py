@@ -15,20 +15,23 @@ import logging
 logger = logging.getLogger("sacluster").getChild(os.path.basename(__file__))
 
 path = "../../.."
-sys.path.append("/Users/kurata/Documents/sakura_project/sacluster_ip/sacluster/lib/others")
+path = os.path.abspath("../..")
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(path + "/lib/others")
 
 from API_method import get, post, put, delete
 from info_print import printout
 
-script_path = "/Users/sho/Desktop/sakura_project/script/script"
+script_path = path + "/lib/.Ex_info/script"
 
 class set_startup_scripts:
-    def __init__(self, cluster_id, cluster_info, ext_info, auth_res, fp = "" , info_list = [1,0,0,0], api_index = True):
+    def __init__(self, cluster_id, cluster_info, ext_info, auth_res, delete_note = 1, fp = "" , info_list = [1,0,0,0], api_index = True):
         
         self.ext_info = ext_info
         self.auth_res = auth_res
         self.cluster_info = cluster_info
         
+        self.delete_note = delete_note
         self.fp = fp
         self.info_list = info_list
         self.api_index = api_index
@@ -73,28 +76,36 @@ class set_startup_scripts:
             script_head = self.get_scripts(node_type = "head")
             #ヘッドノードのスタートアップスクリプトを登録
             note_res = self.make_notes(script_head, "head")
+            head_note_id = note_res['Note']['ID']
             
             #ヘッドノードのスタートアップスクリプトのリクエストボディを生成
             param = self.generate_params(note_res['Note']['ID'], self.script_variables["head"])
             
-            #スタートアップスクリプトをヘッドノードのディスクに設定
-            disk_id = str(self.cluster_info["clusterparams"]["server"][self.head_zone]["head"]["disk"][0]["id"])
-            self.set_scripts(disk_id, param)
+            if(len(self.script_variables["head"]) != 0):
+                #スタートアップスクリプトをヘッドノードのディスクに設定
+                disk_id = str(self.cluster_info["clusterparams"]["server"][self.head_zone]["head"]["disk"][0]["id"])
+                self.set_scripts(disk_id, param)
             
     
             #コンピュートノードのスタートアップスクリプトの生成
             script_compute = self.get_scripts(node_type = "compute")
             #コンピュートノードのスタートアップスクリプトの登録
             note_res = self.make_notes(script_compute, "compute")
+            compute_note_id = note_res['Note']['ID']
     
             #スタートアップスクリプトをコンピュートノードのディスクに設定
             for zone in self.zone_list:
                 for i in list(self.cluster_info["clusterparams"]["server"][zone]["compute"].keys()):
-                    #コンピュートノードのスタートアップスクリプトのリクエストボディを生成
-                    param = self.generate_params(note_res['Note']['ID'], self.script_variables["compute"][zone][i])
-                    #スタートアップスクリプトをコンピュートノードのディスクに設定
-                    disk_id = str(self.cluster_info["clusterparams"]["server"][zone]["compute"][i]["disk"][0]["id"])
-                    self.set_scripts(disk_id, param)
+                    if(len(self.script_variables["compute"][zone][i]) != 0):
+                        #コンピュートノードのスタートアップスクリプトのリクエストボディを生成
+                        param = self.generate_params(note_res['Note']['ID'], self.script_variables["compute"][zone][i])
+                        #スタートアップスクリプトをコンピュートノードのディスクに設定
+                        disk_id = str(self.cluster_info["clusterparams"]["server"][zone]["compute"][i]["disk"][0]["id"])
+                        self.set_scripts(disk_id, param)
+
+            if(self.delete_note == 1):
+                self.delete_notes(head_note_id)
+                self.delete_notes(compute_note_id)
             
         
     def generate_params(self, note_id, variables):
@@ -122,6 +133,20 @@ class set_startup_scripts:
                 res = post(self.url_list[self.head_zone] + self.sub_url[8], self.auth_res, param)
                 check, msg = self.res_check(res, "post")
                 
+                if check == True:
+                    return res
+                else:
+                    self.build_error()
+                    
+        else:
+            res = "API is not used."
+
+    def delete_notes(self, note_id):
+        if(self.api_index == True):
+            while(True):
+                res = delete(self.url_list[self.head_zone] + self.sub_url[8] + "/{}".format(note_id), self.auth_res)
+                check, msg = self.res_check(res, "delete")
+
                 if check == True:
                     return res
                 else:
@@ -206,10 +231,10 @@ class set_startup_scripts:
         #ヘッドノードにおけるeth1のIPアドレスを割り当てるためのパラメータを設定
         head_ip = "{}.{}.{}.{}/16".format(base, front, ip_zone["head"], 1)
         
-        osIdList = []
-        for mykey in self.ext_info["OS"].keys():
-            osIdList.append(self.ext_info["OS"][mykey].values())
-        if  (self.cluster_info["clusterparams"]["server"][self.head_zone]["head"]["disk"][0]["os"] in osIdList):
+        if(self.cluster_info["clusterparams"]["server"][self.head_zone]["head"]["disk"][0]["os"] 
+            in list(self.ext_info["OS"]["CentOS Stream 8 (20201203) 64bit"].values())
+            # + list(self.ext_info["OS"]["CentOS 7.9 (2009) 64bit"].values())
+         ):
             self.script_variables["head"]["addresses_ip_head_centos"] = head_ip
             self.target_scripts["head"].append("ip_head_centos")
         
@@ -217,13 +242,16 @@ class set_startup_scripts:
         for zone in self.zone_list:
             if("back" in self.cluster_info["clusterparams"]["switch"][zone]):
                 for i in list(self.cluster_info["clusterparams"]["server"][zone]["compute"].keys()):
-                    if  (self.cluster_info["clusterparams"]["server"][zone]["compute"][i]["disk"][0]["os"] in osIdList):
+                    if(self.cluster_info["clusterparams"]["server"][zone]["compute"][i]["disk"][0]["os"]
+                        in list(self.ext_info["OS"]["CentOS Stream 8 (20201203) 64bit"].values())
+                        # + list(self.ext_info["OS"]["CentOS 7.9 (2009) 64bit"].values())
+                    ):
                         self.target_scripts["compute"].append("ip_compute_centos")
                         self.script_variables["compute"][zone][i]["addresses_ip_compute_centos"] = "{}.{}.{}.{}/16".format(base, back, ip_zone[zone], i + 1)
                     
     #テキストファイルの読み込み
     def open_txt(self, filename):
-        with open(filename) as f:
+        with open(filename, encoding="utf-8") as f:
             contents = f.read()
         return contents
         
