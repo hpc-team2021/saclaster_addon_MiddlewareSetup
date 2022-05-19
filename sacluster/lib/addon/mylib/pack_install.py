@@ -27,17 +27,17 @@ sys.path.append(common_path + "/lib/def_conf")
 from load_external_data import external_data
 
 sys.path.append (common_path + "/lib/addon/mylib")
-from getClusterInfo import getClusterInfo
-from loadAddonParams    import loadAddonParams
+from get_cluster_info import get_cluster_info
+from load_addon_params    import load_addon_params
 
 import paramiko 
 from tqdm import tqdm
 
-def packInstall(clusterID, params, nodePassword, jsonAddonParams, serviceType, serviceName):
+def pack_install(cluster_id, params, node_password, json_addon_params, service_type, service_name):
     
-    IPADDRESS1  = "255.255.255.255"
-    computenum = 0
-    ZONE = " "
+    ipaddress1  = "255.255.255.255"
+    n_compute = 0
+    target_zone = " "
 
     node_dict = params.get_node_info()
     disk_dict = params.get_disk_info()
@@ -49,32 +49,32 @@ def packInstall(clusterID, params, nodePassword, jsonAddonParams, serviceType, s
         if(len(node_list) != 0):
             for i in range(len(node_list)):
                 desp = node_list[i]["Description"]
-                if(clusterID in node_list[i]["Tags"][0]):
+                if(cluster_id in node_list[i]["Tags"][0]):
                     if(node_list[i]["Interfaces"][0]["IPAddress"] != None):
-                        IPADDRESS1 = node_list[i]["Interfaces"][0]["IPAddress"]
-                        ZONE = node_list[i]["Zone"]["Name"]
+                        ipaddress1 = node_list[i]["Interfaces"][0]["IPAddress"]
+                        target_zone = node_list[i]["Zone"]["Name"]
 
                         OSType      = disk_dict[zone][disk_list[i]]["SourceArchive"]["Name"]
 
-                        HEAD_CMD = jsonAddonParams['MiddleWare'][serviceType][serviceName]['Packege'][OSType]['Head']
-                        COMPUTE_CMD = jsonAddonParams['MiddleWare'][serviceType][serviceName]['Packege'][OSType]['Compute']
+                        cmd_head = json_addon_params['MiddleWare'][service_type][service_name]['Packege'][OSType]['Head']
+                        cmd_compute = json_addon_params['MiddleWare'][service_type][service_name]['Packege'][OSType]['Compute']
 
                         """
-                        if("CentOS" in params.cluster_info_all[clusterID]["clusterparams"]["server"][ZONE]["head"]["disk"][0]["os"]):
-                            HEAD_CMD = "hostname" #jsonファイルを読み込む
-                            #HEAD_CMD = jsn["OS"] + jsn[] +jsn[]
-                            COMPUTE_CMD = "hostname -I" #jsonファイルを読み込む
+                        if("CentOS" in params.cluster_info_all[cluster_id]["clusterparams"]["server"][target_zone]["head"]["disk"][0]["os"]):
+                            cmd_head = "hostname" #jsonファイルを読み込む
+                            #cmd_head = jsn["OS"] + jsn[] +jsn[]
+                            cmd_compute = "hostname -I" #jsonファイルを読み込む
 
-                        elif("Ubuntu" in params.cluster_info_all[clusterID]["clusterparams"]["server"][ZONE]["head"]["disk"][0]["os"]):
-                            HEAD_CMD =  "hostname -I"
-                            COMPUTE_CMD =  "hostname"
+                        elif("Ubuntu" in params.cluster_info_all[cluster_id]["clusterparams"]["server"][target_zone]["head"]["disk"][0]["os"]):
+                            cmd_head =  "hostname -I"
+                            cmd_compute =  "hostname"
                            
                         else:
                             pass
 
                         """
                     else:
-                        computenum +=1
+                        n_compute +=1
                 
                 else:
                     pass
@@ -82,46 +82,46 @@ def packInstall(clusterID, params, nodePassword, jsonAddonParams, serviceType, s
         else:
             pass
 
-    ssh_connect(IPADDRESS1,nodePassword,computenum,HEAD_CMD,COMPUTE_CMD)
+    ssh_connect(ipaddress1,node_password,n_compute,cmd_head,cmd_compute)
     
 
-def ssh_connect(IPADDRESS1,nodePassword,computenum,HEAD_CMD,COMPUTE_CMD):
+def ssh_connect(ipaddress1,node_password,n_compute,cmd_head,cmd_compute):
     #管理ノード
-    PORT1 = 22
-    USER1 = 'root'
+    port1 = 22
+    user1 = 'root'
     
     #管理ノードに接続
     headnode = paramiko.SSHClient()
     headnode.set_missing_host_key_policy(paramiko.WarningPolicy())
 
     print("hostnode connecting...")
-    headnode.connect(hostname=IPADDRESS1, port=PORT1, username=USER1, password=nodePassword)
+    headnode.connect(hostname=ipaddress1, port=port1, username=user1, password=node_password)
     print('hostnode connected')
 
-    for CMD in tqdm(HEAD_CMD):
+    for CMD in tqdm(cmd_head):
         stdin, stdout, stderr = headnode.exec_command(CMD)
         time.sleep(1)
         hostname = stdout.read().decode()
         #print('hostname_head = %s' % hostname)
 
-    for i in range(1, computenum+1):
+    for i in range(1, n_compute+1):
         #管理->計算ノード
         #計算ノード
-        IPADDRESS2 = '192.168.100.' + str(i)
-        PORT2 = 22
-        USER2 = 'root'
+        ipaddress2 = '192.168.100.' + str(i)
+        port2 = 22
+        user2 = 'root'
 
-        head = (IPADDRESS1,PORT1)
-        compute = (IPADDRESS2, PORT2)
+        head = (ipaddress1,port1)
+        compute = (ipaddress2, port2)
         transport1 = headnode.get_transport()
         channel1 = transport1.open_channel("direct-tcpip", compute, head)
         computenode = paramiko.SSHClient()
         computenode.set_missing_host_key_policy(paramiko.WarningPolicy())
         print("compurenode connecting...")
-        computenode.connect(hostname=IPADDRESS2,username=USER2,password=nodePassword,sock=channel1)
+        computenode.connect(hostname=ipaddress2,username=user2,password=node_password,sock=channel1)
         print('computenode connected')
 
-        for CMD in tqdm(COMPUTE_CMD):
+        for CMD in tqdm(cmd_compute):
             stdin, stdout, stderr = computenode.exec_command(CMD)
             time.sleep(1)
             hostname = stdout.read().decode()
@@ -132,6 +132,6 @@ def ssh_connect(IPADDRESS1,nodePassword,computenum,HEAD_CMD,COMPUTE_CMD):
     del headnode, stdin, stdout, stderr
 
 if __name__ == '__main__':
-    params = getClusterInfo ()
-    jsonAddonParams = loadAddonParams ()
-    packInstall (clusterID = '108477',nodePassword = 'test', params=params ,jsonAddonParams = jsonAddonParams, serviceType="Monitor", serviceName="Ganglia")
+    params = get_cluster_info ()
+    json_addon_params = load_addon_params ()
+    pack_install (cluster_id = '108477',node_password = 'test', params=params ,json_addon_params = json_addon_params, service_type="Monitor", service_name="Ganglia")

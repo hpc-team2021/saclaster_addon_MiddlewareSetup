@@ -7,9 +7,9 @@ common_path = os.path.abspath("../../..")
 
 fileName = common_path + "\\lib\\addon\\addon.json"
 
-def loadAddonParams ():
+def load_addon_params ():
     # Load Command data
     json_open = open(fileName, 'r')
-    jsonAddonParams = json.load(json_open)
+    json_addon_params = json.load(json_open)
     
-    return jsonAddonParams
+    return json_addon_params

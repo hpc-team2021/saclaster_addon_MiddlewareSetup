@@ -26,7 +26,7 @@ from auth_func_pro import authentication_cli
 sys.path.append(common_path + "/lib/def_conf")
 from load_external_data import external_data
 
-def getClusterInfo():
+def get_cluster_info():
     # 認証周り
     auth_res = authentication_cli(fp = '', info_list = [1,0,0,0], api_index = True)
 
@@ -70,4 +70,4 @@ def res_check(res, met,com_index=False):
             return check, msg
 
 if __name__ == '__main__':
-    sys.exit(getClusterInfo())
+    sys.exit(get_cluster_info())

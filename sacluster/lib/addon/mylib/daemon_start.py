@@ -29,7 +29,7 @@ sys.path.append (common_path + "/lib/def_conf")
 from load_external_data import external_data
 
 sys.path.append (common_path + "/lib/addon/mylib")
-from getClusterInfo import getClusterInfo
+from get_cluster_info import get_cluster_info
 
 fileName = common_path + "\\lib\\addon\\setting.json"
 
@@ -37,40 +37,40 @@ fileName = common_path + "\\lib\\addon\\setting.json"
 # Noted!!
 # The Setting could be diffrent among each OS & version.
 # Need to check the file to edit 
-def daemonCompute(addonJson, headIp, targetIp, USER_NAME, PASSWORD, PORT, serviceType, serviceName, osType):
+def daemon_compute(addon_json, head_ip, target_ip, user_name, password, port, service_type, service_name, os_type):
     # Command variable
-    cmdList = addonJson ['MiddleWare'][serviceType][serviceName]['Daemon'][osType]['Compute']
+    cmdList = addon_json ['MiddleWare'][service_type][service_name]['Daemon'][os_type]['Compute']
 
     #--------------------
     # Head node Info
-    IP_ADDRESS1 = headIp
-    PORT1 = PORT
-    USER1 = USER_NAME
-    PASSWORD1 = PASSWORD
+    IP_ADDRESS1 = head_ip
+    port1 = port
+    USER1 = user_name
+    password1 = password
 
     # Target node Info
-    IP_ADDRESS2 = targetIp
-    PORT2 = PORT
-    USER2 = USER_NAME
-    PASSWORD2 = PASSWORD
+    IP_ADDRESS2 = target_ip
+    port2 = port
+    USER2 = user_name
+    password2 = password
     # ---------------------
 
     # Connect to Head Node: Local --> Head Node
     headnode = paramiko.SSHClient()
     headnode.set_missing_host_key_policy(paramiko.WarningPolicy())
     print("hostnode connecting...")
-    headnode.connect(hostname=IP_ADDRESS1, port=PORT1, username=USER1, password=PASSWORD1)
+    headnode.connect(hostname=IP_ADDRESS1, port=port1, username=USER1, password=password1)
     print('hostnode connected')
 
     # Head Node --> Compute Node
-    head = (IP_ADDRESS1,PORT1)
-    compute = (IP_ADDRESS2, PORT2)
+    head = (IP_ADDRESS1,port1)
+    compute = (IP_ADDRESS2, port2)
     transport1 = headnode.get_transport()
     channel1 = transport1.open_channel("direct-tcpip", compute, head)
     computenode = paramiko.SSHClient()
     computenode.set_missing_host_key_policy(paramiko.WarningPolicy())
     print("compurenode connecting...")
-    computenode.connect(hostname=IP_ADDRESS2,username=USER2,password=PASSWORD2,sock=channel1)
+    computenode.connect(hostname=IP_ADDRESS2,username=USER2,password=password2,sock=channel1)
     print('computenode connected')
 
     # Execute command & store the result------------------------
@@ -98,13 +98,13 @@ def daemonCompute(addonJson, headIp, targetIp, USER_NAME, PASSWORD, PORT, servic
     del headnode, computenode, stdin, stdout, stderr
 
 # Login to node via SSH, run command & write into /etc/hosts on Headnode
-def daemonHead (addonJson, headIp, USER_NAME, PASSWORD, PORT, serviceType, serviceName, osType):
-    cmdList = addonJson ['MiddleWare'][serviceType][serviceName]['Daemon'][osType]['Head']
+def daemon_head (addon_json, head_ip, user_name, password, port, service_type, service_name, os_type):
+    cmdList = addon_json ['MiddleWare'][service_type][service_name]['Daemon'][os_type]['Head']
 
     # Create SSH client
     headnode = paramiko.SSHClient ()
     headnode.set_missing_host_key_policy (paramiko.AutoAddPolicy())
-    headnode.connect (headIp, PORT, USER_NAME, PASSWORD)
+    headnode.connect (head_ip, port, user_name, password)
 
     # Execute command & store the result
     for cmd in cmdList:
@@ -130,18 +130,18 @@ def daemonHead (addonJson, headIp, USER_NAME, PASSWORD, PORT, serviceType, servi
     del headnode, stdin, stdout, stderr
 
 # Main
-def daemonStart (addonJson, headIp, targetIp, nodePassword, serviceType, serviceName, osType):
+def daemon_start (addon_json, head_ip, target_ip, nodepassword, service_type, service_name, os_type):
     # ----------------------------------------------------------
     # サーバーへの接続情報を設定
-    USER_NAME = 'root'
-    PORT = 22
-    PASSWORD = nodePassword
+    user_name = 'root'
+    port = 22
+    password = nodepassword
     # サーバー上で実行するコマンドを設定
     # ----------------------------------------------------------
-    if targetIp == headIp:
-        daemonHead (addonJson, headIp, USER_NAME, PASSWORD, PORT, serviceType, serviceName, osType)
+    if target_ip == head_ip:
+        daemon_head (addon_json, head_ip, user_name, password, port, service_type, service_name, os_type)
     else:
-        daemonCompute (addonJson, headIp, targetIp, USER_NAME, PASSWORD, PORT, serviceType, serviceName, osType)
+        daemon_compute (addon_json, head_ip, target_ip, user_name, password, port, service_type, service_name, os_type)
 
 # Unit Test
 if __name__ == '__main__':
@@ -150,16 +150,16 @@ if __name__ == '__main__':
 
     # Load addon setting parameter
     json_open = open(fileName, 'r')
-    addonJson = json.load(json_open)
+    addon_json = json.load(json_open)
 
     # Prepare Argument-----------------------
-    targetIp = "192.168.1.1"
-    serviceType = "Proxy"
-    serviceName = "squid"
-    osType = "CentOS 7.9 (2009) 64bit"
-    nodePassword = "test"
+    target_ip = "192.168.1.1"
+    service_type = "Proxy"
+    service_name = "squid"
+    os_type = "CentOS 7.9 (2009) 64bit"
+    nodepassword = "test"
     clusterID = "983867"
-    headIp  = "255.255.255.255"
+    head_ip  = "255.255.255.255"
     #-----------------------------------------
        
     params = getClusterInfo()
@@ -175,7 +175,7 @@ if __name__ == '__main__':
             for i in range(len(node_list)):
                 print(clusterID + ':' + node_list[i]["Tags"][0] + ' | ' + node_list[i]['Name'])
                 if (clusterID in node_list[i]["Tags"][0] and 'headnode' in node_list[i]['Name']):
-                    headIp = node_list[i]['Interfaces'][0]['IPAddress']
+                    head_ip = node_list[i]['Interfaces'][0]['IPAddress']
     
     # Main
-    daemonStart (addonJson, headIp, targetIp, nodePassword, serviceType, serviceName, osType)
+    daemon_start (addon_json, head_ip, target_ip, nodepassword, service_type, service_name, os_type)
