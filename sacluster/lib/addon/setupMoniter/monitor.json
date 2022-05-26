@@ -1,0 +1,11 @@
+{
+    "service":
+    [
+        "ganglia"
+    ],
+
+    "conf":
+    {
+        "ganglia":"gangliaConf.json"
+    }
+}

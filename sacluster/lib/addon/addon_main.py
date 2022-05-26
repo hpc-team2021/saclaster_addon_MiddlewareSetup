@@ -19,44 +19,44 @@ from API_method import get, post, put, delete
 from info_print import printout
 
 sys.path.append(common_path + "/lib/addon/mylib")
-from editHost           import editHost
-from getClusterInfo     import getClusterInfo
-from loadAddonParams    import loadAddonParams
-from portOpen           import portOpen
+from edit_host           import edit_host
+from get_cluster_info     import get_cluster_info
+from load_addon_params    import load_addon_params
+from port_open           import port_open
 sys.path.append(common_path + "/lib/addon/setupIP")
-from setupIpEth1        import setupIpEth1
-from switchFWZone       import switchFWZone
+from setup_ip_eth1        import setup_ip_eth1
+from switch_fw_zone       import switch_fw_zone
 sys.path.append(common_path + "/lib/addon/setupProxy")
-from proxySetup         import proxySetup
+from proxy_setup         import proxy_setup
 sys.path.append(common_path + "/lib/addon/setupMoniter")
-from monitorSetup       import monitorSetup
+from monitor_setup       import monitor_setup
 
 def addon_main(clusterID):
-    params          = getClusterInfo ()
-    jsonAddonParams = loadAddonParams ()
-    nodePassword    = get_userPass()
+    params          = get_cluster_info ()
+    json_addon_params = load_addon_params ()
+    node_password    = get_user_pass()
 
-    editHost    (clusterID, params, nodePassword, jsonAddonParams = jsonAddonParams)
-    switchFWZone(clusterID, params, nodePassword, jsonAddonParams = jsonAddonParams)
+    edit_host    (clusterID, params, node_password, json_addon_params = json_addon_params)
+    switch_fw_zone(clusterID, params, node_password, json_addon_params = json_addon_params)
 
-    portOpen    (clusterID, params, nodePassword, jsonAddonParams = jsonAddonParams, serviceType="Proxy"  , serviceName="Squid")
-    proxySetup  (clusterID, params, nodePassword, jsonAddonParams = jsonAddonParams, serviceType="Proxy"  , serviceName="Squid")
+    port_open    (clusterID, params, node_password, json_addon_params = json_addon_params, service_type="Proxy"  , service_name="Squid")
+    proxy_setup  (clusterID, params, node_password, json_addon_params = json_addon_params, service_type="Proxy"  , service_name="Squid")
 
-    portOpen    (clusterID, params, nodePassword, jsonAddonParams = jsonAddonParams, serviceType="Monitor", serviceName="Ganglia")
-    monitorSetup(clusterID, params, nodePassword, jsonAddonParams = jsonAddonParams, serviceType="Monitor", serviceName="Ganglia")
+    port_open    (clusterID, params, node_password, json_addon_params = json_addon_params, service_type="Monitor", service_name="Ganglia")
+    monitor_setup(clusterID, params, node_password, json_addon_params = json_addon_params, service_type="Monitor", service_name="Ganglia")
 
 def addon_start ():
     print ("ミドルウェアの起動")
     # daemonStart ()
 
-def get_userPass():
+def get_user_pass():
     while True:
-        Password = input('Enter cluster Password : ')
-        Password = Password.strip()
-        if Password != '':
+        password = input('Enter cluster Password : ')
+        password = password.strip()
+        if password != '':
             break
-    return Password
+    return password
 
 if __name__ == '__main__':
-    clusterID = "779987"
-    sys.exit (addon_main (clusterID))
+    cluster_id = "779987"
+    sys.exit (addon_main (cluster_id))

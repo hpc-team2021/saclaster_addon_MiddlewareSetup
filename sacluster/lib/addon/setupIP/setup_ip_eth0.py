@@ -21,8 +21,7 @@ sys.path.append(common_path + "/lib/others")
 from API_method import get, post, put, delete
 from info_print import printout
 
-def assignIpAddress (cls_bil):
-    assignIpAddressForHead (cls_bil)
+def setup_ip_eth0 (cls_bil):
     n = cls_bil.compute_num
     for i in range (n):
         if i < 9:
@@ -33,27 +32,15 @@ def assignIpAddress (cls_bil):
             compute_node_name = "computenode"+str(i + 1)
         
         print ("Setting IP Address to disk for " + compute_node_name)
-        diskId = cls_bil.all_id_dict["clusterparams"]["server"][cls_bil.head_zone]["compute"][i]["disk"][0]["id"]
-        waitDisk (cls_bil, diskId)
-        updataDisk (cls_bil, i, diskId)
+        disk_id = cls_bil.all_id_dict["clusterparams"]["server"][cls_bil.head_zone]["compute"][i]["disk"][0]["id"]
+        wait_disk (cls_bil, disk_id)
+        update_disk (cls_bil, i, disk_id)
 
-def assignIpAddressForHead (cls_bil):
-    zone = cls_bil.head_zone
-    nic_id = cls_bil.all_id_dict["clusterparams"]["server"][zone]["head"]["nic"]["front"]["id"]
 
-    param = {
-            "Interface":{
-                "UserIpAddress":"192.168.1.254"
-        }
-    }
-
-    update_nic_response = put(cls_bil.url_list[zone] + cls_bil.sub_url[3] + '/' + nic_id, cls_bil.auth_res, param)
-    
-
-def waitDisk (cls_bil, diskId):
-    #print ('Disk ID:', diskId)
-    #print (type(diskId))
-    diskState = 'uploading'
+def wait_disk (cls_bil, disk_id):
+    #print ('Disk ID:', disk_id)
+    #print (type(disk_id))
+    disk_state = 'uploading'
     index = 0
     flag = 0
     zone = cls_bil.head_zone
@@ -64,9 +51,9 @@ def waitDisk (cls_bil, diskId):
             k = get_cluster_disk_info['Disks'][i]
             #print(k['ID'])
             #print(type(k['ID']))
-            if k['ID'] == str (diskId):
+            if k['ID'] == str (disk_id):
                 print ('Target disk exists in this zone')
-                diskState = k['Availability']
+                disk_state = k['Availability']
                 index = i
                 flag = 1
                 break
@@ -76,19 +63,17 @@ def waitDisk (cls_bil, diskId):
         sys.exit ()
     while True:
         get_cluster_disk_info = get(cls_bil.url_list[zone] + cls_bil.sub_url[1], cls_bil.auth_res)
-        diskState = get_cluster_disk_info['Disks'][index]['Availability']
-        if diskState == 'available':
-            print("it's OK! Available!")
+        disk_state = get_cluster_disk_info['Disks'][index]['Availability']
+        if disk_state == 'available':
+            print('disk_state is ' + disk_state + " it's OK! Run update_disk() ...")
             break
-        print('diskState is ' + diskState + ' ... Please wait...')
+        print('disk_state is ' + disk_state + ' ... Please wait...')
         time.sleep(10)
 
-    print('ディスクの追加が完了するまで終了')
-
-def updataDisk (cls_bil, ipAddressSequense, diskId):
-    ipAddress = "192.168.1." + str (ipAddressSequense + 1)
+def update_disk (cls_bil, ipaddress_sequense, disk_id):
+    ipaddress = "192.168.100." + str (ipaddress_sequense + 1)
     param = {
-        "UserIPAddress": ipAddress,
+        "UserIPAddress": ipaddress,
         "UserSubnet": {
             "DefaultRoute": '192.168.100.254',
             "NetworkMaskLen": 24
@@ -96,7 +81,7 @@ def updataDisk (cls_bil, ipAddressSequense, diskId):
     }
 
     zone = cls_bil.head_zone
-    putUrl = cls_bil.url_list[zone] + cls_bil.sub_url[1] + '/' + str (diskId) + '/config'
-    disk_res = put (putUrl, cls_bil.auth_res, param)
+    put_url = cls_bil.url_list[zone] + cls_bil.sub_url[1] + '/' + str (disk_id) + '/config'
+    disk_res = put (put_url, cls_bil.auth_res, param)
     check, msg = cls_bil.res_check (disk_res, "put")
     return 0

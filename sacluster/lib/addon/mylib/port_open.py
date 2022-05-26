@@ -26,12 +26,12 @@ from auth_func_pro import authentication_cli
 import asyncio
 import paramiko 
 
-def portOpen(clusterID, params, nodePassword, jsonAddonParams, serviceType, serviceName):
+def port_open(cluster_id, params, node_password, json_addon_params, service_type, service_name):
 
     # グローバルIPと計算機ノードの数を把握する
-    IP_ADDRESS1  = "255.255.255.255"
-    nComputenode = 0
-    OSType       = ""
+    ipaddress1  = "255.255.255.255"
+    n_computenode = 0
+    os_type       = ""
 
 
     node_dict = params.get_node_info()
@@ -42,49 +42,49 @@ def portOpen(clusterID, params, nodePassword, jsonAddonParams, serviceType, serv
         disk_list = list(disk_dict[zone].keys())
         if(len(node_list) != 0):
             for i in range(len(node_list)):
-                # print(clusterID + ':' + node_list[i]["Tags"][0] + ' | ' + node_list[i]['Name'])
-                if (clusterID in node_list[i]["Tags"][0] and 'headnode' in node_list[i]['Name']):
-                    IP_ADDRESS1 = node_list[i]['Interfaces'][0]['IPAddress']
-                    OSType      = disk_dict[zone][disk_list[i]]["SourceArchive"]["Name"]
-                elif (clusterID in node_list[i]["Tags"][0]):
-                    nComputenode += 1
+                # print(cluster_id + ':' + node_list[i]["Tags"][0] + ' | ' + node_list[i]['Name'])
+                if (cluster_id in node_list[i]["Tags"][0] and 'headnode' in node_list[i]['Name']):
+                    ipaddress1 = node_list[i]['Interfaces'][0]['IPAddress']
+                    os_type      = disk_dict[zone][disk_list[i]]["SourceArchive"]["Name"]
+                elif (cluster_id in node_list[i]["Tags"][0]):
+                    n_computenode += 1
                 else:
                     pass
         else:
             pass
 
     # ヘッドノードに対する操作と接続情報を与える
-    command = jsonAddonParams["Common"]["Firewall"][serviceType][serviceName][OSType]["Head"]
+    command = json_addon_params["Common"]["Firewall"][service_type][service_name][os_type]["Head"]
 
-    headInfo = {
-        'IP_ADDRESS':IP_ADDRESS1,
-        'PORT'      :22,
-        'USER'      :'root',
-        'PASSWORD'  :nodePassword
+    head_info = {
+        'ipaddress':ipaddress1,
+        'port'      :22,
+        'user'      :'root',
+        'password'  :node_password
     }
-    setupPortEth1_head(headInfo, command)
+    setup_port__head(head_info, command)
 
-    for iComputenode in range(nComputenode):
-        command = jsonAddonParams["Common"]["Firewall"][serviceType][serviceName][OSType]["Compute"]
+    for iComputenode in range(n_computenode):
+        command = json_addon_params["Common"]["Firewall"][service_type][service_name][os_type]["Compute"]
 
-        IP_ADDRESS2 = '192.168.100.' + str(iComputenode+1)
-        compInfo = {
-            'IP_ADDRESS':IP_ADDRESS2,
-            'PORT'      :22,
-            'USER'      :'root',
-            'PASSWORD'  :nodePassword
+        ipaddress2 = '192.168.100.' + str(iComputenode+1)
+        compute_info = {
+            'ipaddress':ipaddress2,
+            'port'      :22,
+            'user'      :'root',
+            'password'  :node_password
         }
-        setupPortEth1_comp(headInfo, compInfo, command)
+        setup_port__comp(head_info, compute_info, command)
 
 
 
-def setupPortEth1_head(headInfo, command):
+def setup_port__head(head_info, command):
     #管理ノードに接続
     headnode = paramiko.SSHClient()
     headnode.set_missing_host_key_policy(paramiko.WarningPolicy())
 
     print("hostnode connecting...")
-    headnode.connect(hostname=headInfo['IP_ADDRESS'], port=headInfo['PORT'], username=headInfo['USER'], password=headInfo['PASSWORD'])
+    headnode.connect(hostname=head_info['ipaddress'], port=head_info['port'], username=head_info['user'], password=head_info['password'])
     print('hostnode connected')
 
     #コマンド実行
@@ -98,14 +98,14 @@ def setupPortEth1_head(headInfo, command):
 
 
 
-def setupPortEth1_comp(headInfo, compInfo, command):
+def setup_port__comp(head_info, compute_info, command):
 
-    head = (headInfo['IP_ADDRESS'], headInfo['PORT'])
-    compute = (compInfo['IP_ADDRESS'], compInfo['PORT'])
+    head = (head_info['ipaddress'], head_info['port'])
+    compute = (compute_info['ipaddress'], compute_info['port'])
 
     headnode = paramiko.SSHClient()
     headnode.set_missing_host_key_policy(paramiko.WarningPolicy())
-    headnode.connect(hostname=headInfo['IP_ADDRESS'], port=headInfo['PORT'], username=headInfo['USER'], password=headInfo['PASSWORD'])
+    headnode.connect(hostname=head_info['ipaddress'], port=head_info['port'], username=head_info['user'], password=head_info['password'])
     transport1 = headnode.get_transport()
     channel1 = transport1.open_channel("direct-tcpip", compute, head)
     
@@ -113,7 +113,7 @@ def setupPortEth1_comp(headInfo, compInfo, command):
     computenode.set_missing_host_key_policy(paramiko.WarningPolicy())
 
     print("compurenode connecting...")
-    computenode.connect(hostname=compInfo['IP_ADDRESS'],username=compInfo['USER'],password=compInfo['PASSWORD'],sock=channel1)
+    computenode.connect(hostname=compute_info['ipaddress'],username=compute_info['user'],password=compute_info['password'],sock=channel1)
     print('computenode connected')
 
     #コマンド実行

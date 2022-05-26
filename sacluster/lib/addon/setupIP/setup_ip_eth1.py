@@ -13,7 +13,7 @@ import tqdm
 import numpy as np
 import os
 
-# from sacluster.lib.addon.mylib.editHost import Password
+# from sacluster.lib.addon.mylib.editHost import password
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 common_path = os.path.abspath("../../..")
 
@@ -26,11 +26,11 @@ from auth_func_pro import authentication_cli
 import asyncio
 import paramiko 
 
-def setupIpEth1(clusterID, params, nodePassword):
+def setup_ip_eth1(cluster_id, params, node_password):
 
     # グローバルIPと計算機ノードの数を把握する
-    IP_ADDRESS1  = "255.255.255.255"
-    nComputenode = 0
+    ipaddress1  = "255.255.255.255"
+    n_computenode = 0
 
     node_dict = params.get_node_info()
     disk_dict = params.get_disk_info()
@@ -42,11 +42,11 @@ def setupIpEth1(clusterID, params, nodePassword):
             for i in range(len(node_list)):
                 if (len(node_list[i]["Tags"]) < 2):
                     continue
-                # print(clusterID + ':' + node_list[i]["Tags"][0] + ' | ' + node_list[i]['Name'])
-                if (clusterID in node_list[i]["Tags"][0] and 'headnode' in node_list[i]['Name']):
-                    IP_ADDRESS1 = node_list[i]['Interfaces'][0]['IPAddress']
-                elif (clusterID in node_list[i]["Tags"][0]):
-                    nComputenode += 1
+                # print(cluster_id + ':' + node_list[i]["Tags"][0] + ' | ' + node_list[i]['Name'])
+                if (cluster_id in node_list[i]["Tags"][0] and 'headnode' in node_list[i]['Name']):
+                    ipaddress1 = node_list[i]['Interfaces'][0]['IPAddress']
+                elif (cluster_id in node_list[i]["Tags"][0]):
+                    n_computenode += 1
                 else:
                     pass
         else:
@@ -58,38 +58,38 @@ def setupIpEth1(clusterID, params, nodePassword):
         'nmcli c mod "System eth1" connection.autoconnect yes',
         'nmcli c down "System eth1" && nmcli c up "System eth1"'
     ]
-    headInfo = {
-        'IP_ADDRESS':IP_ADDRESS1,
-        'PORT'      :22,
-        'USER'      :'root',
-        'PASSWORD'  :nodePassword
+    head_info = {
+        'ipaddress':ipaddress1,
+        'port'      :22,
+        'user'      :'root',
+        'password'  :node_password
     }
-    setupIpEth1_head(headInfo, command)
+    setup_ip_eth1_head(head_info, command)
 
-    for iComputenode in range(nComputenode):
+    for i_computenode in range(n_computenode):
         command = [
-            'nmcli c mod "System eth1" ipv4.addresses 192.168.200.' + str(iComputenode+1) + '/24 ipv4.method manual',
+            'nmcli c mod "System eth1" ipv4.addresses 192.168.200.' + str(i_computenode+1) + '/24 ipv4.method manual',
             'nmcli c mod "System eth1" connection.autoconnect yes',
             'nmcli c down "System eth1" && nmcli c up "System eth1"'
         ]
-        IP_ADDRESS2 = '192.168.100.' + str(iComputenode+1)
-        compInfo = {
-            'IP_ADDRESS':IP_ADDRESS2,
-            'PORT'      :22,
-            'USER'      :'root',
-            'PASSWORD'  :nodePassword
+        ipaddress2 = '192.168.100.' + str(i_computenode+1)
+        comp_info = {
+            'ipaddress':ipaddress2,
+            'port'      :22,
+            'user'      :'root',
+            'password'  :node_password
         }
-        setupIpEth1_comp(headInfo, compInfo, command)
+        setup_ip_eth1_comp(head_info, comp_info, command)
 
 
 
-def setupIpEth1_head(headInfo, command):
+def setup_ip_eth1_head(head_info, command):
     #管理ノードに接続
     headnode = paramiko.SSHClient()
     headnode.set_missing_host_key_policy(paramiko.WarningPolicy())
 
     print("hostnode connecting...")
-    headnode.connect(hostname=headInfo['IP_ADDRESS'], port=headInfo['PORT'], username=headInfo['USER'], password=headInfo['PASSWORD'])
+    headnode.connect(hostname=head_info['ipaddress'], port=head_info['port'], username=head_info['user'], password=head_info['password'])
     print('hostnode connected')
 
     #コマンド実行
@@ -103,14 +103,14 @@ def setupIpEth1_head(headInfo, command):
 
 
 
-def setupIpEth1_comp(headInfo, compInfo, command):
+def setup_ip_eth1_comp(head_info, comp_info, command):
 
-    head = (headInfo['IP_ADDRESS'], headInfo['PORT'])
-    compute = (compInfo['IP_ADDRESS'], compInfo['PORT'])
+    head = (head_info['ipaddress'], head_info['port'])
+    compute = (comp_info['ipaddress'], comp_info['port'])
 
     headnode = paramiko.SSHClient()
     headnode.set_missing_host_key_policy(paramiko.WarningPolicy())
-    headnode.connect(hostname=headInfo['IP_ADDRESS'], port=headInfo['PORT'], username=headInfo['USER'], password=headInfo['PASSWORD'])
+    headnode.connect(hostname=head_info['ipaddress'], port=head_info['port'], username=head_info['user'], password=head_info['password'])
     transport1 = headnode.get_transport()
     channel1 = transport1.open_channel("direct-tcpip", compute, head)
     
@@ -118,7 +118,7 @@ def setupIpEth1_comp(headInfo, compInfo, command):
     computenode.set_missing_host_key_policy(paramiko.WarningPolicy())
 
     print("compurenode connecting...")
-    computenode.connect(hostname=compInfo['IP_ADDRESS'],username=compInfo['USER'],password=compInfo['PASSWORD'],sock=channel1)
+    computenode.connect(hostname=comp_info['ipaddress'],username=comp_info['user'],password=comp_info['password'],sock=channel1)
     print('computenode connected')
 
     #コマンド実行
@@ -134,5 +134,5 @@ def setupIpEth1_comp(headInfo, compInfo, command):
 
 
 if __name__ == '__main__':
-    setupIpEth1()
+    setup_ip_eth1()
 
