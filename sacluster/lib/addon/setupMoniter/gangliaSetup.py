@@ -14,7 +14,7 @@ common_path = os.path.abspath("../../..")
 fileName = common_path + '\\lib\\addon\\setupMoniter\\gangliaConf.json'
 
 sys.path.append(common_path + "/lib/addon/mylib")
-from loadAddonParams import loadAddonParams
+from load_addon_params import load_addon_params
 
 #################
 # Main Programm #
@@ -27,7 +27,7 @@ def gangliaSetup (headIp, nComputenode, nodePassword, jsonAddonParams, OSType):
     jsonGanglia = json.load(json_open)
 
     # Ganglia Setting
-    # gangliaHead (headIp, nComputenode, nodePassword, jsonAddonParams, jsonGanglia, OSType)
+    gangliaHead (headIp, nComputenode, nodePassword, jsonAddonParams, jsonGanglia, OSType)
     gangliaComp (headIp, nComputenode, nodePassword, jsonAddonParams, jsonGanglia, OSType)
 
     print ("Ganglia Setting is done")
@@ -56,10 +56,10 @@ def gangliaHead (headIp, nComputenode, nodePassword, jsonAddonParams, jsonGangli
     gmondConfSetup (jsonGanglia[OSType], nComputenode, nodeClient = headnode, hostname = 'headnode')
 
     # gmetad.conf setting
-    gmetadConfSetup (jsonGanglia[OSType], nodeClient = headnode)
+    #gmetadConfSetup (jsonGanglia[OSType], nodeClient = headnode)
 
     # ganglia.conf setting
-    gangliaConfSetup (jsonGanglia[OSType], nodeClient = headnode)
+    #gangliaConfSetup (jsonGanglia[OSType], nodeClient = headnode)
     
     # web monitor password setting 
     # webPasswdSetting (jsonGanglia[OSType], nodeClient = headnode)
@@ -202,6 +202,22 @@ def gmondConfSetup (jsonGanglia, nComputenode, nodeClient, hostname):
 
     # tcp_recv_channel conf
     confVal = conf['tcp_accept_channel']
+    for i, setting in enumerate(confVal):
+        cmd = cmdMain + str (" '") + setting \
+            + str ("' >> ") + targetFile
+        nodeClient.exec_command (cmd)
+
+    # collection_group conf
+    for index in range(1, 11):
+        group_name = 'collection_group_' + str (index)
+        confVal = conf[group_name]
+        for i, setting in enumerate(confVal):
+            cmd = cmdMain + str (" '") + setting \
+                + str ("' >> ") + targetFile
+            nodeClient.exec_command (cmd)
+    
+    # include conf
+    confVal = conf['include']
     for i, setting in enumerate(confVal):
         cmd = cmdMain + str (" '") + setting \
             + str ("' >> ") + targetFile

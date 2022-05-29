@@ -16,13 +16,13 @@ from API_method import get, post, put, delete
 sys.path.append(common_path + "/lib/auth")
 from auth_func_pro import authentication_cli
 sys.path.append(common_path + "/lib/addon/mylib")
-from getClusterInfo import getClusterInfo
-from packInstall import packInstall
-from loadAddonParams import loadAddonParams
-from portOpen import portOpen
-from daemonStart import daemonStart
+from get_cluster_info import get_cluster_info
+from pack_install import pack_install
+from load_addon_params import load_addon_params
+from port_open import port_open
+from daemon_start import daemon_start
 
-def monitorSetup(clusterID, params, nodePassword, jsonAddonParams, serviceType, serviceName):
+def monitor_setup(clusterID, params, nodePassword, jsonAddonParams, serviceType, serviceName):
 
     # Install Packege
     print ("Install " + serviceName + " packege")
@@ -63,26 +63,26 @@ def monitorSetup(clusterID, params, nodePassword, jsonAddonParams, serviceType, 
 
     # Start & Enable Ganglia Daemon
     print ("Start & Enable Daemon")
-    monitorDaemonStart (headIp, nComputenode, nodePassword, serviceType, serviceName, OSType, addonJson = jsonAddonParams)
+    monitor_daemon_start (headIp, nComputenode, nodePassword, serviceType, serviceName, OSType, addonJson = jsonAddonParams)
 
 ####################
 #  Monitor Daemon  #
 ####################
-def monitorDaemonStart (headIp, nComputenode, nodePassword, serviceType, serviceName, OSType, addonJson):
+def monitor_daemon_start (headIp, nComputenode, nodePassword, serviceType, serviceName, OSType, addonJson):
 
     for index in range(nComputenode+1):
         if index == 0:
             targetIp = headIp
-            daemonStart (addonJson, headIp, targetIp, nodePassword, serviceType, serviceName, OSType)
+            daemon_start (addonJson, headIp, targetIp, nodePassword, serviceType, serviceName, OSType)
         else:
             targetIp = '192.168.100.' + str(index)
-            daemonStart (addonJson, headIp, targetIp, nodePassword, serviceType, serviceName, OSType)
+            daemon_start (addonJson, headIp, targetIp, nodePassword, serviceType, serviceName, OSType)
 
 if __name__ == '__main__':
-    params = getClusterInfo()
-    clusterID = '983867'
+    params = get_cluster_info()
+    clusterID = '711333'
 
     # Read json file for gaglia configuration 
-    jsonAddonParams = loadAddonParams ()
-    monitorSetup(clusterID, params, nodePassword = 'test', jsonAddonParams = jsonAddonParams, serviceType = 'Monitor', serviceName = 'Ganglia')
+    jsonAddonParams = load_addon_params ()
+    monitor_setup(clusterID, params, nodePassword = 'test', jsonAddonParams = jsonAddonParams, serviceType = 'Monitor', serviceName = 'Ganglia')
 
