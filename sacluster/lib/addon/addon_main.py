@@ -31,19 +31,29 @@ from proxy_setup         import proxy_setup
 sys.path.append(common_path + "/lib/addon/setupMoniter")
 from monitor_setup       import monitor_setup
 
-def addon_main(clusterID):
-    params          = get_cluster_info ()
-    json_addon_params = load_addon_params ()
-    node_password    = get_user_pass()
+def addon_main(cls_bil, ext_info):
+    clusterID           = cls_bil.cluster_id.split(": ")[1]
 
-    edit_host    (clusterID, params, node_password, json_addon_params = json_addon_params)
-    switch_fw_zone(clusterID, params, node_password, json_addon_params = json_addon_params)
 
-    port_open    (clusterID, params, node_password, json_addon_params = json_addon_params, service_type="Proxy"  , service_name="Squid")
-    proxy_setup  (clusterID, params, node_password, json_addon_params = json_addon_params, service_type="Proxy"  , service_name="Squid")
+    self.zone_list = list(cls_bil.cluster_info["clusterparams"]["server"].keys())
+    for zone in self.zone_list:
+        for i in list(self.cluster_info["clusterparams"]["server"][zone]["compute"].keys()):
+            IPAddress = "168.192.{}.{}".format()
 
-    port_open    (clusterID, params, node_password, json_addon_params = json_addon_params, service_type="Monitor", service_name="Ganglia")
-    monitor_setup(clusterID, params, node_password, json_addon_params = json_addon_params, service_type="Monitor", service_name="Ganglia")
+                    
+    # IPList              = cls_bil...
+    params              = get_cluster_info ()
+    json_addon_params   = load_addon_params ()
+    node_password       = get_user_pass()
+
+    edit_host    (cls_bil, clusterID, params, node_password, json_addon_params = json_addon_params)
+    switch_fw_zone(cls_bil, clusterID, params, node_password, json_addon_params = json_addon_params)
+
+    port_open    (cls_bil, clusterID, params, node_password, json_addon_params = json_addon_params, service_type="Proxy"  , service_name="Squid")
+    proxy_setup  (cls_bil, clusterID, params, node_password, json_addon_params = json_addon_params, service_type="Proxy"  , service_name="Squid")
+
+    port_open    (cls_bil, clusterID, params, node_password, json_addon_params = json_addon_params, service_type="Monitor", service_name="Ganglia")
+    monitor_setup(cls_bil, clusterID, params, node_password, json_addon_params = json_addon_params, service_type="Monitor", service_name="Ganglia")
 
 def addon_start ():
     print ("ミドルウェアの起動")

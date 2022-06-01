@@ -26,7 +26,7 @@ from auth_func_pro import authentication_cli
 import asyncio
 import paramiko 
 
-def port_open(cluster_id, params, node_password, json_addon_params, service_type, service_name):
+def port_open(cls_bil, cluster_id, params, node_password, json_addon_params, service_type, service_name):
 
     # グローバルIPと計算機ノードの数を把握する
     ipaddress1  = "255.255.255.255"
