@@ -112,7 +112,7 @@ def proxySetup(clusterID, params, nodePassword, jsonAddonParams, serviceType, se
 
 
 
-def setupProxy_head(headInfo, command):
+def setupProxy_head(cls_bil, headInfo, command):
     #管理ノードに接続
     headnode = paramiko.SSHClient()
     headnode.set_missing_host_key_policy(paramiko.WarningPolicy())

@@ -17,7 +17,7 @@ from sshconnect_main import sshConnect_main, headConnect,computeConnect
 
 
 #ローカルのネットワークのFireWallのゾーンを指定したゾーンに変更する
-def switchFWZone(clusterID, params, nodePassword):
+def switchFWZone(cls_bil, clusterID, params, nodePassword):
     #jsonファイる読み込み
     json_open = open(fileName, 'r')
     jsonFW = json.load(json_open)

@@ -93,7 +93,7 @@ def prior_build(args):
     else:
         logger.debug('Set config output path to ' + args.dir)
         
-    cls_bil = build_main(args.input, args.dir, args.parents, args.dryrun, f, info_list, args.auto, int(args.thread), args.middle)
+    cls_bil, ext_info = build_main(args.input, args.dir, args.parents, args.dryrun, f, info_list, args.auto, int(args.thread), args.middle)
         
     if(args.output == True):
         printout("Processes for building the cluster were completed", info_type = 0, info_list = [1,0,0,1], fp = f)
@@ -108,7 +108,7 @@ def prior_build(args):
         start_main(args.dryrun, f, info_list, int(args.thread))
         #eth1のIP設定の関数
         #ミドルウェアセットアップ
-        addon_main(cls_bil.cluster_id.split(": ")[1])
+        addon_main(cls_bil, ext_info)
     
 
 def prior_start(args):

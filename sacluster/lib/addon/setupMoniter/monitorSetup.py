@@ -22,7 +22,7 @@ from load_addon_params import load_addon_params
 from port_open import port_open
 from daemon_start import daemon_start
 
-def monitor_setup(clusterID, params, nodePassword, jsonAddonParams, serviceType, serviceName):
+def monitor_setup(cls_bil, clusterID, params, nodePassword, jsonAddonParams, serviceType, serviceName):
 
     # Install Packege
     print ("Install " + serviceName + " packege")
