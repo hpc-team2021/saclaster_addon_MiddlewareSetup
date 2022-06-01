@@ -21,15 +21,15 @@ from API_method import get, post, put, delete
 sys.path.append(common_path + "/lib/auth")
 from auth_func_pro import authentication_cli
 sys.path.append(common_path + "/lib/addon/mylib")
-from getClusterInfo import getClusterInfo
-from packInstall    import packInstall
-from daemonStart    import daemonStart
+from get_cluster_info     import get_cluster_info
+from pack_install    import pack_install
+from daemon_start    import daemon_start
 
 #並列処理を行う
 import asyncio
 import paramiko 
 
-def proxySetup(clusterID, params, nodePassword, jsonAddonParams, serviceType, serviceName):
+def proxy_setup(clusterID, params, nodePassword, jsonAddonParams, serviceType, serviceName):
 
     # グローバルIPと計算機ノードの数を把握する
     IP_ADDRESS1  = "255.255.255.255"

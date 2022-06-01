@@ -9,15 +9,15 @@ common_path = os.path.abspath("../../..")
 fileName = common_path + "/lib/addon/setupIP/switchFWZone.json"
 
 sys.path.append(common_path + "/lib/addon/mylib")
-from getClusterInfo import getClusterInfo
+from get_cluster_info     import get_cluster_info
 
 sys.path.append (common_path + "/lib/addon/mylib")
-from getClusterInfo import getClusterInfo
+from get_cluster_info     import get_cluster_info
 from sshconnect_main import sshConnect_main, headConnect,computeConnect
 
 
 #ローカルのネットワークのFireWallのゾーンを指定したゾーンに変更する
-def switchFWZone(cls_bil, clusterID, params, nodePassword):
+def switch_fw_zone(cls_bil, clusterID, params, nodePassword):
     #jsonファイる読み込み
     json_open = open(fileName, 'r')
     jsonFW = json.load(json_open)
@@ -35,4 +35,4 @@ def switchFWZone(cls_bil, clusterID, params, nodePassword):
 
 if __name__ == '__main__':
     params = getClusterInfo ()
-    switchFWZone(clusterID = '433442', params=params, nodePassword = 'test01pw')
+    switch_fw_zone(clusterID = '433442', params=params, nodePassword = 'test01pw')

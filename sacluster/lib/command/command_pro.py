@@ -35,7 +35,7 @@ sys.path.append(common_path + "/lib/addon")
 from addon_main import addon_main, addon_start
 
 sys.path.append(common_path + "/lib/addon/setupIP")
-from setupIpEth0 import setupIpEth0
+from setup_ip_eth0 import setup_ip_eth0
 
 
 
