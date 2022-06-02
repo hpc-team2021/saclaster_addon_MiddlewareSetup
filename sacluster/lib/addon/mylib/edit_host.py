@@ -158,7 +158,7 @@ def hosts_head (IpAddress, user_name, Password, port, numNode, json_addon_params
     del headnode, stdin, stdout, stderr
 
 # Main
-def edit_host (cls_bil, clusterID, params, node_password, json_addon_params):
+def edit_host (clusterID, params, node_password, json_addon_params):
     # ----------------------------------------------------------
     # Common parameters to connect to nodes
     user_name = 'root'
