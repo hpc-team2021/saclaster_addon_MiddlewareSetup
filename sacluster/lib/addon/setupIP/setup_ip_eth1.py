@@ -22,8 +22,6 @@ from API_method import get, post, put, delete
 sys.path.append(common_path + "/lib/auth")
 from auth_func_pro import authentication_cli
 
-#並列処理を行う
-import asyncio
 import paramiko 
 
 def setup_ip_eth1(cluster_id, params, node_password):
@@ -54,9 +52,10 @@ def setup_ip_eth1(cluster_id, params, node_password):
 
     # ヘッドノードに対する操作と接続情報を与える
     command = [
-        'nmcli c mod "System eth1" ipv4.addresses 192.168.100.254/24 ipv4.method manual',
-        'nmcli c mod "System eth1" connection.autoconnect yes',
-        'nmcli c down "System eth1" && nmcli c up "System eth1"'
+        'nmcli c add type ethernet ifname eth1 con-name "System eth1"',
+        'nmcli c modify "System eth1" ipv4.method manual ipv4.addresses 192.168.100.254/24',
+        'nmcli c modify "System eth1" connection.autoconnect yes',
+        'nmcli c reload "System eth1"'
     ]
     head_info = {
         'ipaddress':ipaddress1,
@@ -68,7 +67,7 @@ def setup_ip_eth1(cluster_id, params, node_password):
 
     for i_computenode in range(n_computenode):
         command = [
-            'nmcli c mod "System eth1" ipv4.addresses 192.168.200.' + str(i_computenode+1) + '/24 ipv4.method manual',
+            'nmcli c mod "System eth1" ipv4.method manual ipv4.addresses 192.168.200.' + str(i_computenode+1) + '/24',
             'nmcli c mod "System eth1" connection.autoconnect yes',
             'nmcli c down "System eth1" && nmcli c up "System eth1"'
         ]
@@ -112,13 +111,13 @@ def setup_ip_eth1_comp(head_info, comp_info, command):
     headnode.set_missing_host_key_policy(paramiko.WarningPolicy())
     headnode.connect(hostname=head_info['ipaddress'], port=head_info['port'], username=head_info['user'], password=head_info['password'])
     transport1 = headnode.get_transport()
-    channel1 = transport1.open_channel("direct-tcpip", compute, head)
+    channel1 = transport1.open_channel(kind="direct-tcpip", dest_addr=compute, src_addr=head, timeout=180)
     
     computenode = paramiko.SSHClient()
     computenode.set_missing_host_key_policy(paramiko.WarningPolicy())
 
     print("compurenode connecting...")
-    computenode.connect(hostname=comp_info['ipaddress'],username=comp_info['user'],password=comp_info['password'],sock=channel1)
+    computenode.connect(hostname=comp_info['ipaddress'],username=comp_info['user'],password=comp_info['password'],sock=channel1, timeout=180)
     print('computenode connected')
 
     #コマンド実行
