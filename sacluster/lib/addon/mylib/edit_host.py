@@ -67,7 +67,7 @@ def hosts_compute(head_ip, user_name, node_password, port, n_computenode, node_i
     computenode.set_missing_host_key_policy(paramiko.WarningPolicy())
 
     print("compurenode connecting...")
-    computenode.connect(hostname=ipaddress2,username=user2,password=password2,sock=channel1)
+    computenode.connect(hostname=ipaddress2,username=user2,password=password2,sock=channel1, auth_timeout=300)
     print('computenode connected')
 
     # Execute command & store the result
@@ -81,7 +81,7 @@ def hosts_compute(head_ip, user_name, node_password, port, n_computenode, node_i
                 index = '00' + str (j)
             elif (j > 10) & (j < 100):
                 index = '0' + str (j)
-            CMD = cmd_main + ' "' + '   192.168.100.' + str(j) + '  computenode' + str(index) +  '" >> ' + target_file
+            CMD = cmd_main + ' "' + '192.168.100.' + str(j) + '  computenode' + str(index) +  '" >> ' + target_file
             #CMD = 'echo "computenode' + str(index) + ' 192.168.100.' + str(j) + '" >> /etc/hosts'
             stdin, stdout, stderr = computenode.exec_command (CMD)
 
@@ -108,7 +108,7 @@ def hosts_compute(head_ip, user_name, node_password, port, n_computenode, node_i
     
 
 # Login to node via SSH, run command & write into /etc/hosts on Headnode
-def hosts_head (IpAddress, user_name, Password, port, numNode, json_addon_params, os_type):
+def hosts_head (ipaddress, user_name, password, port, n_node, json_addon_params, os_type):
     # Load Command data
     if 'CentOS' in os_type:
         os_name = 'CentOS'
@@ -120,10 +120,10 @@ def hosts_head (IpAddress, user_name, Password, port, numNode, json_addon_params
     # Create SSH client
     headnode = paramiko.SSHClient ()
     headnode.set_missing_host_key_policy (paramiko.AutoAddPolicy())
-    headnode.connect (IpAddress, port, user_name, Password)
+    headnode.connect (ipaddress, port, user_name, password)
 
     # Execute command & store the result
-    for i in range(numNode + 1):
+    for i in range(n_node + 1):
         if i == 0:
             CMD = cmd_main + ' "' + '192.168.100.254  headnode" > ' + target_file
             #CMD = 'echo "headnode 192.168.100.254" > /etc/hosts'
@@ -133,7 +133,7 @@ def hosts_head (IpAddress, user_name, Password, port, numNode, json_addon_params
                 index = '00' + str (i)
             elif (i > 10) & (i < 100):
                 index = '0' + str (i)
-            CMD = cmd_main + ' "' + ' 192.168.100.' + str(i) + '  computenode' + str(index)  +  '" >> ' + target_file
+            CMD = cmd_main + ' "' + '192.168.100.' + str(i) + '  computenode' + str(index)  +  '" >> ' + target_file
             # CMD = 'echo "computenode' + str(index) + '    192.168.100.' + str(i) + '" >> /etc/hosts'
             stdin, stdout, stderr = headnode.exec_command (CMD)
 
@@ -178,38 +178,40 @@ def edit_host (clusterID, params, node_password, json_addon_params):
         node_list = node_dict[zone]
         disk_list = list(disk_dict[zone].keys())
         if(len(node_list) != 0):
-            print (zone + " has nodes")
+            #print (zone + " has nodes")
             for i in range(len(node_list)):
                 if (len(node_list[i]["Tags"]) == 0):
                     print(clusterID + ':' + 'No Tag' + ' | ' + node_list[i]['Name'])
                 else:
-                    print(clusterID + ':' + node_list[i]["Tags"][0] + ' | ' + node_list[i]['Name'])
+                    #print(clusterID + ':' + node_list[i]["Tags"][0] + ' | ' + node_list[i]['Name'])
                     if (clusterID in node_list[i]["Tags"][0] and 'headnode' in node_list[i]['Name']):
                         head_ip = node_list[i]['Interfaces'][0]['IPAddress']
                         os_type = disk_dict[zone][disk_list[i]]["SourceArchive"]["Name"]
-                    elif (clusterID in node_list[i]["Tags"][0] and 'computenode' in node_list[i]['Name']):
+                    elif (clusterID in node_list[i]["Tags"][0] and 'compute_node' in node_list[i]['Name']):
                         n_computenode += 1
                     else:
                         pass
-            print (" ")
+            #print (" ")
         else:
             print (zone + " has no nodes")
             pass
-
+    
+    print ("Setting hosts file")
     for node_index in range (n_computenode+1):
         if node_index == 0 :
             hosts_head(head_ip, user_name, node_password, port, n_computenode, json_addon_params, os_type)
         else :
             hosts_compute (head_ip, user_name, node_password, port, n_computenode, node_index, json_addon_params, os_type)
+    print ("Done")
 
 if __name__ == '__main__':
     # authentication setting
     auth_res = authentication_cli(fp = '', info_list = [1,0,0,0], api_index = True)
 
-    json_addon_params = loadAddonParams ()
+    json_addon_params = load_addon_params ()
 
     # Prepare Argument
-    clusterInfo = getClusterInfo ()
-    clusterID = "138658"
+    clusterInfo = get_cluster_info ()
+    clusterID = "986460"
     node_password = 'test'
     edit_host (clusterID, clusterInfo, node_password, json_addon_params)

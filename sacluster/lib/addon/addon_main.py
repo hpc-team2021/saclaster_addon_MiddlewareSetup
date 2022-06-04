@@ -31,19 +31,25 @@ from proxy_setup         import proxy_setup
 sys.path.append(common_path + "/lib/addon/setupMoniter")
 from monitor_setup       import monitor_setup
 
-def addon_main(clusterID):
+def addon_main(cluster_id):
     params          = get_cluster_info ()
     json_addon_params = load_addon_params ()
     node_password    = get_user_pass()
 
-    edit_host    (clusterID, params, node_password, json_addon_params = json_addon_params)
-    switch_fw_zone(clusterID, params, node_password, json_addon_params = json_addon_params)
+    # Setting IP address for Eth1
+    # This method should be removed when
+    # the coding on the sacluster side is done
+    print ("Setting IP address to Eth1 connection")
+    # setup_ip_eth1(cluster_id, params, node_password)
 
-    port_open    (clusterID, params, node_password, json_addon_params = json_addon_params, service_type="Proxy"  , service_name="Squid")
-    proxy_setup  (clusterID, params, node_password, json_addon_params = json_addon_params, service_type="Proxy"  , service_name="Squid")
+    #edit_host    (cluster_id, params, node_password, json_addon_params = json_addon_params)
+    #switch_fw_zone(cluster_id, params, node_password, jsonAddonParams = json_addon_params)
 
-    port_open    (clusterID, params, node_password, json_addon_params = json_addon_params, service_type="Monitor", service_name="Ganglia")
-    monitor_setup(clusterID, params, node_password, json_addon_params = json_addon_params, service_type="Monitor", service_name="Ganglia")
+    #port_open    (cluster_id, params, node_password, json_addon_params = json_addon_params, service_type="Proxy"  , service_name="Squid")
+    proxy_setup  (cluster_id, params, node_password, json_addon_params = json_addon_params, service_type="Proxy"  , service_name="Squid")
+
+    #port_open    (clusterID, params, node_password, json_addon_params = json_addon_params, service_type="Monitor", service_name="Ganglia")
+    #monitor_setup(clusterID, params, node_password, json_addon_params = json_addon_params, service_type="Monitor", service_name="Ganglia")
 
 def addon_start ():
     print ("ミドルウェアの起動")
@@ -58,5 +64,5 @@ def get_user_pass():
     return password
 
 if __name__ == '__main__':
-    cluster_id = "779987"
+    cluster_id = "986460"
     sys.exit (addon_main (cluster_id))

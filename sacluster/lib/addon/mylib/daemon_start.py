@@ -93,9 +93,11 @@ def daemon_compute(addon_json, head_ip, target_ip, user_name, password, port, se
             print (cmd_err)
 
     # Close Connection -----------------------------
+    if len (cmdList) > 0:
+        del stdin, stdout, stderr
     computenode.close()
     headnode.close()
-    del headnode, computenode, stdin, stdout, stderr
+    del headnode,computenode
 
 # Login to node via SSH, run command & write into /etc/hosts on Headnode
 def daemon_head (addon_json, head_ip, user_name, password, port, service_type, service_name, os_type):
@@ -130,12 +132,12 @@ def daemon_head (addon_json, head_ip, user_name, password, port, service_type, s
     del headnode, stdin, stdout, stderr
 
 # Main
-def daemon_start (addon_json, head_ip, target_ip, nodepassword, service_type, service_name, os_type):
+def daemon_start (addon_json, head_ip, target_ip, node_password, service_type, service_name, os_type):
     # ----------------------------------------------------------
     # サーバーへの接続情報を設定
     user_name = 'root'
     port = 22
-    password = nodepassword
+    password = node_password
     # サーバー上で実行するコマンドを設定
     # ----------------------------------------------------------
     if target_ip == head_ip:

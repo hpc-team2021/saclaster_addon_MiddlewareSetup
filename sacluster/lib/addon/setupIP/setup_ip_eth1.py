@@ -63,7 +63,7 @@ def setup_ip_eth1(cluster_id, params, node_password):
         'user'      :'root',
         'password'  :node_password
     }
-    setup_ip_eth1_head(head_info, command)
+    #setup_ip_eth1_head(head_info, command)
 
     for i_computenode in range(n_computenode):
         command = [
@@ -111,13 +111,13 @@ def setup_ip_eth1_comp(head_info, comp_info, command):
     headnode.set_missing_host_key_policy(paramiko.WarningPolicy())
     headnode.connect(hostname=head_info['ipaddress'], port=head_info['port'], username=head_info['user'], password=head_info['password'])
     transport1 = headnode.get_transport()
-    channel1 = transport1.open_channel(kind="direct-tcpip", dest_addr=compute, src_addr=head, timeout=180)
+    channel1 = transport1.open_channel(kind="direct-tcpip", dest_addr=compute, src_addr=head)
     
     computenode = paramiko.SSHClient()
     computenode.set_missing_host_key_policy(paramiko.WarningPolicy())
 
-    print("compurenode connecting...")
-    computenode.connect(hostname=comp_info['ipaddress'],username=comp_info['user'],password=comp_info['password'],sock=channel1, timeout=180)
+    print("computenode connecting...")
+    computenode.connect(hostname=comp_info['ipaddress'],username=comp_info['user'],password=comp_info['password'],sock=channel1, auth_timeout=300)
     print('computenode connected')
 
     #コマンド実行
@@ -127,8 +127,8 @@ def setup_ip_eth1_comp(head_info, comp_info, command):
         out = stdout.read().decode()
         print('comp_stdout = %s' % out)
 
-    headnode.close()
     computenode.close()
+    headnode.close()
 
 
 
