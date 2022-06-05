@@ -60,12 +60,13 @@ def headConnect(headInfo, HEAD_CMD):
     for CMD in tqdm(HEAD_CMD):
         stdin, stdout, stderr = headnode.exec_command(CMD)
         time.sleep(1)
-        out = stdout.read().decode()
-        #print('head_stdout = %s' % out)
+        # out = stdout.read().decode()
+        # print('head_stdout = %s' % out)
     
     headnode.close()
     del headnode, stdin, stdout, stderr
     
+
 
 def computeConnect(headInfo,nComputenode,COMPUTE_CMD):
 
@@ -97,12 +98,50 @@ def computeConnect(headInfo,nComputenode,COMPUTE_CMD):
         for CMD in tqdm(COMPUTE_CMD):
             stdin, stdout, stderr = computenode.exec_command(CMD)
             time.sleep(1)
-            out = stdout.read().decode()
+            # out = stdout.read().decode()
             #print('comp_stdout = %s' % out)
 
         computenode.close()
         headnode.close()
         del headnode, stdin, stdout, stderr
+
+
+
+def computeConnect_IP(headInfo,IP,COMPUTE_CMD):
+
+    IP_ADDRESS2 = IP
+    compInfo = {
+        'IP_ADDRESS':IP_ADDRESS2,
+        'PORT'      :22,
+        'USER'      :'root',
+        'PASSWORD'  :headInfo['PASSWORD']
+    }
+
+    head        = (headInfo['IP_ADDRESS'], headInfo['PORT'])
+    compute     = (compInfo['IP_ADDRESS'], compInfo['PORT'])
+
+    headnode    = paramiko.SSHClient()
+    headnode.set_missing_host_key_policy(paramiko.WarningPolicy())
+    headnode.connect(hostname=headInfo['IP_ADDRESS'], port=headInfo['PORT'], username=headInfo['USER'], password=headInfo['PASSWORD'])
+    transport1  = headnode.get_transport()
+    channel1    = transport1.open_channel("direct-tcpip", compute, head)
+
+    computenode = paramiko.SSHClient()
+    computenode.set_missing_host_key_policy(paramiko.WarningPolicy())
+
+    print('Connecting %s ' %(IP))
+    computenode.connect(hostname=compInfo['IP_ADDRESS'],username=compInfo['USER'],password=compInfo['PASSWORD'],sock=channel1,auth_timeout=100)
+
+        #コマンド実行
+    for CMD in tqdm(COMPUTE_CMD):
+        stdin, stdout, stderr = computenode.exec_command(CMD)
+        time.sleep(1)
+        # out = stdout.read().decode()
+        #print('comp_stdout = %s' % out)
+
+    computenode.close()
+    headnode.close()
+    del headnode, stdin, stdout, stderr
 
        
 

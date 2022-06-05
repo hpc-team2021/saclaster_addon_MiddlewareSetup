@@ -1,0 +1,8 @@
+{
+    "hosts":
+    {
+        "cmd": "echo",
+        "Ubuntu": "/etc/hosts",
+        "CentOS": "/etc/hosts"
+    }
+}

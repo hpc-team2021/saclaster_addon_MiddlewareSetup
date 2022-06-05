@@ -23,6 +23,7 @@ from edit_host           import edit_host
 from get_cluster_info     import get_cluster_info
 from load_addon_params    import load_addon_params
 from port_open           import port_open
+from get_IP_list        import get_IP_list
 sys.path.append(common_path + "/lib/addon/setupIP")
 from setup_ip_eth1        import setup_ip_eth1
 from switch_fw_zone       import switch_fw_zone
@@ -31,25 +32,28 @@ from proxy_setup         import proxy_setup
 sys.path.append(common_path + "/lib/addon/setupMoniter")
 from monitor_setup       import monitor_setup
 
-def addon_main(cluster_id):
-    params          = get_cluster_info ()
-    json_addon_params = load_addon_params ()
-    node_password    = get_user_pass()
+def addon_main(cls_bil, ext_info, cls_mid):
+    clusterID           = cls_bil.cluster_id.split(": ")[1]
+    IP_list             = get_IP_list(cls_bil, ext_info, cls_mid)
+    params              = get_cluster_info ()
+    json_addon_params   = load_addon_params ()
+    node_password       = get_user_pass()
+    addon_info          = {
+        "clusterID"         : clusterID,
+        "IP_list"           : IP_list,
+        "params"            : params,
+        "json_addon_params" : json_addon_params,
+        "node_password"     : node_password
+    }
 
-    # Setting IP address for Eth1
-    # This method should be removed when
-    # the coding on the sacluster side is done
-    print ("Setting IP address to Eth1 connection")
-    # setup_ip_eth1(cluster_id, params, node_password)
+    edit_host    (cls_bil, ext_info, cls_mid, addon_info)
+    switch_fw_zone(cls_bil, clusterID, params, node_password)
 
-    #edit_host    (cluster_id, params, node_password, json_addon_params = json_addon_params)
-    #switch_fw_zone(cluster_id, params, node_password, jsonAddonParams = json_addon_params)
+    port_open    (cls_bil, clusterID, params, node_password, json_addon_params = json_addon_params, service_type="Proxy"  , service_name="Squid")
+    proxy_setup  (cls_bil, clusterID, params, node_password, json_addon_params = json_addon_params, service_type="Proxy"  , service_name="Squid")
 
-    #port_open    (cluster_id, params, node_password, json_addon_params = json_addon_params, service_type="Proxy"  , service_name="Squid")
-    proxy_setup  (cluster_id, params, node_password, json_addon_params = json_addon_params, service_type="Proxy"  , service_name="Squid")
-
-    #port_open    (clusterID, params, node_password, json_addon_params = json_addon_params, service_type="Monitor", service_name="Ganglia")
-    #monitor_setup(clusterID, params, node_password, json_addon_params = json_addon_params, service_type="Monitor", service_name="Ganglia")
+    port_open    (cls_bil, clusterID, params, node_password, json_addon_params = json_addon_params, service_type="Monitor", service_name="Ganglia")
+    monitor_setup(cls_bil, clusterID, params, node_password, json_addon_params = json_addon_params, service_type="Monitor", service_name="Ganglia")
 
 def addon_start ():
     print ("ミドルウェアの起動")
@@ -64,5 +68,5 @@ def get_user_pass():
     return password
 
 if __name__ == '__main__':
-    cluster_id = "986460"
+    cluster_id = "779987"
     sys.exit (addon_main (cluster_id))
