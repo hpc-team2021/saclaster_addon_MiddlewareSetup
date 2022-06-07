@@ -68,10 +68,10 @@ def headConnect(headInfo, HEAD_CMD):
     
 
 
-def computeConnect(headInfo,nComputenode,COMPUTE_CMD):
+def computeConnect(headInfo, IP_list, COMPUTE_CMD):
 
-    for i in range(nComputenode):
-        IP_ADDRESS2 = '192.168.100.' + str(i+1)
+    for IP in IP_list["front"]:
+        IP_ADDRESS2 = IP
         compInfo = {
             'IP_ADDRESS':IP_ADDRESS2,
             'PORT'      :22,
@@ -91,7 +91,7 @@ def computeConnect(headInfo,nComputenode,COMPUTE_CMD):
         computenode = paramiko.SSHClient()
         computenode.set_missing_host_key_policy(paramiko.WarningPolicy())
 
-        print('Computenode%d connecting...' %(i+1))
+        print('IP : %s connecting...' %(IP))
         computenode.connect(hostname=compInfo['IP_ADDRESS'],username=compInfo['USER'],password=compInfo['PASSWORD'],sock=channel1,auth_timeout=100)
 
          #コマンド実行

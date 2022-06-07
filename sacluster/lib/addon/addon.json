@@ -35,7 +35,7 @@
             },
             "Proxy":
             {
-                "Squid":
+                "squid":
                 {
                     "CentOS 7.9 (2009) 64bit":
                     {
@@ -152,7 +152,7 @@
     {
         "Proxy":
         {
-            "Squid":
+            "squid":
             {
                 "Packege":
                 {

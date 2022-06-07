@@ -26,7 +26,14 @@ import paramiko
 import json
 
 #ローカルのネットワークのFireWallのゾーンを指定したゾーンに変更する
-def switch_fw_zone(clusterID, params, nodePassword, jsonAddonParams):
+def switch_fw_zone(cls_bil, ext_info, cls_mid, addon_info):
+
+    # 今回の処理に必要な変数のみを取り出す
+    clusterID       = addon_info["clusterID"]
+    IP_list         = addon_info["IP_list"]
+    params          = addon_info["params"]
+    nodePassword    = addon_info["node_password"]
+    jsonAddonParams = addon_info["json_addon_params"]
 
     IPADDRESS1  = "255.255.255.255"
     computenum = 0
@@ -61,10 +68,10 @@ def switch_fw_zone(clusterID, params, nodePassword, jsonAddonParams):
         else:
             pass
 
-    ssh_connect(IPADDRESS1,nodePassword,computenum,HEAD_CMD,COMPUTE_CMD)
+    ssh_connect(IPADDRESS1,nodePassword,computenum,IP_list,HEAD_CMD,COMPUTE_CMD)
     
 
-def ssh_connect(IPADDRESS1,nodePassword,computenum,HEAD_CMD,COMPUTE_CMD):
+def ssh_connect(IPADDRESS1,nodePassword,computenum,IP_list,HEAD_CMD,COMPUTE_CMD):
     #管理ノード
     PORT1 = 22
     USER1 = 'root'
@@ -83,10 +90,10 @@ def ssh_connect(IPADDRESS1,nodePassword,computenum,HEAD_CMD,COMPUTE_CMD):
         hostname = stdout.read().decode()
         print('hostname_head = %s' % hostname)
 
-    for i in range(1, computenum+1):
+    for IP in IP_list["front"]:
         #管理->計算ノード
         #計算ノード
-        IPADDRESS2 = '192.168.100.' + str(i)
+        IPADDRESS2 = IP
         PORT2 = 22
         USER2 = 'root'
 

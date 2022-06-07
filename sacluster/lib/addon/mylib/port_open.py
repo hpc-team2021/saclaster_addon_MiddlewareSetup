@@ -26,7 +26,14 @@ from auth_func_pro import authentication_cli
 import asyncio
 import paramiko 
 
-def port_open(cluster_id, params, node_password, json_addon_params, service_type, service_name):
+def port_open(cls_bil, ext_info, cls_mid, addon_info, service_type, service_name):
+
+    # 今回の処理に必要な変数のみを取り出す
+    cluster_id       = addon_info["clusterID"]
+    IP_list         = addon_info["IP_list"]
+    params          = addon_info["params"]
+    node_password    = addon_info["node_password"]
+    json_addon_params = addon_info["json_addon_params"]
 
     # グローバルIPと計算機ノードの数を把握する
     ipaddress1  = "255.255.255.255"
@@ -64,10 +71,10 @@ def port_open(cluster_id, params, node_password, json_addon_params, service_type
     }
     setup_port__head(head_info, command)
 
-    for iComputenode in range(n_computenode):
+    for IP in IP_list["front"]:
         command = json_addon_params["Common"]["Firewall"][service_type][service_name][os_type]["Compute"]
 
-        ipaddress2 = '192.168.100.' + str(iComputenode+1)
+        ipaddress2 = IP
         compute_info = {
             'ipaddress':ipaddress2,
             'port'      :22,

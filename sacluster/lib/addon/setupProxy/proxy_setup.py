@@ -1,170 +1,93 @@
-# プロキシサーバに
-# 引数１：  クラスターID
-# 引数２：  クラスター情報(関数)
-
-from ast import Pass
-import string
 import sys
-import time
-import logging
-from paramiko import channel
-import tqdm
-import numpy as np
 import os
+import json
 
-# from sacluster.lib.addon.mylib.editHost import Password
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 common_path = os.path.abspath("../../..")
 
-sys.path.append(common_path + "/lib/others")
-from API_method import get, post, put, delete
-sys.path.append(common_path + "/lib/auth")
-from auth_func_pro import authentication_cli
-sys.path.append(common_path + "/lib/addon/mylib")
-from get_cluster_info import get_cluster_info
+# #読みたいjsonファイルのパス
+fileName = common_path + "/lib/addon/setupProxy/proxy.json"
+
+sys.path.append (common_path + "/lib/addon/mylib")
+from sshconnect_main import sshConnect_main, headConnect, computeConnect, computeConnect_IP
+from get_cluster_info     import get_cluster_info
+from load_addon_params    import load_addon_params
 from pack_install    import pack_install
 from daemon_start    import daemon_start
 
-#並列処理を行う
-import asyncio
-import paramiko 
+def proxy_setup(cls_bil, ext_info, cls_mid, addon_info, service):
+    # jsonファイる読み込み
+    json_open = open(fileName, 'r')
+    jsonFile = json.load(json_open)
 
-def proxy_setup(cluster_id, params, node_password, json_addon_params, service_type, service_name):
+    jsonFName = common_path + "/lib/addon/setupProxy/"+ jsonFile["conf"][service]
+    json_open = open(jsonFName, 'r')
+    jsonFile = json.load(json_open)
 
-    # グローバルIPと計算機ノードの数を把握する
-    IP_ADDRESS1  = "255.255.255.255"
-    nComputenode = 0
-    OSType       = ""
+    # 今回の処理に必要な変数のみを取り出す
+    clusterID           = addon_info["clusterID"]
+    IP_list             = addon_info["IP_list"]
+    params              = addon_info["params"]
+    json_addon_params   = addon_info["json_addon_params"]
+    nodePassword        = addon_info["node_password"]
 
-    pack_install(cluster_id, params, node_password, json_addon_params, service_type, service_name)
+    #クラスタ情報読み込み
+    headInfo, OSType, nComputenode = sshConnect_main(clusterID, params, nodePassword)
 
-    node_dict = params.get_node_info()
-    disk_dict = params.get_disk_info()
+    # head 実行コマンドの読み込み,実行
+    HEAD_CMD    = jsonFile [OSType]["command"]["Head"]
+    headConnect(headInfo, HEAD_CMD)
 
-    for zone, url in params.url_list.items():
-        node_list = node_dict[zone]
-        disk_list = list(disk_dict[zone].keys())
-        if(len(node_list) != 0):
-            for i in range(len(node_list)):
-                # print(cluster_id + ':' + node_list[i]["Tags"][0] + ' | ' + node_list[i]['Name'])
-                if (cluster_id in node_list[i]["Tags"][0] and 'headnode' in node_list[i]['Name']):
-                    IP_ADDRESS1 = node_list[i]['Interfaces'][0]['IPAddress']
-                    OSType      = disk_dict[zone][disk_list[i]]["SourceArchive"]["Name"]
-                elif (cluster_id in node_list[i]["Tags"][0]):
-                    nComputenode += 1
-                else:
-                    pass
-        else:
-            pass
-
-    headInfo = {
-        'IP_ADDRESS':IP_ADDRESS1,
-        'PORT'      :22,
-        'USER'      :'root',
-        'PASSWORD'  :node_password
-    }
-    command = [
-        'echo "acl mynetwork src 192.168.100.0/24"              >> /etc/squid/squid.conf',
-        'echo "http_access allow mynetwork"                     >> /etc/squid/squid.conf',
-        'echo "forwarded_for off"                               >> /etc/squid/squid.conf',
-        'echo "request_header_access X-Forwarded-For deny all"  >> /etc/squid/squid.conf',
-        'echo "request_header_access Via deny all"              >> /etc/squid/squid.conf',
-        'echo "request_header_access Cache-Control deny all"    >> /etc/squid/squid.conf',
-        'htpasswd -b -c /etc/squid/.htpasswd user1 test',
-    ]
-    setupProxy_head(headInfo, command)
+    # デーモンスタート
     daemon_start (
         addon_json    = json_addon_params, 
-        head_ip       = IP_ADDRESS1, 
-        target_ip     = IP_ADDRESS1, 
-        node_password = node_password, 
-        service_type  = service_type, 
-        service_name  = service_name, 
+        head_ip       = headInfo["IP_ADDRESS"], 
+        target_ip     = headInfo["IP_ADDRESS"], 
+        node_password = nodePassword, 
+        service_type  = "Proxy", 
+        service_name  = service, 
         os_type       = OSType
     )
 
-    # コメントアウトした部分はdeamonStart()を実行したらいいんだけど...開発待ち
 
-    for iComputenode in range(nComputenode):
-        command = [
-            'echo "export http_proxy=http://user1:test@192.168.100.254:3128" >> /root/.bashrc',
-            'echo "export https_proxy=http://user1:test@192.168.100.254:3128" >> /root/.bashrc',
-            'source .bashrc'
-        ]
-        IP_ADDRESS2 = '192.168.100.' + str(iComputenode+1)
-        compInfo = {
-            'IP_ADDRESS':IP_ADDRESS2,
-            'PORT'      :22,
-            'USER'      :'root',
-            'PASSWORD'  :node_password
-        }
-        setupProxy_comp(headInfo, compInfo, command)
+    # head 実行コマンドの読み込み,実行
+    HEAD_CMD    = jsonFile [OSType]["command"]["Compute"]
+    computeConnect(headInfo, IP_list, HEAD_CMD)
+
+    # デーモンスタート
+    for IP_com in IP_list["front"]:
         daemon_start (
             addon_json    = json_addon_params, 
-            head_ip       = IP_ADDRESS1, 
-            target_ip     = IP_ADDRESS2, 
-            node_password = node_password, 
-            service_type  = service_type, 
-            service_name  = service_name, 
+            head_ip       = headInfo["IP_ADDRESS"], 
+            target_ip     = IP_com, 
+            node_password = nodePassword, 
+            service_type  = "Proxy", 
+            service_name  = service, 
             os_type       = OSType
         )
-
-
-
-
-def setupProxy_head(headInfo, command):
-    #管理ノードに接続
-    headnode = paramiko.SSHClient()
-    headnode.set_missing_host_key_policy(paramiko.WarningPolicy())
-
-    print("hostnode connecting...")
-    headnode.connect(hostname=headInfo['IP_ADDRESS'], port=headInfo['PORT'], username=headInfo['USER'], password=headInfo['PASSWORD'])
-    print('hostnode connected')
-
-    #コマンド実行
-    for i, com in enumerate(command):
-        stdin, stdout, stderr = headnode.exec_command(com)
-        time.sleep(1)
-        out = stdout.read().decode()
-        print('head_stdout = %s' % out)
     
-    headnode.close()
 
 
 
-def setupProxy_comp(headInfo, compInfo, command):
 
-    head = (headInfo['IP_ADDRESS'], headInfo['PORT'])
-    compute = (compInfo['IP_ADDRESS'], compInfo['PORT'])
+# 単体テスト
+if __name__ == "__main__":
+    params              = get_cluster_info ()
+    json_addon_params   = load_addon_params ()
 
-    headnode = paramiko.SSHClient()
-    headnode.set_missing_host_key_policy(paramiko.WarningPolicy())
-    headnode.connect(hostname=headInfo['IP_ADDRESS'], port=headInfo['PORT'], username=headInfo['USER'], password=headInfo['PASSWORD'])
-    transport1 = headnode.get_transport()
-    channel1 = transport1.open_channel("direct-tcpip", compute, head)
-    
-    computenode = paramiko.SSHClient()
-    computenode.set_missing_host_key_policy(paramiko.WarningPolicy())
+    cls_bil = []
+    ext_info = []
+    cls_mid = []
 
-    print("compurenode connecting...")
-    computenode.connect(hostname=compInfo['IP_ADDRESS'],username=compInfo['USER'],password=compInfo['PASSWORD'],sock=channel1)
-    print('computenode connected')
+    addon_info = {
+        "clusterID"         : "646459",                 # 任意のクラスターIDに変更
+        "IP_list"           :{                          # コンピュートノードの数に合わせて変更
+            "front" : ['168.192.4.1', '168.192.4.2'],
+            "back"  : ['169.192.4.1', '169.192.4.2']
+        },
+        "params"            : params,
+        "json_addon_params" : json_addon_params,
+        "node_password"     : "test"                    # 設定したパスワードを入力
+    }
 
-    #コマンド実行
-    for i, com in enumerate(command):
-        (stdin, stdout, stderr) = computenode.exec_command(com)
-        time.sleep(1)
-        out = stdout.read().decode()
-        print('comp_stdout = %s' % out)
-
-    headnode.close()
-    computenode.close()
-    del headnode, computenode
-
-
-
-if __name__ == '__main__':
-    params = get_cluster_info()
-    cluster_id = '622276'
-    proxy_setup(cluster_id, params, node_password='test')
-
+    proxy_setup(cls_bil, ext_info, cls_mid, addon_info, service="squid")

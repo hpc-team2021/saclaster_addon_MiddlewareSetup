@@ -5,7 +5,7 @@
         {
             "Head": 
             [
-                "echo \"acl mynetwork src 192.168.100.0/24\"              >> /etc/squid/squid.conf",
+                "echo \"acl mynetwork src 192.168.0.0/16\"              >> /etc/squid/squid.conf",
                 "echo \"http_access allow mynetwork\"                     >> /etc/squid/squid.conf",
                 "echo \"forwarded_for off\"                               >> /etc/squid/squid.conf",
                 "echo \"request_header_access X-Forwarded-For deny all\"  >> /etc/squid/squid.conf",
@@ -15,8 +15,30 @@
             ],
             "Compute":
             [
-                "echo \"export http_proxy=http://user1:test@192.168.100.254:3128\" >> /root/.bashrc",
-                "echo \"export https_proxy=http://user1:test@192.168.100.254:3128\" >> /root/.bashrc",
+                "echo \"export http_proxy=http://user1:test@192.168.0.1:3128\" >> /root/.bashrc",
+                "echo \"export https_proxy=http://user1:test@192.168.0.1:3128\" >> /root/.bashrc",
+                "source .bashrc"
+            ]
+        }
+    },
+    "CentOS Stream 8 (20201203) 64bit":
+    {
+        "command":
+        {
+            "Head": 
+            [
+                "echo \"acl mynetwork src 192.168.0.0/16\"              >> /etc/squid/squid.conf",
+                "echo \"http_access allow mynetwork\"                     >> /etc/squid/squid.conf",
+                "echo \"forwarded_for off\"                               >> /etc/squid/squid.conf",
+                "echo \"request_header_access X-Forwarded-For deny all\"  >> /etc/squid/squid.conf",
+                "echo \"request_header_access Via deny all\"              >> /etc/squid/squid.conf",
+                "echo \"request_header_access Cache-Control deny all\"    >> /etc/squid/squid.conf",
+                "htpasswd -b -c /etc/squid/.htpasswd user1 test"
+            ],
+            "Compute":
+            [
+                "echo \"export http_proxy=http://user1:test@192.168.0.1:3128\" >> /root/.bashrc",
+                "echo \"export https_proxy=http://user1:test@192.168.0.1:3128\" >> /root/.bashrc",
                 "source .bashrc"
             ]
         }

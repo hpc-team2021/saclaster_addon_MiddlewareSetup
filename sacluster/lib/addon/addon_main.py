@@ -46,14 +46,14 @@ def addon_main(cls_bil, ext_info, cls_mid):
         "node_password"     : node_password
     }
 
-    edit_host    (cls_bil, ext_info, cls_mid, addon_info)
-    switch_fw_zone(cls_bil, clusterID, params, node_password)
+    edit_host       (cls_bil, ext_info, cls_mid, addon_info)
+    switch_fw_zone  (cls_bil, ext_info, cls_mid, addon_info)
 
-    port_open    (cls_bil, clusterID, params, node_password, json_addon_params = json_addon_params, service_type="Proxy"  , service_name="Squid")
-    proxy_setup  (cls_bil, clusterID, params, node_password, json_addon_params = json_addon_params, service_type="Proxy"  , service_name="Squid")
+    port_open       (cls_bil, ext_info, cls_mid, addon_info, service_type="Proxy", service_name="squid")
+    proxy_setup     (cls_bil, ext_info, cls_mid, addon_info, service="squid")
 
-    port_open    (cls_bil, clusterID, params, node_password, json_addon_params = json_addon_params, service_type="Monitor", service_name="Ganglia")
-    monitor_setup(cls_bil, clusterID, params, node_password, json_addon_params = json_addon_params, service_type="Monitor", service_name="Ganglia")
+    port_open       (cls_bil, ext_info, cls_mid, addon_info, service_type="Monitor", service_name="Ganglia")
+    monitor_setup   (cls_bil, clusterID, params, node_password, json_addon_params = json_addon_params, service_type="Monitor", service_name="Ganglia")
 
 def addon_start ():
     print ("ミドルウェアの起動")
