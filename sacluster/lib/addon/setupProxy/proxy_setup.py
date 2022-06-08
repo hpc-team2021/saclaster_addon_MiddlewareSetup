@@ -15,12 +15,12 @@ from load_addon_params    import load_addon_params
 from pack_install    import pack_install
 from daemon_start    import daemon_start
 
-def proxy_setup(cls_bil, ext_info, cls_mid, addon_info, service):
+def proxy_setup(cls_bil, ext_info, cls_mid, addon_info, service_name):
     # jsonファイる読み込み
     json_open = open(fileName, 'r')
     jsonFile = json.load(json_open)
 
-    jsonFName = common_path + "/lib/addon/setupProxy/"+ jsonFile["conf"][service]
+    jsonFName = common_path + "/lib/addon/setupProxy/"+ jsonFile["conf"][service_name]
     json_open = open(jsonFName, 'r')
     jsonFile = json.load(json_open)
 
@@ -45,7 +45,7 @@ def proxy_setup(cls_bil, ext_info, cls_mid, addon_info, service):
         target_ip     = headInfo["IP_ADDRESS"], 
         node_password = nodePassword, 
         service_type  = "Proxy", 
-        service_name  = service, 
+        service_name  = service_name, 
         os_type       = OSType
     )
 
@@ -62,7 +62,7 @@ def proxy_setup(cls_bil, ext_info, cls_mid, addon_info, service):
             target_ip     = IP_com, 
             node_password = nodePassword, 
             service_type  = "Proxy", 
-            service_name  = service, 
+            service_name  = service_name, 
             os_type       = OSType
         )
     
@@ -90,4 +90,4 @@ if __name__ == "__main__":
         "node_password"     : "test"                    # 設定したパスワードを入力
     }
 
-    proxy_setup(cls_bil, ext_info, cls_mid, addon_info, service="squid")
+    proxy_setup(cls_bil, ext_info, cls_mid, addon_info, service_name="squid")
