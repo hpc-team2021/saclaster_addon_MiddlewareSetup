@@ -38,6 +38,7 @@ def addon_main(cls_bil, ext_info, cls_mid):
     params              = get_cluster_info ()
     json_addon_params   = load_addon_params ()
     node_password       = get_user_pass()
+    
     addon_info          = {
         "clusterID"         : clusterID,
         "IP_list"           : IP_list,
