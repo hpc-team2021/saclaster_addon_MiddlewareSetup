@@ -1,28 +1,28 @@
 {
     "Zone": {
         "tk1a": {
-            "minimum": 1,
-            "maximum": 100,
+            "minimum": 2,
+            "maximum": 50,
             "Type": "practice"
         },
         "tk1b": {
-            "minimum": 1,
-            "maximum": 100,
+            "minimum": 2,
+            "maximum": 50,
             "Type": "practice"
         },
         "is1a": {
-            "minimum": 1,
-            "maximum": 100,
+            "minimum": 2,
+            "maximum": 50,
             "Type": "practice"
         },
         "is1b": {
-            "minimum": 1,
-            "maximum": 100,
+            "minimum": 2,
+            "maximum": 50,
             "Type": "practice"
         },
         "tk1v": {
-            "minimum": 1,
-            "maximum": 100,
+            "minimum": 2,
+            "maximum": 50,
             "Type": "test"
         }
     },
@@ -112,10 +112,7 @@
         "virtio",
         "ide"
     ],
-    "Compute switch": [
-        false,
-        true
-    ],
+    "Compute switch": [true],
     "NFS zone":["tk1a", "is1a", "is1b", "tk1v"],
     "NFS": {
         "ssd": {
@@ -142,13 +139,6 @@
             "is1a":113201991639,
             "is1b":113202012331,
             "tk1v":113202012336
-        },
-        "CentOS 7.9 (2009) 64bit":{
-            "tk1a":113300112270,
-            "tk1b":113300112271,
-            "is1a":113202013807,
-            "is1b":113300112273,
-            "tk1v":113300112275
         }
     },
     "Monitor": {

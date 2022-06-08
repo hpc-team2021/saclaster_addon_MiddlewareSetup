@@ -1,0 +1,11 @@
+{
+    "service":
+    [
+        "mpich"
+    ],
+
+    "conf":
+    {
+        "mpich":"mpich.json"
+    }
+}

@@ -1,0 +1,11 @@
+{
+    "service":
+    [
+        "squid"
+    ],
+
+    "conf":
+    {
+        "squid":"squid.json"
+    }
+}
