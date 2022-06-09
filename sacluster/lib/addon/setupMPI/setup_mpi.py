@@ -17,27 +17,67 @@ sys.path.append(common_path + "/lib/addon/mylib")
 from load_addon_params import load_addon_params
 from get_cluster_info import get_cluster_info
 
+sys.path.append(common_path + "/lib/addon/setypMpi")
+from add_user import add_user_main
+from ssh_setup import ssh_setup
+
 #################
 # Main Programm #
 #################
-def setup_mpi (head_ip, n_computenode, node_password, json_addon_params, os_type):
-    print ('Working on MPI Setup ...')
+def setup_mpi (cluster_id, params, node_password, json_addon_params, service_type="MPI"  , service_name="mpich"):
+    print ('Start: (MPI Setting)')
+
+    # Get info
+    head_ip, os_type, n_computenode = get_info (cluster_id = cluster_id, params = params)
 
     # Read json file for gaglia configuration 
     json_open = open(fileName, 'r')
-    json_mpi = json.load(json_open)
+    cmd_mpi = json.load(json_open)
 
-    # Ganglia Setting
-    mpi_head (head_ip, n_computenode, node_password, json_addon_params, json_mpi, os_type)
-    mpi_comp (head_ip, n_computenode, node_password, json_addon_params, json_mpi, os_type)
+    # Creating a new user for mpi
+    add_user_main (
+        head_ip = head_ip, 
+        n_computenode = n_computenode, 
+        node_password = node_password, 
+        json_addon_params = json_addon_params, 
+        os_type = os_type
+        )
+        
+    # SSH key seting for inter connection
+    ssh_setup(
+        head_ip = head_ip,
+        n_computenode = n_computenode, 
+        node_password = node_password,
+        json_addon_params = json_addon_params,
+        os_type = os_type
+        )
+    
+    # Ganglia Setting for the head node
+    mpi_head (
+        head_ip = head_ip,
+        node_password = node_password,
+        json_addon_params = json_addon_params,
+        cmd_mpi = cmd_mpi,
+        os_type = os_type
+        )
+    
+    # Ganglia Setting for the compute nodes
+    mpi_comp (
+        head_ip = head_ip,
+        n_computenode = n_computenode,
+        node_password = node_password,
+        json_addon_params = json_addon_params,
+        cmd_mpi = cmd_mpi,
+        os_type = os_type
+        )
 
-    print ("MPI Setting is done")
+    print (" Done: (MPI setting)")
 # % End of setup_mpi ()
 
 ###########################
 # MPI Setting on Headnode #
 ###########################
-def mpi_head (head_ip, n_computenode, node_password, json_addon_params, json_mpi, os_type): 
+def mpi_head (head_ip, node_password, json_addon_params, cmd_mpi, os_type): 
     # Configuration Setting for Headnode
     head_info = {
         'IP_ADDRESS':head_ip,
@@ -50,12 +90,16 @@ def mpi_head (head_ip, n_computenode, node_password, json_addon_params, json_mpi
     headnode = paramiko.SSHClient()
     headnode.set_missing_host_key_policy(paramiko.WarningPolicy())
     print("Connecting to headnode...")
-    headnode.connect(hostname=head_info['IP_ADDRESS'], port=head_info['PORT'], username=head_info['USER'], password=head_info['PASSWORD'])
+    headnode.connect(
+        hostname=head_info['IP_ADDRESS'],
+        port=head_info['PORT'],
+        username=head_info['USER'],
+        password=head_info['PASSWORD']
+    )
     print('Connected')
 
-    cmd_list = json_mpi[os_type]['command']['Head']
-    for i, setting in enumerate(cmd_list):
-        cmd = setting
+    cmd_list = cmd_mpi[os_type]['command']['Head']['rep']
+    for i, cmd in enumerate(cmd_list):
         headnode.exec_command (cmd)
 
     headnode.close()
@@ -65,7 +109,7 @@ def mpi_head (head_ip, n_computenode, node_password, json_addon_params, json_mpi
 ##############################
 # MPI Setting on computenode #
 ##############################
-def mpi_comp (head_ip, n_computenode, node_password, json_addon_params, json_mpi, os_type):
+def mpi_comp (head_ip, n_computenode, node_password, json_addon_params, cmd_mpi, os_type):
      # Configuration Setting for Headnode
     head_info = {
         'IP_ADDRESS':head_ip,
@@ -78,20 +122,19 @@ def mpi_comp (head_ip, n_computenode, node_password, json_addon_params, json_mpi
     headnode = paramiko.SSHClient()
     headnode.set_missing_host_key_policy(paramiko.WarningPolicy())
     print("Connecting to headnode...")
-    headnode.connect(hostname=head_info['IP_ADDRESS'], port=head_info['PORT'], username=head_info['USER'], password=head_info['PASSWORD'])
+    headnode.connect(
+        hostname=head_info['IP_ADDRESS'],
+        port=head_info['PORT'],
+        username=head_info['USER'],
+        password=head_info['PASSWORD']
+    )
     print('Connected')
     transport1 = headnode.get_transport()
+    head = (head_info['IP_ADDRESS'], head_info['PORT'])
 
     # Configuration Setting for Compute node
     for i_computenode in range(n_computenode):
-        if i_computenode < 9:
-            host = 'computenode00' + str(i_computenode)
-        elif i_computenode < 99:
-            host = 'computenode0' + str(i_computenode)
-        else:
-            host = 'computenode' + str(i_computenode)
-        
-        IP_ADDRESS2 = '192.168.100.' + str(i_computenode+1)
+        IP_ADDRESS2 = '192.168.2.' + str(i_computenode+1)
         comp_info = {
             'IP_ADDRESS':IP_ADDRESS2,
             'PORT'      :22,
@@ -101,17 +144,22 @@ def mpi_comp (head_ip, n_computenode, node_password, json_addon_params, json_mpi
 
         # Connection to compute node
         compute = (comp_info ['IP_ADDRESS'], comp_info ['PORT'])
-        channel1 = transport1.open_channel("direct-tcpip", compute, headnode)
+        channel1 = transport1.open_channel("direct-tcpip", compute, head)
         computenode = paramiko.SSHClient()
         computenode.set_missing_host_key_policy(paramiko.WarningPolicy())
         print("Connecting to compute node...")
-        computenode.connect(hostname=comp_info['IP_ADDRESS'], username=comp_info['USER'], password=comp_info['PASSWORD'], sock=channel1)
+        computenode.connect(
+            hostname = comp_info['IP_ADDRESS'],
+            username = comp_info['USER'],
+            password = comp_info['PASSWORD'],
+            sock = channel1,
+            auth_timeout = 300
+            )
         print('Connected')
 
         # Execute command
-        cmd_list = json_mpi[os_type]['command']['Head']
-        for i, setting in enumerate(cmd_list):
-            cmd = setting
+        cmd_list = cmd_mpi[os_type]['command']['Compute']['rep']
+        for i, cmd in enumerate(cmd_list):
             computenode.exec_command (cmd)
 
         # close connection to compute node
@@ -121,6 +169,35 @@ def mpi_comp (head_ip, n_computenode, node_password, json_addon_params, json_mpi
     # close connection to head node
     headnode.close()
     del headnode
+
+############
+# get info #
+############
+def get_info (cluster_id, params):
+    # Get headnode IP address & computenodes num
+    head_ip  = "255.255.255.255"
+    n_computenode = 0
+    node_dict = params.get_node_info()
+    disk_dict = params.get_disk_info()
+
+    for zone, url in params.url_list.items():
+        node_list = node_dict[zone]
+        disk_list = list(disk_dict[zone].keys())
+        if(len(node_list) != 0):
+            for i in range(len(node_list)):
+                print(cluster_id + ':' + node_list[i]["Tags"][0] + ' | ' + node_list[i]['Name'])
+                if (cluster_id in node_list[i]["Tags"][0] and 'headnode' in node_list[i]['Name']):
+                    head_ip = node_list[i]['Interfaces'][0]['IPAddress']
+                    os_type = params.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["head"]["disk"][0]["os"]
+                elif (cluster_id in node_list[i]["Tags"][0]):
+                    n_computenode += 1
+                else:
+                    pass
+        else:
+            pass
+    
+    return head_ip, os_type, n_computenode
+
 
 if __name__ == '__main__':
     params = get_cluster_info()
