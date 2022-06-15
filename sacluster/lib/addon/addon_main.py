@@ -31,16 +31,18 @@ sys.path.append(common_path + "/lib/addon/setupProxy")
 from proxy_setup         import proxy_setup
 sys.path.append(common_path + "/lib/addon/setupMoniter")
 from monitor_setup       import monitor_setup
+sys.path.append(common_path + "/lib/addon/setupMpi")
+from setup_mpi       import setup_mpi
 
 def addon_main(cls_bil, ext_info, cls_mid):
-    clusterID           = cls_bil.cluster_id.split(": ")[1]
+    cluster_id           = cls_bil.cluster_id.split(": ")[1]
     IP_list             = get_IP_list(cls_bil, ext_info, cls_mid)
     params              = get_cluster_info ()
     json_addon_params   = load_addon_params ()
     node_password       = get_user_pass()
     
     addon_info          = {
-        "clusterID"         : clusterID,
+        "clusterID"         : cluster_id,
         "IP_list"           : IP_list,
         "params"            : params,
         "json_addon_params" : json_addon_params,
@@ -51,10 +53,12 @@ def addon_main(cls_bil, ext_info, cls_mid):
     switch_fw_zone  (cls_bil, ext_info, cls_mid, addon_info)
 
     port_open       (cls_bil, ext_info, cls_mid, addon_info, service_type="Proxy", service_name="squid")
-    proxy_setup     (cls_bil, ext_info, cls_mid, addon_info, service="squid")
+    proxy_setup     (cls_bil, ext_info, cls_mid, addon_info, service_name="squid")
 
-    port_open       (cls_bil, ext_info, cls_mid, addon_info, service_type="Monitor", service_name="Ganglia")
-    monitor_setup   (cls_bil, clusterID, params, node_password, json_addon_params = json_addon_params, service_type="Monitor", service_name="Ganglia")
+    # port_open       (cls_bil, ext_info, cls_mid, addon_info, service_type="Monitor", service_name="Ganglia")
+    # monitor_setup   (cls_bil, clusterID, params, node_password, json_addon_params = json_addon_params, service_type="Monitor", service_name="Ganglia")
+
+    setup_mpi (cluster_id, params, node_password, json_addon_params, service_type="MPI"  , service_name="mpich")
 
 def addon_start ():
     print ("ミドルウェアの起動")

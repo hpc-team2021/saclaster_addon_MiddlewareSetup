@@ -231,9 +231,15 @@ class set_startup_scripts:
         #ヘッドノードにおけるeth1のIPアドレスを割り当てるためのパラメータを設定
         head_ip = "{}.{}.{}.{}/16".format(base, front, ip_zone["head"], 1)
         
+        # OSの名前・バージョンの取得
+        os_type = self.ext_info["OS"]
+        for os in os_type:
+            if 'CentOS' in os:
+                break
+        
+
         if(self.cluster_info["clusterparams"]["server"][self.head_zone]["head"]["disk"][0]["os"] 
-            in list(self.ext_info["OS"]["CentOS Stream 8 (20201203) 64bit"].values())
-            # + list(self.ext_info["OS"]["CentOS 7.9 (2009) 64bit"].values())
+            in (list(self.ext_info["OS"][os].values()))
          ):
             self.script_variables["head"]["addresses_ip_head_centos"] = head_ip
             self.target_scripts["head"].append("ip_head_centos")
@@ -243,8 +249,7 @@ class set_startup_scripts:
             if("back" in self.cluster_info["clusterparams"]["switch"][zone]):
                 for i in list(self.cluster_info["clusterparams"]["server"][zone]["compute"].keys()):
                     if(self.cluster_info["clusterparams"]["server"][zone]["compute"][i]["disk"][0]["os"]
-                        in list(self.ext_info["OS"]["CentOS Stream 8 (20201203) 64bit"].values())
-                        # + list(self.ext_info["OS"]["CentOS 7.9 (2009) 64bit"].values())
+                        in list(self.ext_info["OS"][os].values()) 
                     ):
                         self.target_scripts["compute"].append("ip_compute_centos")
                         self.script_variables["compute"][zone][i]["addresses_ip_compute_centos"] = "{}.{}.{}.{}/16".format(base, back, ip_zone[zone], i + 1)
