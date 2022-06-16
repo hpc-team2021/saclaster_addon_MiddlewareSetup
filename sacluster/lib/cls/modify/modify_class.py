@@ -6,6 +6,7 @@ import logging
 from tqdm import tqdm
 import copy
 import numpy as np
+import time
 import re
 from concurrent import futures
 
@@ -76,6 +77,7 @@ class modify_sacluster:
             _ = printout("Warning: the input must be a number from 1 to 3.", info_type = 0, info_list = self.info_list, fp = self.fp)
             
         printout("Finished modifying the cluster", info_type = 0, info_list = self.info_list, fp = self.fp)
+        
             
     def show_current_states(self):
         printout('' , info_type = 0, info_list = self.info_list, fp = self.fp)
@@ -667,7 +669,7 @@ class modify_sacluster:
                 server_disk_config["node_planid"] = int(self.ext_info["Server"][str(self.cluster_info["clusterparams"]["server"][self.head_zone]["compute"][0]["node"]["core"])][str(self.cluster_info["clusterparams"]["server"][self.head_zone]["compute"][0]["node"]["memory"])])
                 server_disk_config["disk_type_id"] = int(self.cluster_info["clusterparams"]["server"][self.head_zone]["compute"][0]["disk"][0]["type"])
                 server_disk_config["disk_connection_type"] = self.cluster_info["clusterparams"]["server"][self.head_zone]["compute"][0]["disk"][0]["connection"]
-                server_disk_config["os_name"] = self.cluster_info["clusterparams"]["server"][self.head_zone]["compute"][0]["disk"][0]["os"]
+                server_disk_config["os_id"] = self.cluster_info["clusterparams"]["server"][self.head_zone]["compute"][0]["disk"][0]["os"]
                 server_disk_config["disk_size"] = int(self.cluster_info["clusterparams"]["server"][self.head_zone]["compute"][0]["disk"][0]["size"])
                 server_disk_config["password"] = password
                 server_disk_config["username"] = username
@@ -786,25 +788,61 @@ class modify_sacluster:
         
             self.cluster_info["clusterparams"]["server"][zone]["compute"][number] = {}
             self.cluster_info["clusterparams"]["server"][zone]["compute"][number]["node"] = {}
+            self.cluster_info["clusterparams"]["server"][zone]["compute"][number]["disk"] = {}
+            self.cluster_info["clusterparams"]["server"][zone]["compute"][number]["disk"][0] = {}
+            self.cluster_info["clusterparams"]["server"][zone]["compute"][number]["nic"] = {}
+            
             if res_index == True:
                 if(self.api_index == True):
                     server_id = server_response["Server"]["ID"]
-                    self.cluster_info["clusterparams"]["server"][zone]["compute"][number]["node"]["id"] = server_id
+                    server_core = server_response["Server"]["ServerPlan"]["CPU"]
+                    server_memory = server_response["Server"]["ServerPlan"]["MemoryMB"]
+                    server_status = server_response["Server"]["Instance"]["Status"]
+                    front_nic_id = server_response["Server"]["Interfaces"][0]["ID"]
                 else:
                     server_id = 000000000000
+                    server_core = 1
+                    server_memory = 1024
+                    server_status = "down"
+                    front_nic_id = 000000000000
+                    
+                self.cluster_info["clusterparams"]["server"][zone]["compute"][number]["node"]["id"] = int(server_id)
+                self.cluster_info["clusterparams"]["server"][zone]["compute"][number]["node"]["name"] = compute_node_name
+                self.cluster_info["clusterparams"]["server"][zone]["compute"][number]["node"]["core"] = int(server_core)
+                self.cluster_info["clusterparams"]["server"][zone]["compute"][number]["node"]["memory"] = int(server_memory)
+                self.cluster_info["clusterparams"]["server"][zone]["compute"][number]["node"]["state"] = server_status
+                self.cluster_info["clusterparams"]["server"][zone]["compute"][number]["nic"]["front"] = int(front_nic_id)
                 
-                disk_res = self.add_disk(zone, compute_node_name, server_disk_config["disk_type_id"], server_disk_config["disk_connection_type"], server_disk_config["disk_size"], server_disk_config["os_name"], server_disk_config["password"], server_disk_config["username"])
+                disk_res = self.add_disk(zone, compute_node_name, number, server_disk_config["disk_type_id"], server_disk_config["disk_connection_type"], server_disk_config["disk_size"], server_disk_config["os_id"], server_disk_config["password"], server_disk_config["username"])
                 
                 if(self.api_index == True):
                     disk_id = disk_res["Disk"]["ID"]
+                    disk_connection = disk_res["Disk"]["Connection"]
+                    disk_size = disk_res["Disk"]["SizeMB"]
+                    disk_os = disk_res["Disk"]["SourceArchive"]["ID"]
+                    disk_type = disk_res["Disk"]["Plan"]["ID"]
                 else:
                     disk_id = 000000000000
+                    disk_connection = "virtio"
+                    disk_size = 20480
+                    disk_os = "CentOS Stream 8 (20201203) 64bit"
+                    disk_type = 1
+                    
+                self.cluster_info["clusterparams"]["server"][zone]["compute"][number]["disk"][0]["id"] = int(disk_id)
+                self.cluster_info["clusterparams"]["server"][zone]["compute"][number]["disk"][0]["connection"] = disk_connection
+                self.cluster_info["clusterparams"]["server"][zone]["compute"][number]["disk"][0]["size"] = int(disk_size)
+                self.cluster_info["clusterparams"]["server"][zone]["compute"][number]["disk"][0]["os"] = int(disk_os)
+                self.cluster_info["clusterparams"]["server"][zone]["compute"][number]["disk"][0]["type"] = int(disk_type)
+                
                     
                 self.connect_server_disk(zone, disk_id, server_id)
                 
                 if(self.cluster_info["clusterparams"]["switch"][zone]["back"] != None):
                     nic_id = self.add_interface(zone, server_id)
+                    self.cluster_info["clusterparams"]["server"][zone]["compute"][number]["nic"]["back"] = int(nic_id)
                     self.connect_switch(zone, self.cluster_info["clusterparams"]["switch"][zone]["back"]["id"], nic_id)
+                else:
+                    self.cluster_info["clusterparams"]["server"][zone]["compute"][number]["nic"]["back"] = None
         
                 self.progress_bar(int(50/(len(new_setting) * (comp_num - current_comp_num))))
                 
@@ -878,11 +916,12 @@ class modify_sacluster:
         return server_response, res_index
     
     #ディスクの追加
-    def add_disk(self, zone, disk_name, disk_type_id, disk_connection_type, disk_size, os_name, password, username):
+    def add_disk(self, zone, disk_name, ip_index, disk_type_id, disk_connection_type, disk_size, os_id, password, username):
         printout("creating disk ……", info_type = 0, info_list = self.info_list, fp = self.fp, overwrite = True)
         logger.debug("creating disk for " + disk_name)
 
-        param = {"Disk":{"Name":disk_name,"Plan":{"ID": disk_type_id}, "Connection": disk_connection_type ,"SizeMB":disk_size,"SourceArchive":{"Availability": "available","ID": int(self.ext_info["OS"][os_name][zone])},"Tags":["cluster ID: " + str(self.cluster_id)]},"Config":{"Password": str(password), "HostName": str(username)}}
+        #param = {"Disk":{"Name":disk_name,"Plan":{"ID": disk_type_id}, "Connection": disk_connection_type ,"SizeMB":disk_size,"SourceArchive":{"Availability": "available","ID": int(self.ext_info["OS"][os_name][zone])},"Tags":["cluster ID: " + str(self.cluster_id)]},"Config":{"Password": str(password), "HostName": str(username)}}
+        param = {"Disk":{"Name":disk_name,"Plan":{"ID": disk_type_id}, "Connection": disk_connection_type ,"SizeMB":disk_size,"SourceArchive":{"Availability": "available","ID": int(os_id)},"Tags":["cluster ID: " + str(self.cluster_id)]},"Config":{"Password": str(password), "HostName": str(username)}}
     
         if (self.api_index == True):
             while(True):
@@ -891,6 +930,9 @@ class modify_sacluster:
                 if check == True:
                     disk_id = disk_res["Disk"]["ID"]
                     logger.info("disk ID: " + disk_id + "-Success")
+                    self.waitDisk(zone, disk_id)
+                    if "headnode" != disk_name:
+                        disk_res["Disk"]["ip_addr"] = self.assign_ip(zone, ip_index, disk_id)
                     break
                 else:
                     self.build_error()
@@ -900,6 +942,62 @@ class modify_sacluster:
             disk_id = "0000"
     
         return disk_res
+    
+    # ディスク状態が利用可能になるまで待ち続けるコード
+    def waitDisk (self, zone, diskId):
+        logger.debug("Waiting disc creation ……")
+        diskState = 'uploading'
+        
+        while True:
+            printout("waiting disk ……", info_type = 0, info_list = self.info_list, fp = self.fp, overwrite = True)
+            disk_info = get(self.url_list[zone] + self.sub_url[1]  + "/" + str(diskId), self.auth_res)
+            diskState = disk_info['Disk']['Availability']
+            check, msg = self.res_check (disk_info, "get")
+
+            while(True):
+                if check == True:
+                    break
+                else:
+                    self.build_error()
+
+            if diskState == 'available':
+                logger.debug("Finish creation of disc ……")
+                break
+            time.sleep(10)
+            
+    #Eth0のIPアドレスの割当
+    def assign_ip(self, zone, ipAddressSequense, diskId):
+        logger.debug("Assigning ip addr to dist ……")
+        
+        base = self.ext_info["IP_addr"]["base"]
+        front = self.ext_info["IP_addr"]["front"]
+        ip_zone = self.ext_info["IP_addr"]["zone_seg"]
+        
+        #compute_ip_zone = {"tk1a": "192.168.1.", "tk1b": "192.168.2.", "is1a": "192.168.3.", "is1b": "192.168.4."}
+        ipAddress = "{}.{}.{}.{}".format(base, front, ip_zone[zone], ipAddressSequense + 1)
+        
+        #str(compute_ip_zone[zone]) + str(ipAddressSequense + 1)
+        
+        param = {
+            "UserIPAddress": ipAddress,
+            "UserSubnet": {
+                "DefaultRoute": '{}.{}.254.254'.format(base, front),
+                "NetworkMaskLen": 16
+        }
+        }
+        printout("assigning IP address ……", info_type = 0, info_list = self.info_list, fp = self.fp, overwrite = True)
+        putUrl = self.url_list[zone] + self.sub_url[1] + '/' + str (diskId) + '/config'
+        logger.debug(putUrl)
+        disk_res = put(putUrl, self.auth_res, param)
+        check, msg = self.res_check (disk_res, "put")
+
+        while(True):
+            if check == True:
+                break
+            else:
+                self.build_error()
+        
+        return ipAddress
     
     #サーバとディスクの接続
     def connect_server_disk(self, zone, disk_id, server_id):
