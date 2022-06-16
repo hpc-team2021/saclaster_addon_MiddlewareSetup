@@ -33,12 +33,15 @@
                 "echo \"request_header_access X-Forwarded-For deny all\"  >> /etc/squid/squid.conf",
                 "echo \"request_header_access Via deny all\"              >> /etc/squid/squid.conf",
                 "echo \"request_header_access Cache-Control deny all\"    >> /etc/squid/squid.conf",
-                "htpasswd -b -c /etc/squid/.htpasswd user1 test"
+                "htpasswd -b -c /etc/squid/.htpasswd user1 test",
+                "yum -y install squid",
+                "systemctl enable squid",
+                "systemctl start squid"
             ],
             "Compute":
             [
-                "echo \"export http_proxy=http://user1:test@192.168.0.1:3128\" >> /root/.bashrc",
-                "echo \"export https_proxy=http://user1:test@192.168.0.1:3128\" >> /root/.bashrc",
+                "echo \"export http_proxy=http://192.168.0.1:3128\" >> /root/.bashrc",
+                "echo \"export https_proxy=http://192.168.0.1:3128\" >> /root/.bashrc",
                 "source .bashrc"
             ]
         }
