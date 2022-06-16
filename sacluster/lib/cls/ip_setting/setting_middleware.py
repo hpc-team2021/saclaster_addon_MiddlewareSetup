@@ -25,11 +25,12 @@ from info_print import printout
 script_path = path + "/lib/.Ex_info/script"
 
 class set_startup_scripts:
-    def __init__(self, cluster_id, cluster_info, ext_info, auth_res, delete_note = 1, fp = "" , info_list = [1,0,0,0], api_index = True):
+    def __init__(self, cluster_id, cluster_info, ext_info, auth_res, m_index = False, delete_note = 1, fp = "" , info_list = [1,0,0,0], api_index = True):
         
         self.ext_info = ext_info
         self.auth_res = auth_res
         self.cluster_info = cluster_info
+        self.m_index = m_index
         
         self.delete_note = delete_note
         self.fp = fp
@@ -71,22 +72,21 @@ class set_startup_scripts:
             self.setting_ip()
             
             #追加処理
+            if(self.m_index == False):
+                #ヘッドノードのスタートアップスクリプトを生成
+                script_head = self.get_scripts(node_type = "head")
+                #ヘッドノードのスタートアップスクリプトを登録
+                note_res = self.make_notes(script_head, "head")
+                head_note_id = note_res['Note']['ID']
             
-            #ヘッドノードのスタートアップスクリプトを生成
-            script_head = self.get_scripts(node_type = "head")
-            #ヘッドノードのスタートアップスクリプトを登録
-            note_res = self.make_notes(script_head, "head")
-            head_note_id = note_res['Note']['ID']
+                #ヘッドノードのスタートアップスクリプトのリクエストボディを生成
+                param = self.generate_params(note_res['Note']['ID'], self.script_variables["head"])
             
-            #ヘッドノードのスタートアップスクリプトのリクエストボディを生成
-            param = self.generate_params(note_res['Note']['ID'], self.script_variables["head"])
+                if(len(self.script_variables["head"]) != 0):
+                    #スタートアップスクリプトをヘッドノードのディスクに設定
+                    disk_id = str(self.cluster_info["clusterparams"]["server"][self.head_zone]["head"]["disk"][0]["id"])
+                    self.set_scripts(disk_id, param)
             
-            if(len(self.script_variables["head"]) != 0):
-                #スタートアップスクリプトをヘッドノードのディスクに設定
-                disk_id = str(self.cluster_info["clusterparams"]["server"][self.head_zone]["head"]["disk"][0]["id"])
-                self.set_scripts(disk_id, param)
-            
-    
             #コンピュートノードのスタートアップスクリプトの生成
             script_compute = self.get_scripts(node_type = "compute")
             #コンピュートノードのスタートアップスクリプトの登録
@@ -104,7 +104,8 @@ class set_startup_scripts:
                         self.set_scripts(disk_id, param)
 
             if(self.delete_note == 1):
-                self.delete_notes(head_note_id)
+                if(self.m_index == False):
+                    self.delete_notes(head_note_id)
                 self.delete_notes(compute_note_id)
             
         
@@ -187,7 +188,7 @@ class set_startup_scripts:
             else:
                 logger.warning("API processing failed")
                 if com_index == False:
-                    self.printout_cluster("Error:", cls_monitor_level = 1)
+                    printout("Error:", info_list = self.info_list, fp = self.fp)
                     check = False
                     return check, msg
                 else:
@@ -198,8 +199,8 @@ class set_startup_scripts:
         elif ("is_fatal" in res.keys()):
             logger.warning("API processing failed")
             if com_index == False:
-                self.printout_cluster("Status:" + res["status"], cls_monitor_level = 1)
-                self.printout_cluster("Error:" + res["error_msg"], cls_monitor_level = 1)
+                printout("Status:" + res["status"], info_list = self.info_list, fp = self.fp)
+                printout("Error:" + res["error_msg"], info_list = self.info_list, fp = self.fp)
                 check = False
                 return check, msg
             else:
@@ -228,28 +229,24 @@ class set_startup_scripts:
         back = self.ext_info["IP_addr"]["back"]
         ip_zone = self.ext_info["IP_addr"]["zone_seg"]
 
-        #ヘッドノードにおけるeth1のIPアドレスを割り当てるためのパラメータを設定
-        head_ip = "{}.{}.{}.{}/16".format(base, front, ip_zone["head"], 1)
+        if(self.m_index == False):
+            #ヘッドノードにおけるeth1のIPアドレスを割り当てるためのパラメータを設定
+            head_ip = "{}.{}.{}.{}/16".format(base, front, ip_zone["head"], 1)
         
-        # OSの名前・バージョンの取得
-        os_type = self.ext_info["OS"]
-        for os in os_type:
-            if 'CentOS' in os:
-                break
-        
-
-        if(self.cluster_info["clusterparams"]["server"][self.head_zone]["head"]["disk"][0]["os"] 
-            in (list(self.ext_info["OS"][os].values()))
-         ):
-            self.script_variables["head"]["addresses_ip_head_centos"] = head_ip
-            self.target_scripts["head"].append("ip_head_centos")
+            if(self.cluster_info["clusterparams"]["server"][self.head_zone]["head"]["disk"][0]["os"] 
+               in list(self.ext_info["OS"]["CentOS Stream 8 (20201203) 64bit"].values())
+            # + list(self.ext_info["OS"]["CentOS 7.9 (2009) 64bit"].values())
+            ):
+                self.script_variables["head"]["addresses_ip_head_centos"] = head_ip
+                self.target_scripts["head"].append("ip_head_centos")
         
         #コンピュートノードにおけるeth1のIPアドレスを割り当てるためのパラメータを設定
         for zone in self.zone_list:
             if("back" in self.cluster_info["clusterparams"]["switch"][zone]):
                 for i in list(self.cluster_info["clusterparams"]["server"][zone]["compute"].keys()):
                     if(self.cluster_info["clusterparams"]["server"][zone]["compute"][i]["disk"][0]["os"]
-                        in list(self.ext_info["OS"][os].values()) 
+                        in list(self.ext_info["OS"]["CentOS Stream 8 (20201203) 64bit"].values())
+                        # + list(self.ext_info["OS"]["CentOS 7.9 (2009) 64bit"].values())
                     ):
                         self.target_scripts["compute"].append("ip_compute_centos")
                         self.script_variables["compute"][zone][i]["addresses_ip_compute_centos"] = "{}.{}.{}.{}/16".format(base, back, ip_zone[zone], i + 1)
@@ -295,7 +292,7 @@ class set_startup_scripts:
             else:
                 os_info = list(set(os_info) & set(os_info_temp)) 
             
-            os_info = "\n".join(os_info)
+        os_info = "\n".join(os_info)
             
         #全部分を連結し、スクリプトを生成
         res_scripts = "\n".join([header_part, comment_part, variable_info, os_info, log_part, scripts_info, footer_part])

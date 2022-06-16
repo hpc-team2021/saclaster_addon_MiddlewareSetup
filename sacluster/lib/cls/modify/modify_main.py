@@ -21,6 +21,12 @@ from modify_class import modify_sacluster
 sys.path.append(common_path + "/lib/notif")
 from monitor_function import preparing_monitor
 
+sys.path.append(common_path + "/lib/cls/ip_setting")
+from setting_middleware import set_startup_scripts
+from subtract_ip_cluster_info import subtract_cluster_info
+
+
+
 sys.path.append(common_path + "/lib/others")
 import get_params
 import get_cluster_id
@@ -29,6 +35,8 @@ from confirm_stop_pros import conf_stop_process
 
 import build_class
 import logging
+import copy
+import pprint
 
 logger = logging.getLogger("sacluster").getChild(os.path.basename(__file__))
 #logger = logging.getLogger().getChild(os.path.basename(__file__))
@@ -68,10 +76,19 @@ def modify_main(api_index, f, info_list, max_workers):
         
     
     if(index == True):
+        cluster_info_prior = copy.deepcopy(params.cluster_info_all[cluster_id])
+        
         logger.debug("Starting to modify the cluster : " + str(cluster_id))
         printout("Starting to modify the cluster : " + str(cluster_id), info_type = 0, info_list = info_list, fp = f)
         mod_obj = modify_sacluster(params.cluster_info_all[cluster_id], cluster_id, auth_info, ext_info, fp = f, info_list = info_list, api_index = api_index, max_workers =max_workers)
         mod_obj()
+        
+        cluster_info_new = mod_obj.cluster_info
+        cluster_info_ip = subtract_cluster_info(cluster_info_prior, cluster_info_new)
+        
+        cls_mid = set_startup_scripts(cluster_id = cluster_id, cluster_info = cluster_info_ip, ext_info = ext_info, auth_res = auth_info, m_index = True, fp = f , info_list = info_list, api_index = api_index)
+        cls_mid()
+        
         
     
     
