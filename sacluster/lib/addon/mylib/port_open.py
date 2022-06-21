@@ -18,21 +18,25 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 common_path = os.path.abspath("../../..")
 
 sys.path.append(common_path + "/lib/others")
-from API_method import get, post, put, delete
+from API_method         import get, post, put, delete
 sys.path.append(common_path + "/lib/auth")
-from auth_func_pro import authentication_cli
+from auth_func_pro      import authentication_cli
+sys.path.append (common_path + "/lib/addon/mylib")
+from get_cluster_info   import get_cluster_info
+from load_addon_params  import load_addon_params
+
 
 #並列処理を行う
 import asyncio
 import paramiko 
 
-def port_open(cls_bil, ext_info, cls_mid, addon_info, service_type, service_name):
+def port_open(cls_bil, ext_info, addon_info, service_type, service_name):
 
     # 今回の処理に必要な変数のみを取り出す
-    cluster_id       = addon_info["clusterID"]
-    IP_list         = addon_info["IP_list"]
-    params          = addon_info["params"]
-    node_password    = addon_info["node_password"]
+    cluster_id        = addon_info["clusterID"]
+    IP_list           = addon_info["IP_list"]
+    params            = addon_info["params"]
+    node_password     = addon_info["node_password"]
     json_addon_params = addon_info["json_addon_params"]
 
     # グローバルIPと計算機ノードの数を把握する
@@ -136,4 +140,22 @@ def setup_port__comp(head_info, compute_info, command):
 
 
 if __name__ == '__main__':
-    print('実行に必要になる引数が多すぎるのでaddon_main()でテスト確認した方が早いと思います')
+    params              = get_cluster_info ()
+    json_addon_params   = load_addon_params ()
+
+    cls_bil  = []
+    ext_info = []
+
+    addon_info = {
+        "clusterID"         : "849936",                 # !!! 任意のクラスターIDに変更 !!!
+        "IP_list"           :{                          # コンピュートノードの数に合わせて変更
+            "front" : ['192.168.4.1', '192.168.4.2'],
+            "back"  : ['192.169.4.1', '192.169.4.2']
+        },
+        "params"            : params,
+        "json_addon_params" : json_addon_params,
+        "node_password"     : "test"                    # 設定したパスワードを入力
+    }
+
+    port_open       (cls_bil, ext_info, addon_info, service_type="Proxy", service_name="squid")
+    port_open       (cls_bil, ext_info, addon_info, service_type="Monitor", service_name="Ganglia")
