@@ -15,7 +15,7 @@ from load_addon_params    import load_addon_params
 from pack_install    import pack_install
 from daemon_start    import daemon_start
 
-def proxy_setup(cls_bil, ext_info, cls_mid, addon_info, service_name):
+def proxy_setup(addon_info, service_name):
     # jsonファイる読み込み
     json_open = open(fileName, 'r')
     jsonFile = json.load(json_open)
@@ -75,19 +75,18 @@ if __name__ == "__main__":
     params              = get_cluster_info ()
     json_addon_params   = load_addon_params ()
 
-    cls_bil = []
+    cls_bil  = []
     ext_info = []
-    cls_mid = []
 
     addon_info = {
-        "clusterID"         : "646459",                 # 任意のクラスターIDに変更
+        "clusterID"         : "849936",                 # !!! 任意のクラスターIDに変更 !!!
         "IP_list"           :{                          # コンピュートノードの数に合わせて変更
-            "front" : ['168.192.4.1', '168.192.4.2'],
-            "back"  : ['169.192.4.1', '169.192.4.2']
+            "front" : ['192.168.4.1', '192.168.4.2'],
+            "back"  : ['192.169.4.1', '192.169.4.2']
         },
         "params"            : params,
         "json_addon_params" : json_addon_params,
         "node_password"     : "test"                    # 設定したパスワードを入力
     }
 
-    proxy_setup(cls_bil, ext_info, cls_mid, addon_info, service_name="squid")
+    proxy_setup(cls_bil, ext_info, addon_info, service_name="squid")

@@ -26,7 +26,7 @@ import paramiko
 import json
 
 #ローカルのネットワークのFireWallのゾーンを指定したゾーンに変更する
-def switch_fw_zone(cls_bil, ext_info, cls_mid, addon_info):
+def switch_fw_zone(cls_bil, ext_info, addon_info):
 
     # 今回の処理に必要な変数のみを取り出す
     clusterID       = addon_info["clusterID"]
@@ -119,7 +119,21 @@ def ssh_connect(IPADDRESS1,nodePassword,computenum,IP_list,HEAD_CMD,COMPUTE_CMD)
 
 
 if __name__ == '__main__':
-    params = get_cluster_info ()
-    jsonAddonParams = load_addon_params ()
-    switch_fw_zone(clusterID = '108477', params=params, nodePassword = 'test', jsonAddonParams = jsonAddonParams)
-   
+    params              = get_cluster_info ()
+    json_addon_params   = load_addon_params ()
+
+    cls_bil  = []
+    ext_info = []
+
+    addon_info = {
+        "clusterID"         : "849936",                 # !!! 任意のクラスターIDに変更 !!!
+        "IP_list"           :{                          # コンピュートノードの数に合わせて変更
+            "front" : ['192.168.4.1', '192.168.4.2'],
+            "back"  : ['192.169.4.1', '192.169.4.2']
+        },
+        "params"            : params,
+        "json_addon_params" : json_addon_params,
+        "node_password"     : "test"                    # 設定したパスワードを入力
+    }
+
+    switch_fw_zone  (cls_bil, ext_info, addon_info)

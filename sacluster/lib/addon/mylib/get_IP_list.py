@@ -1,4 +1,4 @@
-def get_IP_list(cls_bil, ext_info, cls_mid):
+def get_IP_list(cls_bil, ext_info):
     clusterID           = cls_bil.cluster_id.split(": ")[1]
     base    = ext_info["IP_addr"]["base"]
     front   = ext_info["IP_addr"]["front"]
@@ -10,9 +10,9 @@ def get_IP_list(cls_bil, ext_info, cls_mid):
     IP_front_list   = []
     IP_back_list    = []
     for zone in zone_list:
-        for i in list(cls_mid.cluster_info["clusterparams"]["server"][zone]["compute"].keys()):
-            IP_front_list.append("192.168.{}.{}".format(ip_zone[zone], i + 1))
-            IP_back_list.append ("192.169.{}.{}".format(ip_zone[zone], i + 1))
+        for i in list(cls_bil.all_id_dict["clusterparams"]["server"][zone]["compute"].keys()):
+            IP_front_list.append(str(base) + "." + str(front) + ".{}.{}".format(ip_zone[zone], i + 1))
+            IP_back_list.append (str(base) + "." + str(back) + ".{}.{}".format(ip_zone[zone], i + 1))
 
     IP_list = {"front":IP_front_list, "back":IP_back_list}
     return IP_list

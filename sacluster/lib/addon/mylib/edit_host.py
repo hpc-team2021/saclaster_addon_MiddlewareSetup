@@ -14,7 +14,7 @@ from sshconnect_main import sshConnect_main, headConnect, computeConnect, comput
 from get_cluster_info     import get_cluster_info
 from load_addon_params    import load_addon_params
 
-def edit_host(cls_bil, ext_info, cls_mid, addon_info):
+def edit_host(cls_bil, ext_info, addon_info):
     # jsonファイる読み込み
     json_open = open(fileName, 'r')
     jsonFile = json.load(json_open)
@@ -57,12 +57,11 @@ if __name__ == "__main__":
     params              = get_cluster_info ()
     json_addon_params   = load_addon_params ()
 
-    cls_bil = []
+    cls_bil  = []
     ext_info = []
-    cls_mid = []
 
     addon_info = {
-        "clusterID"         : "849936",                 # 任意のクラスターIDに変更
+        "clusterID"         : "849936",                 # !!! 任意のクラスターIDに変更 !!!
         "IP_list"           :{                          # コンピュートノードの数に合わせて変更
             "front" : ['192.168.4.1', '192.168.4.2'],
             "back"  : ['192.169.4.1', '192.169.4.2']
@@ -72,4 +71,4 @@ if __name__ == "__main__":
         "node_password"     : "test"                    # 設定したパスワードを入力
     }
 
-    edit_host    (cls_bil, ext_info, cls_mid, addon_info)
+    edit_host    (cls_bil, ext_info, addon_info)

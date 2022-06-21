@@ -20,7 +20,7 @@ def external_data(auth_info, info_list = [1,0,0,0], fp = "", middle_index = Fals
     logger.debug('loading external information')
     
     if middle_index:
-        path_external = "/lib/.Ex_info/External_info_middle.json"
+        path_external = "/lib/.Ex_info/External_info_test.json"
     else:
         path_external = "/lib/.Ex_info/External_info.json"
 
