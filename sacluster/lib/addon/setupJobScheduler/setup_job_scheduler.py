@@ -28,7 +28,13 @@ from slurm_main import slurm_main
 #################
 # Main Programm #
 #################
-def setup_job_scheduler (cluster_id, params, node_password, json_addon_params, service_type="job_shceduler"  , service_name="slurm"):
+def setup_job_scheduler (addon_info, fp, info_list, service_name):
+    # 今回の処理に必要な変数のみを取り出す
+    cluster_id       = addon_info["clusterID"]
+    ip_list         = addon_info["IP_list"]
+    params          = addon_info["params"]
+    node_password    = addon_info["node_password"]
+    
     head_ip, os_type, n_computenode = \
         get_info (cluster_id = cluster_id, params = params)
     
@@ -37,7 +43,6 @@ def setup_job_scheduler (cluster_id, params, node_password, json_addon_params, s
             head_ip = head_ip,
             n_computenode = n_computenode,
             node_password = node_password,
-            json_addon_params = json_addon_params,
             os_type = os_type   
         )
     

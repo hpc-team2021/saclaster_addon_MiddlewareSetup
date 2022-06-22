@@ -14,7 +14,7 @@ from sshconnect_main import sshConnect_main, headConnect, computeConnect, comput
 from get_cluster_info     import get_cluster_info
 from load_addon_params    import load_addon_params
 
-def edit_host(cls_bil, ext_info, addon_info):
+def edit_host(addon_info, fp, info_list):
     # jsonファイる読み込み
     json_open = open(fileName, 'r')
     jsonFile = json.load(json_open)

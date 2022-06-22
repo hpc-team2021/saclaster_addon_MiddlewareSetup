@@ -26,7 +26,7 @@ import paramiko
 import json
 
 #ローカルのネットワークのFireWallのゾーンを指定したゾーンに変更する
-def switch_fw_zone(cls_bil, ext_info, addon_info):
+def switch_fw_zone(addon_info, fp, info_list):
 
     # 今回の処理に必要な変数のみを取り出す
     clusterID       = addon_info["clusterID"]

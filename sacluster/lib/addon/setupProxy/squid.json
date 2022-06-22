@@ -36,7 +36,10 @@
                 "htpasswd -b -c /etc/squid/.htpasswd user1 test",
                 "yum -y install squid",
                 "systemctl enable squid",
-                "systemctl start squid"
+                "systemctl start squid",
+                "firewall-cmd --add-port=3128/udp --permanent",
+                "firewall-cmd --add-port=3128/tcp --permanent",
+                "firewall-cmd --reload"
             ],
             "Compute":
             [

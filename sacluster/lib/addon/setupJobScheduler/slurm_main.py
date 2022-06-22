@@ -17,12 +17,12 @@ from get_cluster_info import get_cluster_info
 
 sys.path.append(common_path + "/lib/addon/setupJobScheduler")
 from munge_setup import munge_setup 
-from slurm_setup import slurm_setup
+# from slurm_setup import slurm_setup
 
 #################
 # Main Programm #
 #################
-def slurm_main (head_ip, n_computenode, node_password, json_addon_params, os_type):
+def slurm_main (head_ip, n_computenode, node_password, os_type):
    # Read json file for gaglia configuration 
     try:
         json_open = open(fileName, 'r')
@@ -43,12 +43,11 @@ def slurm_main (head_ip, n_computenode, node_password, json_addon_params, os_typ
         head_ip = head_ip,
         n_computenode = n_computenode,
         node_password = node_password,
-        json_addon_params = json_addon_params,
         os_type = os_type,
         cmd_slurm = cmd_slurm
     )
 
-    slurm_setup ()
+    # slurm_setup ()
 
 if __name__ == '__main__':
     params = get_cluster_info()
