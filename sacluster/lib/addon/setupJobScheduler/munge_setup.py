@@ -25,14 +25,13 @@ from get_cluster_info import get_cluster_info
 #################
 # Main Programm #
 #################
-def munge_setup (head_ip, n_computenode, node_password, json_addon_params, os_type, cmd_slurm):
+def munge_setup (head_ip, n_computenode, node_password, os_type, cmd_slurm):
     print ("(Start) Setup for mugnge")
     
     munge_user (
         head_ip = head_ip,
         n_computenode = n_computenode,
         node_password = node_password,
-        json_addon_params = json_addon_params,
         cmd_head = cmd_slurm[os_type]["Head"]["munge"]["mungeuser"],
         cmd_compute = cmd_slurm[os_type]["Compute"]["munge"]["mungeuser"]
     )
@@ -41,7 +40,6 @@ def munge_setup (head_ip, n_computenode, node_password, json_addon_params, os_ty
         head_ip = head_ip,
         n_computenode = n_computenode,
         node_password = node_password,
-        json_addon_params = json_addon_params,
         cmd_head = cmd_slurm[os_type]["Head"]["munge"]["install"],
         cmd_compute = cmd_slurm[os_type]["Compute"]["munge"]["install"]
     )
@@ -50,7 +48,6 @@ def munge_setup (head_ip, n_computenode, node_password, json_addon_params, os_ty
         head_ip = head_ip,
         n_computenode = n_computenode,
         node_password = node_password,
-        json_addon_params = json_addon_params,
         cmd_head = cmd_slurm[os_type]["Head"]["munge"]["munge-key"],
         cmd_compute = cmd_slurm[os_type]["Compute"]["munge"]["munge-key"]
     )
@@ -59,14 +56,13 @@ def munge_setup (head_ip, n_computenode, node_password, json_addon_params, os_ty
         head_ip = head_ip,
         n_computenode = n_computenode,
         node_password = node_password,
-        json_addon_params = json_addon_params,
         cmd_head = cmd_slurm[os_type]["Head"]["munge"]["daemon"],
         cmd_compute = cmd_slurm[os_type]["Compute"]["munge"]["daemon"]
     )
 
     print ("(Done) Setup for mugnge")
 
-def munge_user (head_ip, n_computenode, node_password, json_addon_params, cmd_head, cmd_compute):
+def munge_user (head_ip, n_computenode, node_password, cmd_head, cmd_compute):
     print ("(Start) Create munge user")
     ####################
     #    Head Node     #
@@ -166,7 +162,7 @@ def munge_user (head_ip, n_computenode, node_password, json_addon_params, cmd_he
     del headnode
     print ("(Done) Create munge user")
 
-def munge_install (head_ip, n_computenode, node_password, json_addon_params, cmd_head, cmd_compute):
+def munge_install (head_ip, n_computenode, node_password, cmd_head, cmd_compute):
     print ("(Start) Install packages for munge")
     ####################
     #    Head Node     #
@@ -268,7 +264,7 @@ def munge_install (head_ip, n_computenode, node_password, json_addon_params, cmd
     del headnode
     print ("(Done) Install packages for munge")
 
-def munge_key (head_ip, n_computenode, node_password, json_addon_params, cmd_head, cmd_compute):
+def munge_key (head_ip, n_computenode, node_password, cmd_head, cmd_compute):
     print ("(Start) Setting for munge key")
     ####################
     #    Head Node     #
@@ -376,7 +372,7 @@ def munge_key (head_ip, n_computenode, node_password, json_addon_params, cmd_hea
     del headnode
     print ("(Done) Setting for munge key")
 
-def munge_daemon (head_ip, n_computenode, node_password, json_addon_params, cmd_head, cmd_compute):
+def munge_daemon (head_ip, n_computenode, node_password, cmd_head, cmd_compute):
     print ("(Start) Enable munge daemon")
     ####################
     #    Head Node     #
