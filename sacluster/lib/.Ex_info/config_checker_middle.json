@@ -1,0 +1,68 @@
+{
+    "main checker": {
+        "type": "object",
+        "required": [
+            "config_name" 
+        ],
+        "additionalProperties": false,
+        "properties": {
+            "config_name": {
+                "type": "string"
+            },
+            "Monitor": {
+                "type": "object",
+                "required": [
+                    "index"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                    "index": {
+                        "type": "boolean"
+                    },
+                    "type" : {
+                        "type": "string"  
+                    },
+                    "params": {
+                        "type": "object"
+                    }
+                }
+            },
+            "Job_scheduler": {
+                "type": "object",
+                "required": [
+                    "index"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                    "index": {
+                        "type": "boolean"
+                    },
+                    "type" : {
+                        "type": "string"  
+                    },
+                    "params": {
+                        "type": "object"
+                    }
+                }
+            },
+            "ParallelComputing": {
+                "type": "object",
+                "required": [
+                    "index"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                    "index": {
+                        "type": "boolean"
+                    },
+                    "type" : {
+                        "type": "string"  
+                    },
+                    "params": {
+                        "type": "object"
+                    }
+                }
+            }
+        }
+    }
+}

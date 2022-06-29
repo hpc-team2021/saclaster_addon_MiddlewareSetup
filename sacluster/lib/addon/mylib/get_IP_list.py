@@ -1,5 +1,8 @@
 def get_IP_list(cls_bil, ext_info):
-    clusterID           = cls_bil.cluster_id.split(": ")[1]
+    try:
+        clusterID = cls_bil.cluster_id.split(": ")[1]
+    except:
+        clusterID = cls_bil["Temporary"]["clusterID"]
     base    = ext_info["IP_addr"]["base"]
     front   = ext_info["IP_addr"]["front"]
     back    = ext_info["IP_addr"]["back"]

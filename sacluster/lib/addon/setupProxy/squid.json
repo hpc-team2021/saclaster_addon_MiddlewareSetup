@@ -5,16 +5,28 @@
         {
             "Head": 
             [
+                "yum -y install squid", 
+                "yum -y install httpd-tools", 
+                "yum -y update openssl",
+                "firewall-cmd --permanent --zone=trusted --add-port=3128/tcp",
+                "firewall-cmd --reload",
                 "echo \"acl mynetwork src 192.168.0.0/16\"              >> /etc/squid/squid.conf",
                 "echo \"http_access allow mynetwork\"                     >> /etc/squid/squid.conf",
                 "echo \"forwarded_for off\"                               >> /etc/squid/squid.conf",
                 "echo \"request_header_access X-Forwarded-For deny all\"  >> /etc/squid/squid.conf",
                 "echo \"request_header_access Via deny all\"              >> /etc/squid/squid.conf",
                 "echo \"request_header_access Cache-Control deny all\"    >> /etc/squid/squid.conf",
-                "htpasswd -b -c /etc/squid/.htpasswd user1 test"
+                "htpasswd -b -c /etc/squid/.htpasswd user1 test",
+                "systemctl enable squid",
+                "systemctl start squid",
+                "firewall-cmd --add-port=3128/udp --permanent",
+                "firewall-cmd --add-port=3128/tcp --permanent",
+                "firewall-cmd --reload"
             ],
             "Compute":
             [
+                "firewall-cmd --permanent --zone=trusted --add-port=3128/tcp",
+                "firewall-cmd --reload",
                 "echo \"export http_proxy=http://user1:test@192.168.0.1:3128\" >> /root/.bashrc",
                 "echo \"export https_proxy=http://user1:test@192.168.0.1:3128\" >> /root/.bashrc",
                 "source .bashrc"
@@ -27,6 +39,11 @@
         {
             "Head": 
             [
+                "yum -y install squid", 
+                "yum -y install httpd-tools", 
+                "yum -y update openssl",
+                "firewall-cmd --permanent --zone=trusted --add-port=3128/tcp",
+                "firewall-cmd --reload",
                 "echo \"acl mynetwork src 192.168.0.0/16\"              >> /etc/squid/squid.conf",
                 "echo \"http_access allow mynetwork\"                     >> /etc/squid/squid.conf",
                 "echo \"forwarded_for off\"                               >> /etc/squid/squid.conf",
@@ -34,7 +51,6 @@
                 "echo \"request_header_access Via deny all\"              >> /etc/squid/squid.conf",
                 "echo \"request_header_access Cache-Control deny all\"    >> /etc/squid/squid.conf",
                 "htpasswd -b -c /etc/squid/.htpasswd user1 test",
-                "yum -y install squid",
                 "systemctl enable squid",
                 "systemctl start squid",
                 "firewall-cmd --add-port=3128/udp --permanent",
@@ -43,6 +59,8 @@
             ],
             "Compute":
             [
+                "firewall-cmd --permanent --zone=trusted --add-port=3128/tcp",
+                "firewall-cmd --reload",
                 "echo \"export http_proxy=http://192.168.0.1:3128\" >> /root/.bashrc",
                 "echo \"export https_proxy=http://192.168.0.1:3128\" >> /root/.bashrc",
                 "source .bashrc"

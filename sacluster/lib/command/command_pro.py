@@ -46,6 +46,7 @@ os.makedirs(home_path + "/log", exist_ok = True)
 os.makedirs(home_path + "/res", exist_ok = True)
 os.makedirs(home_path + "/setting", exist_ok = True)
 os.makedirs(home_path + "/config", exist_ok = True)
+os.makedirs(home_path + "/config_middle", exist_ok = True)
 
 log_filename = home_path + "/log/" + dt_now.strftime('%Y_%m_%d_%H_%M_%S.log')
 
@@ -70,6 +71,11 @@ def prior_build(args):
         print("error: --parents option [-p] requires --input option [-d] ")
         sys.exit()
         
+    if(args.parents_middle == True and args.dir_middle == None):
+        logger.error('--parents_middle option [-p_m] requires --input_middle option [-d_m]')
+        print("error: --parents_middle option [-p_m] requires --input_middle option [-d_m] ")
+        sys.exit()
+        
     if(args.output == True):
         logger.debug('Create a file for standard output')
         dt_now = datetime.datetime.now()
@@ -83,17 +89,29 @@ def prior_build(args):
         
     if(args.input == None):
         args.input = ""
-        logger.debug('Set config input path to None')
+        logger.debug('Set config input path (infrastructure) to None')
     else:
-        logger.debug('Set config input path to ' + args.input)
+        logger.debug('Set config input path (infrastructure) to ' + args.input)
         
     if(args.dir == None):
         args.dir = ""
-        logger.debug('Set config output path to None')
+        logger.debug('Set config output path (infrastructure) to None')
     else:
-        logger.debug('Set config output path to ' + args.dir)
+        logger.debug('Set config output path (infrastructure) to ' + args.dir)
         
-    cls_bil, ext_info = build_main(args.input, args.dir, args.parents, args.dryrun, f, info_list, args.auto, int(args.thread), args.middle)
+    if(args.input_middle == None):
+        args.input_middle = ""
+        logger.debug('Set config input path (middle ware) to None')
+    else:
+        logger.debug('Set config input path (middle ware) to ' + args.input_middle)
+        
+    if(args.dir_middle == None):
+        args.dir_middle = ""
+        logger.debug('Set config output path (middle ware) to None')
+    else:
+        logger.debug('Set config output path (middle ware) to ' + args.dir_middle)
+        
+    cls_bil, ext_info, middle_config_param = build_main(args.input, args.dir, args.parents, args.input_middle, args.dir_middle, args.parents_middle, args.dryrun, f, info_list, args.auto, int(args.thread), args.middle)
         
     if(args.output == True):
         printout("Processes for building the cluster were completed", info_type = 0, info_list = [1,0,0,1], fp = f)
@@ -108,8 +126,7 @@ def prior_build(args):
         start_main(args.dryrun, f, info_list, int(args.thread))
         #eth1のIP設定の関数
         #ミドルウェアセットアップ
-        addon_info = {}
-        addon_main(cls_bil, ext_info, addon_info, f, info_list)
+        addon_main(cls_bil, ext_info["Infrastructure"], middle_config_param, f, info_list)
     
 
 def prior_start(args):
@@ -186,7 +203,7 @@ def prior_modify(args):
         f = ""
         info_list = [1,0,0,0]
 
-    cls_bil, ext_info = modify_main(args.dryrun, f, info_list, int(args.thread))
+    modify_main(args.dryrun, f, info_list, int(args.thread))
 
     if(args.output == True):
         printout("Processes for building the cluster were completed", info_type = 0, info_list = [1,0,0,1], fp = f)
@@ -194,15 +211,6 @@ def prior_modify(args):
         f.close()
     else:
         printout("All processes were completed", info_type = 0, info_list = [1,0,0,0], fp = "")
-        
-    if (args.middle == True):
-        # setupIpEth0 (cls_bil)
-
-        start_main(args.dryrun, f, info_list, int(args.thread))
-        #eth1のIP設定の関数
-        #ミドルウェアセットアップ
-        addon_main(cls_bil, ext_info)
-    
 
 
 def prior_delete(args):
@@ -311,10 +319,14 @@ def command_main():
 
 
     build_group = build_parser.add_mutually_exclusive_group()
+    build_group_middle = build_parser.add_mutually_exclusive_group()
     build_parser.add_argument("-a", "--auto", action='store_true', help = "option to start automatically")
-    build_group.add_argument("-i", "--input", help = "option to specify an input config path")
-    build_group.add_argument("-d", "--dir", help = "option to specify an output config path")
-    build_parser.add_argument("-p", "--parents", action='store_true', help = "option to generate output config directories")
+    build_group.add_argument("-i", "--input", help = "option to specify an input config path (infrastructure)")
+    build_group.add_argument("-d", "--dir", help = "option to specify an output config path (infrastructure)")
+    build_parser.add_argument("-p", "--parents", action='store_true', help = "option to generate output config directories (infrastructure)")
+    build_group_middle.add_argument("-i_m", "--input_middle", help = "option to specify an input config path (middle ware)")
+    build_group_middle.add_argument("-d_m", "--dir_middle", help = "option to specify an output config path (middle ware)")
+    build_parser.add_argument("-p_m", "--parents_middle", action='store_true', help = "option to generate output config directories (middle ware)")
     build_parser.add_argument("--dryrun", action='store_false', help = "option to run in trial mode")
     build_parser.add_argument("-o", "--output", action='store_true', help = "option to provide standard file output in addition to the standard console output")
     build_parser.add_argument("-v", "--verbose", action='store_true', help = "option to output detailed log")
