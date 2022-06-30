@@ -8,34 +8,26 @@ from config_function import set_parm, conf_pattern_main, conf_pattern_1, conf_pa
 sys.path.append(path + "/lib/others")
 #from API_method import get, post, put
 import pandas as pd
-from config_section_middle import setting_head, setting_compute, setting_monitor, setting_zone, setting_nfs, show_current_state, def_config_name
+from config_section_middle import setting_monitor, setting_scheduler, setting_parallelcomputing, show_current_state, def_config_name
 import logging
 logger = logging.getLogger("sacluster").getChild(os.path.basename(__file__))
 
-def def_config_main(ext_info, fp = "", info_list = [1,0,0,0]):
-    logger.debug('start to define config params')
-    setting_sec_func = {"Head":setting_head, "Compute":setting_compute, "Monitor": setting_monitor, "Zone": setting_zone, "NFS": setting_nfs, "Current": show_current_state}
+def def_config_main_middle(ext_info, fp = "", info_list = [1,0,0,0]):
+    logger.debug('start to define config params for middle ware')
+    setting_sec_func = {"Monitor":setting_monitor, "Scheduler":setting_scheduler, "ParallelComputing": setting_parallelcomputing, "Current": show_current_state}
     #Config内容名を指定
     config_param = {}
     config_param["config_name"] = def_config_name(fp = fp, info_list = info_list)
     set_parm("Config name", config_param["config_name"], info_list = info_list, fp = fp)
     logger.debug('defined config name')
     
-    set_list = pd.DataFrame([["Compute   ","yet    ", "required    "], ["Head      ", "yet    ", "required    "], ["NFS       ", "auto   ", "not-required"], ["Zone      ", "auto   ", "not-required"], ["Monitor   ", "auto   ", "not-required"], ["Current   ", "-      ", "-           "]], index = ["Compute", "Head", "NFS", "Zone", "Monitor","Current"], columns = ["name", "state", "request"])
-    
-    max_node = 0
-    for k,v in ext_info["Zone"].items():
-        if(v["maximum"] > max_node):
-            max_node = v["maximum"]
-            max_zone = k
-    ext_info["max_zone"] = max_zone
-    logger.debug('Configured the maximum installable nodes and their zones.')
+    set_list = pd.DataFrame([["Monitor".ljust(20),"yet".ljust(7), "not-required".ljust(12)], ["Scheduler".ljust(20),"yet".ljust(7), "not-required".ljust(12)], ["ParallelComputing".ljust(20), "yet".ljust(7), "not-required".ljust(12)], ["Current".ljust(20), "-".center(7), "-".center(12)]], index = ["Monitor", "Scheduler", "ParallelComputing","Current"], columns = ["name", "state", "request"])
     
     while(True):
-        if(len(set_list[(set_list["state"] == "already") & (set_list["request"] == "required    ")]) == len(set_list[set_list["request"] == "required    "])):
+        if(len(set_list[(set_list["state"] == "already") & (set_list["request"] == "required".ljust(12))]) == len(set_list[set_list["request"] == "required".ljust(12)])):
             logger.debug('config parameter definition can be terminated')
-            set_list.loc["Done"] = ["Done      ", "-      ", "-           "]
-        elif(len(set_list[(set_list["state"] == "already") & (set_list["request"] == "required    ")]) < len(set_list[set_list["request"] == "required    "]) and "Done" in list(set_list.index)):
+            set_list.loc["Done"] = ["Done".ljust(20), "-".center(7), "-".center(12)]
+        elif(len(set_list[(set_list["state"] == "already") & (set_list["request"] == "required".ljust(12))]) < len(set_list[set_list["request"] == "required".ljust(12)]) and "Done" in list(set_list.index)):
             logger.debug('config parameter definition cannot be terminated')
             set_list = set_list.drop(index='Done')
         
@@ -49,22 +41,26 @@ def def_config_main(ext_info, fp = "", info_list = [1,0,0,0]):
             logger.debug('finally confirmed')
             temp = conf_pattern_2("Are the above setting correct", ["yes", "no"], "no", info_list = info_list, fp = fp)
             if(temp == "yes"):
-                logger.debug('Automatic configuration of zone')
-                if("Zone" not in config_param):
-                    config_param["Zone"] = {}
-                    config_param["Zone"]["Zone"] = {}
-                    config_param["Zone"]["Zone"][max_zone] = config_param["Compute"]["Compute number"]
-                    config_param["Zone"]["Head Zone"] = max_zone
-                    
-                logger.debug('Automatic configuration of nfs')
-                if("NFS" not in config_param):
-                    config_param["NFS"] = {}
-                    config_param["NFS"]["NFS"] = False
-                    
-                logger.debug('Automatic configuration of monitor')
+                logger.debug('Automatic configuration of Monitor params')
                 if("Monitor" not in config_param):
                     config_param["Monitor"] = {}
-                    config_param["Monitor"]["Monitor"] = False
+                    config_param["Monitor"]["index"] = False
+                    #config_param["Monitor"]["type"] = None
+                    #config_param["Monitor"]["params"] = {}
+                    
+                logger.debug('Automatic configuration of Scheduler params')
+                if("Job_scheduler" not in config_param):
+                    config_param["Job_scheduler"] = {}
+                    config_param["Job_scheduler"]["index"] = False
+                    #config_param["Job_scheduler"]["type"] = None
+                    #config_param["Job_scheduler"]["params"] = {}
+                    
+                logger.debug('Automatic configuration of ParallelComputing params')
+                if("ParallelComputing" not in config_param):
+                    config_param["ParallelComputing"] = {}
+                    config_param["ParallelComputing"]["index"] = False
+                    #config_param["ParallelComputing"]["type"] = None
+                    #config_param["ParallelComputing"]["params"] = {}
                     
                 return config_param
         
