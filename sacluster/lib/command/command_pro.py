@@ -126,7 +126,7 @@ def prior_build(args):
         start_main(args.dryrun, f, info_list, int(args.thread))
         #eth1のIP設定の関数
         #ミドルウェアセットアップ
-        addon_main(cls_bil, ext_info["Infrastructure"], middle_config_param, f, info_list)
+        addon_main(cls_bil, ext_info, middle_config_param, f, info_list)
     
 
 def prior_start(args):
