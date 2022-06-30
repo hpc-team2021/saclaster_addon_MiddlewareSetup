@@ -1,5 +1,6 @@
 import time
 import os
+import sys
 
 from numpy import outer
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -8,8 +9,11 @@ common_path = os.path.abspath("../../..")
 import paramiko 
 from tqdm import tqdm
 
-import warnings
-warnings.filterwarnings('ignore')
+#import warnings
+#warnings.filterwarnings('ignore')
+# Changing standard output color for exception error
+RED = '\033[31m'
+END = '\033[0m'
 
 def sshConnect_main(clusterID, params, nodePassword):
     headIp  = "255.255.255.255"
@@ -52,21 +56,30 @@ def headConnect(headInfo, HEAD_CMD):
     
     headnode = paramiko.SSHClient()
     headnode.set_missing_host_key_policy(paramiko.WarningPolicy())
-
     print("Headnode connecting...")
-    headnode.connect(hostname=headInfo['IP_ADDRESS'], port=headInfo['PORT'], username=headInfo['USER'], password=headInfo['PASSWORD'])
+    try:
+        headnode.connect(
+            hostname = headInfo['IP_ADDRESS'],
+            port = headInfo['PORT'],
+            username = headInfo['USER'],
+            password = headInfo['PASSWORD']
+        )
+    except Exception as err:
+        print (RED + "Fialed to connect to headnode")
+        print ("Error type: {}" .format(err))
+        print ("Exit programm" + END)
+        sys.exit ()
+    print('Connected')
 
      #コマンド実行
     for CMD in tqdm(HEAD_CMD):
         stdin, stdout, stderr = headnode.exec_command(CMD)
-        time.sleep(1)
-        # out = stdout.read().decode()
-        # print('head_stdout = %s' % out)
+        time.sleep(3)
+        out = stdout.read().decode()
+        print('head_stdout = %s' % out)
     
     headnode.close()
     del headnode, stdin, stdout, stderr
-    
-
 
 def computeConnect(headInfo, IP_list, COMPUTE_CMD):
 
@@ -86,8 +99,13 @@ def computeConnect(headInfo, IP_list, COMPUTE_CMD):
         headnode.set_missing_host_key_policy(paramiko.WarningPolicy())
         headnode.connect(hostname=headInfo['IP_ADDRESS'], port=headInfo['PORT'], username=headInfo['USER'], password=headInfo['PASSWORD'])
         transport1 = headnode.get_transport()
-        channel1 = transport1.open_channel("direct-tcpip", compute, head)
-
+        try:
+            channel1 = transport1.open_channel("direct-tcpip", compute, head)
+        except Exception as err:
+            print (RED + "Failed to open channel to compute_node" + str(i_computenode + 1))
+            print ("Error type: {}" .format(err))
+            print ("Exit programm" + END)
+            sys.exit ()
         computenode = paramiko.SSHClient()
         computenode.set_missing_host_key_policy(paramiko.WarningPolicy())
 
@@ -97,13 +115,13 @@ def computeConnect(headInfo, IP_list, COMPUTE_CMD):
          #コマンド実行
         for CMD in tqdm(COMPUTE_CMD):
             stdin, stdout, stderr = computenode.exec_command(CMD)
-            time.sleep(1)
-            # out = stdout.read().decode()
-            #print('comp_stdout = %s' % out)
+            time.sleep(3)
+            out = stdout.read().decode()
+            print('comp_stdout = %s' % out)
 
         computenode.close()
-        headnode.close()
-        del headnode, stdin, stdout, stderr
+    headnode.close()
+    del headnode, stdin, stdout, stderr
 
 
 
@@ -122,7 +140,19 @@ def computeConnect_IP(headInfo,IP,COMPUTE_CMD):
 
     headnode    = paramiko.SSHClient()
     headnode.set_missing_host_key_policy(paramiko.WarningPolicy())
-    headnode.connect(hostname=headInfo['IP_ADDRESS'], port=headInfo['PORT'], username=headInfo['USER'], password=headInfo['PASSWORD'])
+    try:
+        headnode.connect(
+            hostname = headInfo['IP_ADDRESS'],
+            port = headInfo['PORT'],
+            username = headInfo['USER'],
+            password = headInfo['PASSWORD']
+        )
+    except Exception as err:
+        print (RED + "Fialed to connect to headnode")
+        print ("Error type: {}" .format(err))
+        print ("Exit programm" + END)
+        sys.exit ()
+   
     transport1  = headnode.get_transport()
     channel1    = transport1.open_channel("direct-tcpip", compute, head)
 
@@ -134,10 +164,18 @@ def computeConnect_IP(headInfo,IP,COMPUTE_CMD):
 
         #コマンド実行
     for CMD in tqdm(COMPUTE_CMD):
-        stdin, stdout, stderr = computenode.exec_command(CMD)
-        time.sleep(1)
-        # out = stdout.read().decode()
-        #print('comp_stdout = %s' % out)
+        try:
+            headnode.exec_command (CMD)
+            stdin, stdout, stderr = computenode.exec_command(CMD)
+            time.sleep(1)
+            # out = stdout.read().decode()
+            #print('comp_stdout = %s' % out)
+
+        except paramiko.SSHException as err:
+            print (RED + "Failed to excute command on headnode")
+            print ("Error Type: {}" .format (err))
+            print ("Exit Programm" + END)
+            sys.exit ()
 
     computenode.close()
     headnode.close()
