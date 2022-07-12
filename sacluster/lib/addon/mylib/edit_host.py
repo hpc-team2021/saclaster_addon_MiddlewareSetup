@@ -37,7 +37,7 @@ def edit_host(addon_info, fp, info_list):
     target_file = jsonFile ['hosts'][os_name]
 
     # コマンド作成
-    CMD = [cmd_main + ' "' + '192.168.0.1  headnode" > ' + target_file]
+    CMD = [cmd_main + ' "' + '192.168.0.1  headnode' + clusterID + '" > ' + target_file]
     for i, IP in enumerate(IP_list["front"]):
         i = i+1
         if i < 10:
@@ -50,6 +50,24 @@ def edit_host(addon_info, fp, info_list):
     headConnect     (headInfo, CMD)
     computeConnect  (headInfo, IP_list, CMD)
 
+    #hostname変更
+    Head_CMD = [cmd_main + ' "' + 'headnode' + clusterID +  '" > ' + '/etc/hostname']
+    Head_CMD.append('systemctl restart systemd-hostnamed')
+
+    # 各ノードにコマンドを送る
+    print("Change Hostname")
+    headConnect (headInfo, Head_CMD)
+
+    for n, IP in enumerate(IP_list["front"]):
+        n = n+1
+        if n < 10:
+            index = '00' + str (n)
+        elif (n > 10) & (n < 100):
+            index = '0' + str (n)
+        Comp_CMD = [cmd_main + ' "' + 'computenode' + str(index) +  '" > ' + '/etc/hostname']
+        Comp_CMD.append('systemctl restart systemd-hostnamed')
+        computeConnect_IP(headInfo,IP,Comp_CMD)
+
 
 
 # 単体テストのコード
@@ -59,16 +77,18 @@ if __name__ == "__main__":
 
     cls_bil  = []
     ext_info = []
+    info_list = [1,0,0,1]
+    fp = []
 
     addon_info = {
-        "clusterID"         : "849936",                 # !!! 任意のクラスターIDに変更 !!!
+        "clusterID"         : "516559",                 # !!! 任意のクラスターIDに変更 !!!
         "IP_list"           :{                          # コンピュートノードの数に合わせて変更
-            "front" : ['192.168.4.1', '192.168.4.2'],
-            "back"  : ['192.169.4.1', '192.169.4.2']
+            "front" : ['192.168.3.1', '192.168.3.2'],
+            "back"  : ['192.169.3.1', '192.169.3.2']
         },
         "params"            : params,
         "json_addon_params" : json_addon_params,
-        "node_password"     : "test"                    # 設定したパスワードを入力
+        "node_password"     : "test01pw"                    # 設定したパスワードを入力
     }
 
-    edit_host    (cls_bil, ext_info, addon_info)
+    edit_host    (addon_info, fp, info_list)
