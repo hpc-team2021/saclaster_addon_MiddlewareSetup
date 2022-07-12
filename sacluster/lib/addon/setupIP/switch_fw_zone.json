@@ -1,0 +1,31 @@
+{
+    "Firewall":
+    {
+        "CentOS 7.9 (2009) 64bit":
+        {
+            "Head": [
+                "firewall-cmd --zone=trusted --change-interface=eth1 --permanent",
+                "firewall-cmd --reload"
+            ],
+            "Compute":[
+                "firewall-cmd --zone=trusted --change-interface=eth0 --permanent",
+                "firewall-cmd --zone=trusted --change-interface=eth1 --permanent",
+                "firewall-cmd --reload"
+            ]
+        },
+
+        "CentOS Stream 8 (20201203) 64bit":
+        {
+            "Head": [
+                "firewall-cmd --zone=trusted --change-interface=eth1 --permanent",
+                "firewall-cmd --reload"
+            ],
+            "Compute":[
+                "firewall-cmd --zone=trusted --change-interface=eth0 --permanent",
+                "firewall-cmd --zone=trusted --change-interface=eth1 --permanent",
+                "firewall-cmd --reload"
+            ]
+        }
+        
+    }
+}
