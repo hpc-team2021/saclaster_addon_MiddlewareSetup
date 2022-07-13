@@ -45,10 +45,13 @@ def edit_host(addon_info, fp, info_list):
         elif (i > 10) & (i < 100):
             index = '0' + str (i)
         CMD.append(cmd_main + ' "' + IP + '  computenode' + str(index) +  '" >> ' + target_file)
+        Comp_CMD = [cmd_main + ' "' + 'computenode' + str(index) +  '" > ' + '/etc/hostname']
+        Comp_CMD.append('systemctl restart systemd-hostnamed')
 
     # 各ノードにコマンドを送る
     headConnect     (headInfo, CMD)
     computeConnect  (headInfo, IP_list, CMD)
+    computeConnect_IP(headInfo,IP,Comp_CMD)
 
     #hostname変更
     Head_CMD = [cmd_main + ' "' + 'headnode' + clusterID +  '" > ' + '/etc/hostname']
@@ -58,15 +61,6 @@ def edit_host(addon_info, fp, info_list):
     print("Change Hostname")
     headConnect (headInfo, Head_CMD)
 
-    for n, IP in enumerate(IP_list["front"]):
-        n = n+1
-        if n < 10:
-            index = '00' + str (n)
-        elif (n > 10) & (n < 100):
-            index = '0' + str (n)
-        Comp_CMD = [cmd_main + ' "' + 'computenode' + str(index) +  '" > ' + '/etc/hostname']
-        Comp_CMD.append('systemctl restart systemd-hostnamed')
-        computeConnect_IP(headInfo,IP,Comp_CMD)
 
 
 
@@ -81,7 +75,7 @@ if __name__ == "__main__":
     fp = []
 
     addon_info = {
-        "clusterID"         : "516559",                 # !!! 任意のクラスターIDに変更 !!!
+        "clusterID"         : "568268",                 # !!! 任意のクラスターIDに変更 !!!
         "IP_list"           :{                          # コンピュートノードの数に合わせて変更
             "front" : ['192.168.3.1', '192.168.3.2'],
             "back"  : ['192.169.3.1', '192.169.3.2']
