@@ -5,7 +5,8 @@ import os
 # User defined Library
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 common_path = os.path.abspath("../../..")
-fileName = common_path + '\\lib\\addon\\setupJobScheduler\\slurm.json'
+fileName = common_path + '/lib/addon/setupJobScheduler/slurm.json'
+#nfs_set = common_path + '/lib/addon/setupJobScheduler/nfs.json'
 
 # Changing standard output color for exception error
 RED = '\033[31m'
@@ -14,15 +15,19 @@ END = '\033[0m'
 sys.path.append(common_path + "/lib/addon/mylib")
 from load_addon_params import load_addon_params
 from get_cluster_info import get_cluster_info
+from sshconnect_main import sshConnect_main, headConnect, computeConnect, computeConnect_IP
+from get_cluster_info     import get_cluster_info
+from load_addon_params    import load_addon_params
 
 sys.path.append(common_path + "/lib/addon/setupJobScheduler")
 from munge_setup import munge_setup 
+from slurm_setup import slurm_setup 
 # from slurm_setup import slurm_setup
 
 #################
 # Main Programm #
 #################
-def slurm_main (head_ip, n_computenode, node_password, os_type):
+def slurm_main (head_ip, n_computenode, node_password, os_type,ip_list,cluster_id):
    # Read json file for gaglia configuration 
     try:
         json_open = open(fileName, 'r')
@@ -46,13 +51,34 @@ def slurm_main (head_ip, n_computenode, node_password, os_type):
         os_type = os_type,
         cmd_slurm = cmd_slurm
     )
+    slurm_setup (
+        node_password = node_password,
+        os_type = os_type,
+        cmd_slurm = cmd_slurm,
+        ip_list = ip_list,
+        cluster_id = cluster_id
+    )
+"""
+    params              = get_cluster_info ()
+    json_addon_params   = load_addon_params ()
+    addon_info = {
+        "clusterID"         : "135299",                 # !!! 任意のクラスターIDに変更 !!!
+        "IP_list"           :{                          # コンピュートノードの数に合わせて変更
+            "front" : ['192.168.3.1', '192.168.3.2'],
+            "back"  : ['192.169.3.1', '192.169.3.2']
+        },
+        "params"            : params,
+        "json_addon_params" : json_addon_params,
+        "node_password"     : "test01pw"                    # 設定したパスワードを入力
+    }
+""" 
 
     # slurm_setup ()
 
 if __name__ == '__main__':
     params = get_cluster_info()
-    cluster_id = '615003'
-    node_password = 'test'
+    cluster_id = '101099'
+    node_password = 'test01pw'
 
     # Get headnode IP address & computenodes num
     head_ip  = "255.255.255.255"
@@ -78,6 +104,7 @@ if __name__ == '__main__':
 
     # Read json file for gaglia configuration 
     json_addon_params = load_addon_params ()
+
     slurm_main (
         head_ip = head_ip,
         n_computenode = n_computenode,

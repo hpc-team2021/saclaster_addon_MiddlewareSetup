@@ -6,6 +6,9 @@ from numpy import outer
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 common_path = os.path.abspath("../../..")
 
+sys.path.append (common_path + "/lib/addon/mylib")
+from get_cluster_info     import get_cluster_info
+
 import paramiko 
 from tqdm import tqdm
 
@@ -36,7 +39,19 @@ def sshConnect_main(clusterID, params, nodePassword):
                         OSType = disk_dict[zone][disk_list[i]]["SourceArchive"]["Name"]
                          
                     elif (clusterID in node_list[i]["Tags"][0]):
-                        nComputenode+= 1    
+                        nComputenode+= 1  
+                        cpu = node_list[i]["ServerPlan"]["CPU"]
+                        memory = node_list[i]["ServerPlan"]["MemoryMB"]
+                        if ('1GB' in node_list[i]["ServerPlan"]["Name"]):
+                            memory = memory - (55 + 20*(cpu - 1))
+                        elif ('2GB' in node_list[i]["ServerPlan"]["Name"]):
+                            memory = memory - (55 + 20 + 20*(cpu - 1))
+                        elif ('3GB' in node_list[i]["ServerPlan"]["Name"]):
+                            memory = memory - (55 + 40 + 20*(cpu - 1))
+                        elif ('4GB' in node_list[i]["ServerPlan"]["Name"]):
+                            memory = memory - (55 + 60 + 20*(cpu - 1))
+                        elif ('5GB' in node_list[i]["ServerPlan"]["Name"]):
+                            memory = memory - (55 + 80 + 20*(cpu - 1))
                     else:
                         pass
         else:
@@ -49,8 +64,13 @@ def sshConnect_main(clusterID, params, nodePassword):
         'PASSWORD'  :nodePassword
     }
 
-    return headInfo, OSType, nComputenode
+    computememory = {
+        'COMPUTE_NUM':nComputenode,
+        'CPU'        :cpu,
+        'REAL_MEMORY':memory
+    }
 
+    return headInfo, OSType, computememory
 
 def headConnect(headInfo, HEAD_CMD):
     
@@ -76,7 +96,15 @@ def headConnect(headInfo, HEAD_CMD):
         stdin, stdout, stderr = headnode.exec_command(CMD)
         time.sleep(3)
         out = stdout.read().decode()
-        print('head_stdout = %s' % out)
+        print('comp_stdout = %s' % out)
+
+    """
+        while not stdout.channel.exit_status_ready():
+                if stdout.channel.recv_ready():
+                    out = stdout.readlines()
+                    #out = stdout.read().decode()
+                    #print('comp_stdout = %s' % out)
+    """
     
     headnode.close()
     del headnode, stdin, stdout, stderr
@@ -102,7 +130,7 @@ def computeConnect(headInfo, IP_list, COMPUTE_CMD):
         try:
             channel1 = transport1.open_channel("direct-tcpip", compute, head)
         except Exception as err:
-            print (RED + "Failed to open channel to compute_node" + str(i_computenode + 1))
+            print (RED + "Failed to open channel to compute_node" + IP)
             print ("Error type: {}" .format(err))
             print ("Exit programm" + END)
             sys.exit ()
@@ -118,6 +146,14 @@ def computeConnect(headInfo, IP_list, COMPUTE_CMD):
             time.sleep(3)
             out = stdout.read().decode()
             print('comp_stdout = %s' % out)
+
+        """
+            while not stdout.channel.exit_status_ready():
+                if stdout.channel.recv_ready():
+                    out = stdout.readlines()
+                    #out = stdout.read().decode()
+                    #print('comp_stdout = %s' % out)
+        """
 
         computenode.close()
     headnode.close()
@@ -168,8 +204,8 @@ def computeConnect_IP(headInfo,IP,COMPUTE_CMD):
             headnode.exec_command (CMD)
             stdin, stdout, stderr = computenode.exec_command(CMD)
             time.sleep(1)
-            # out = stdout.read().decode()
-            #print('comp_stdout = %s' % out)
+            out = stdout.read().decode()
+            print('comp_stdout = %s' % out)
 
         except paramiko.SSHException as err:
             print (RED + "Failed to excute command on headnode")
@@ -180,6 +216,13 @@ def computeConnect_IP(headInfo,IP,COMPUTE_CMD):
     computenode.close()
     headnode.close()
     del headnode, stdin, stdout, stderr
+
+if __name__ == '__main__':
+    params              = get_cluster_info ()
+    nodePassword = "test01pw"
+    clusterID = "466753"                 # !!! 任意のクラスターIDに変更 !!!
+    sshConnect_main(clusterID, params, nodePassword)
+
 
        
 

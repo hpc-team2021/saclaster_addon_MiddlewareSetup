@@ -12,7 +12,7 @@ import paramiko
 # User defined Library
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 common_path = os.path.abspath("../../..")
-fileName = common_path + '\\lib\\addon\\setupMpi\\mpich.json'
+fileName = common_path + '/lib/addon/setupMpi/mpich.json'
 
 # Changing standard output color for exception error
 RED = '\033[31m'
@@ -28,7 +28,7 @@ from slurm_main import slurm_main
 #################
 # Main Programm #
 #################
-def setup_job_scheduler (addon_info, fp, info_list, service_name):
+def setup_job_scheduler (addon_info, f, info_list, service_name):
     # 今回の処理に必要な変数のみを取り出す
     cluster_id       = addon_info["clusterID"]
     ip_list         = addon_info["IP_list"]
@@ -43,7 +43,9 @@ def setup_job_scheduler (addon_info, fp, info_list, service_name):
             head_ip = head_ip,
             n_computenode = n_computenode,
             node_password = node_password,
-            os_type = os_type   
+            os_type = os_type,
+            ip_list = ip_list,
+            cluster_id = cluster_id   
         )
     
 ############
@@ -59,16 +61,18 @@ def get_info (cluster_id, params):
     for zone, url in params.url_list.items():
         node_list = node_dict[zone]
         disk_list = list(disk_dict[zone].keys())
+        
         if(len(node_list) != 0):
             for i in range(len(node_list)):
-                print(cluster_id + ':' + node_list[i]["Tags"][0] + ' | ' + node_list[i]['Name'])
-                if (cluster_id in node_list[i]["Tags"][0] and 'headnode' in node_list[i]['Name']):
-                    head_ip = node_list[i]['Interfaces'][0]['IPAddress']
-                    os_type = params.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["head"]["disk"][0]["os"]
-                elif (cluster_id in node_list[i]["Tags"][0]):
-                    n_computenode += 1
-                else:
-                    pass
+                if (len(node_list[i]["Tags"]) != 0):
+                #print(cluster_id + ':' + node_list[i]["Tags"][0] + ' | ' + node_list[i]['Name'])
+                    if (cluster_id in node_list[i]["Tags"][0] and 'head' in node_list[i]['Name']):
+                        head_ip = node_list[i]['Interfaces'][0]['IPAddress']
+                        os_type = params.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["head"]["disk"][0]["os"]
+                    elif (cluster_id in node_list[i]["Tags"][0]):
+                        n_computenode += 1
+                    else:
+                        pass
         else:
             pass
     
@@ -81,9 +85,32 @@ def get_info (cluster_id, params):
     return head_ip, os_type, n_computenode
 
 if __name__ == '__main__':
+    params              = get_cluster_info ()
+    json_addon_params   = load_addon_params ()
+
+    cls_bil  = []
+    ext_info = []
+    info_list = [1,0,0,1]
+    f = []
+
+    addon_info = {
+        "clusterID"         : "993208",                 # !!! 任意のクラスターIDに変更 !!!
+        "IP_list"           :{                          # コンピュートノードの数に合わせて変更
+            "front" : ['192.168.3.1', '192.168.3.2'],
+            "back"  : ['192.169.3.1', '192.169.3.2']
+        },
+        "params"            : params,
+        "json_addon_params" : json_addon_params,
+        "node_password"     : "test01pw"                    # 設定したパスワードを入力
+    }
+
+    setup_job_scheduler (addon_info, f, info_list, service_name ="slurm")
+
+
+    """
     params = get_cluster_info()
-    cluster_id = '290516'
-    node_password = 'test'
+    cluster_id = '988099'
+    node_password = 'test01pw'
 
     # Get headnode IP address & computenodes num
     head_ip  = "255.255.255.255"
@@ -106,8 +133,10 @@ if __name__ == '__main__':
                     pass
         else:
             pass
+    """
 
     # Read json file for gaglia configuration 
+    """
     json_addon_params = load_addon_params ()
     job_scheduler_setup(
         cluster_id = cluster_id,
@@ -117,3 +146,26 @@ if __name__ == '__main__':
         service_type="job_scheduler",
         service_name="slurm"
     )
+    
+    
+    params              = get_cluster_info ()
+    json_addon_params   = load_addon_params ()
+
+    cls_bil  = []
+    ext_info = []
+    info_list = [1,0,0,1]
+    fp = []
+
+    addon_info = {
+        "clusterID"         : "135299",                 # !!! 任意のクラスターIDに変更 !!!
+        "IP_list"           :{                          # コンピュートノードの数に合わせて変更
+            "front" : ['192.168.3.1', '192.168.3.2'],
+            "back"  : ['192.169.3.1', '192.169.3.2']
+        },
+        "params"            : params,
+        "json_addon_params" : json_addon_params,
+        "node_password"     : "test01pw"                    # 設定したパスワードを入力
+    }
+
+    setup_job_scheduler (addon_info, fp, info_list, service_name ="slurm")
+    """
