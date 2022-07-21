@@ -36,7 +36,7 @@ def def_config_name(fp = "", info_list = [1,0,0,0]):
 def setting_monitor(ext_info, all_params, set_list, fp = "", info_list = [1,0,0,0]):
     param = {}
     logger.debug('start setting of Monitor')
-    param["index"] = [False, True][conf_pattern_3("Monitor", ["False","True"], "False", info_list = info_list, fp = fp)]
+    param["index"] = [True, False][conf_pattern_3("Monitor", ["True","False"], "True", info_list = info_list, fp = fp)]
     set_parm("Monitor", str(param["index"]), info_list = info_list, fp = fp)
 
     if(param["index"] == True):
@@ -56,7 +56,7 @@ def setting_monitor(ext_info, all_params, set_list, fp = "", info_list = [1,0,0,
 def setting_scheduler(ext_info, all_params, set_list, fp = "", info_list = [1,0,0,0]):
     param = {}
     logger.debug('start setting of Scheduler')
-    param["index"] = [False, True][conf_pattern_3("Scheduler", ["False","True"], "False", info_list = info_list, fp = fp)]
+    param["index"] = [True, False][conf_pattern_3("Scheduler", ["True","False"], "True", info_list = info_list, fp = fp)]
     set_parm("Scheduler", str(param["index"]), info_list = info_list, fp = fp)
 
     if(param["index"] == True):
@@ -73,23 +73,23 @@ def setting_scheduler(ext_info, all_params, set_list, fp = "", info_list = [1,0,
 
     return all_params, set_list
 
-def setting_parallelcomputing(ext_info, all_params, set_list, fp = "", info_list = [1,0,0,0]):
+def setting_MPI(ext_info, all_params, set_list, fp = "", info_list = [1,0,0,0]):
     param = {}
-    logger.debug('start setting of ParallelComputing')
-    param["index"] = [False, True][conf_pattern_3("ParallelComputing", ["False","True"], "False", info_list = info_list, fp = fp)]
-    set_parm("ParallelComputing", str(param["index"]), info_list = info_list, fp = fp)
+    logger.debug('start setting of MPI')
+    param["index"] = [True, False][conf_pattern_3("MPI", ["True","False"], "True", info_list = info_list, fp = fp)]
+    set_parm("MPI", str(param["index"]), info_list = info_list, fp = fp)
 
     if(param["index"] == True):
-        logger.debug('ParallelComputing has been enabled')
+        logger.debug('MPI has been enabled')
         param["params"] = {}
         
-        logger.debug('setting parallelComputing type')
-        candidate = list(ext_info["ParallelComputing"].keys())
-        param["type"] = candidate[conf_pattern_3("ParallelComputing type", candidate, candidate[0], info_list = info_list, fp = fp)]
-        set_parm("ParallelComputing type", param["type"], info_list = info_list, fp = fp)
+        logger.debug('setting MPI type')
+        candidate = list(ext_info["MPI"].keys())
+        param["type"] = candidate[conf_pattern_3("MPI type", candidate, candidate[0], info_list = info_list, fp = fp)]
+        set_parm("MPI type", param["type"], info_list = info_list, fp = fp)
         
-    all_params["ParallelComputing"] = param
-    set_list.loc["ParallelComputing"] = ["ParallelComputing".ljust(20), "already".ljust(7), "not-required".ljust(12)]
+    all_params["MPI"] = param
+    set_list.loc["MPI"] = ["MPI".ljust(20), "already".ljust(7), "not-required".ljust(12)]
 
     return all_params, set_list
 
@@ -121,11 +121,11 @@ def show_current_state(ext_info, all_params, set_list, fp = "", info_list = [1,0
         printout("Not set up", info_type = 0, info_list = info_list, fp = fp)
     
     printout("", info_type = 0, info_list = info_list, fp = fp)
-    printout("[[ParallelComputing]]", info_type = 0, info_list = info_list, fp = fp)
-    if("ParallelComputing" in all_params):
-        printout("{} : {}".format("Setting".ljust(32), all_params["ParallelComputing"]["index"]), info_type = 0, info_list = info_list, fp = fp)
-        if(all_params["ParallelComputing"]["index"] == True):
-            printout("{} : {}".format("Type".ljust(32), all_params["ParallelComputing"]["type"]), info_type = 0, info_list = info_list, fp = fp)
+    printout("[[MPI]]", info_type = 0, info_list = info_list, fp = fp)
+    if("MPI" in all_params):
+        printout("{} : {}".format("Setting".ljust(32), all_params["MPI"]["index"]), info_type = 0, info_list = info_list, fp = fp)
+        if(all_params["MPI"]["index"] == True):
+            printout("{} : {}".format("Type".ljust(32), all_params["MPI"]["type"]), info_type = 0, info_list = info_list, fp = fp)
         #else:
             #printout("Not set up", info_type = 0, info_list = info_list, fp = fp)
     else:

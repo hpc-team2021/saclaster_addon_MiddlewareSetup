@@ -53,7 +53,6 @@ def build_main(in_path, out_path, make_dir_index, in_path_m, out_path_m, make_di
     if middle_index:
         logger.debug('Start config setting (middle ware)')
         middle_config_param = config_main(ext_info_middle, in_path = in_path_m, out_path = out_path_m, make_dir_index = make_dir_index_m, info_list = info_list, fp = f, m_index = True)
-        print(middle_config_param)
     else:
         middle_config_param = {}
 

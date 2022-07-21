@@ -19,6 +19,9 @@ from confirm_stop_pros import conf_stop_process
 sys.path.append(common_path + "/lib/def_conf")
 from load_external_data import external_data
 from config_function import conf_pattern_2
+sys.path.append(common_path + "/lib/addon/delete")
+from delete_middle_main import delete_middle_main
+
 
 logger = logging.getLogger("sacluster").getChild(os.path.basename(__file__))
 
@@ -38,10 +41,12 @@ def delete_main(api_index, f, info_list,max_workers):
     
     temp = conf_pattern_2("Delete the selected cluster?", ["yes", "no"], "no", info_list = info_list, fp = f)
     
+    
     state, obj = params.checking_status(cluster_id)
     
     if temp == "yes":
         if(state == False):
+            delete_middle_main(cluster_id, info_list, f)
             conf_stop_process(info_list, f)
 
             logger.debug("Start stopping the cluster : " + str(cluster_id))

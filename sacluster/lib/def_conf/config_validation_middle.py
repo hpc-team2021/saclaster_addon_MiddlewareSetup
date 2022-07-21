@@ -49,7 +49,7 @@ def redefine_config(ext_info, info_list = [1,0,0,0], fp = ""):
         sys.exit()
         
 def checking_config_details(ext_info, config_param, info_list = [1,0,0,0], fp = ""):
-    base_checker = [["Moniter", "Moniter"], ["Job_scheduler", "Scheduler"], ["ParallelComputing", "ParallelComputing"]]
+    base_checker = [["Moniter", "Moniter"], ["Job_scheduler", "Scheduler"], ["MPI", "MPI"]]
     
     for param_key, ext_param in base_checker:
         if(config_param[param_key]["index"] == True):

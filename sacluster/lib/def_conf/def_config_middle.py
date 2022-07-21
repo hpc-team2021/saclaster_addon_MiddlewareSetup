@@ -8,20 +8,36 @@ from config_function import set_parm, conf_pattern_main, conf_pattern_1, conf_pa
 sys.path.append(path + "/lib/others")
 #from API_method import get, post, put
 import pandas as pd
-from config_section_middle import setting_monitor, setting_scheduler, setting_parallelcomputing, show_current_state, def_config_name
+from config_section_middle import setting_monitor, setting_scheduler, setting_MPI, show_current_state, def_config_name
 import logging
 logger = logging.getLogger("sacluster").getChild(os.path.basename(__file__))
 
 def def_config_main_middle(ext_info, fp = "", info_list = [1,0,0,0]):
     logger.debug('start to define config params for middle ware')
-    setting_sec_func = {"Monitor":setting_monitor, "Scheduler":setting_scheduler, "ParallelComputing": setting_parallelcomputing, "Current": show_current_state}
+    setting_sec_func = {"Monitor":setting_monitor, "Scheduler":setting_scheduler, "MPI": setting_MPI, "Current": show_current_state}
     #Config内容名を指定
     config_param = {}
     config_param["config_name"] = def_config_name(fp = fp, info_list = info_list)
     set_parm("Config name", config_param["config_name"], info_list = info_list, fp = fp)
     logger.debug('defined config name')
     
-    set_list = pd.DataFrame([["Monitor".ljust(20),"yet".ljust(7), "not-required".ljust(12)], ["Scheduler".ljust(20),"yet".ljust(7), "not-required".ljust(12)], ["ParallelComputing".ljust(20), "yet".ljust(7), "not-required".ljust(12)], ["Current".ljust(20), "-".center(7), "-".center(12)]], index = ["Monitor", "Scheduler", "ParallelComputing","Current"], columns = ["name", "state", "request"])
+    set_list = pd.DataFrame([["Monitor".ljust(20),"yet".ljust(7), "not-required".ljust(12)], ["Scheduler".ljust(20),"yet".ljust(7), "not-required".ljust(12)], ["MPI".ljust(20), "yet".ljust(7), "not-required".ljust(12)], ["Current".ljust(20), "-".center(7), "-".center(12)]], index = ["Monitor", "Scheduler", "MPI","Current"], columns = ["name", "state", "request"])
+    
+    #default setting
+    config_param["Monitor"] = {}
+    config_param["Monitor"]["index"] = True
+    config_param["Monitor"]["type"] = list(ext_info["Monitor"].keys())[0]
+    config_param["Monitor"]["params"] = {}
+    
+    config_param["Job_scheduler"] = {}
+    config_param["Job_scheduler"]["index"] = True
+    config_param["Job_scheduler"]["type"] = list(ext_info["Scheduler"].keys())[0]
+    config_param["Job_scheduler"]["params"] = {}
+    
+    config_param["MPI"] = {}
+    config_param["MPI"]["index"] = True
+    config_param["MPI"]["type"] = list(ext_info["MPI"].keys())[0]
+    config_param["MPI"]["params"] = {}
     
     while(True):
         if(len(set_list[(set_list["state"] == "already") & (set_list["request"] == "required".ljust(12))]) == len(set_list[set_list["request"] == "required".ljust(12)])):
@@ -44,23 +60,23 @@ def def_config_main_middle(ext_info, fp = "", info_list = [1,0,0,0]):
                 logger.debug('Automatic configuration of Monitor params')
                 if("Monitor" not in config_param):
                     config_param["Monitor"] = {}
-                    config_param["Monitor"]["index"] = False
+                    config_param["Monitor"]["index"] = True
                     #config_param["Monitor"]["type"] = None
                     #config_param["Monitor"]["params"] = {}
                     
                 logger.debug('Automatic configuration of Scheduler params')
                 if("Job_scheduler" not in config_param):
                     config_param["Job_scheduler"] = {}
-                    config_param["Job_scheduler"]["index"] = False
+                    config_param["Job_scheduler"]["index"] = True
                     #config_param["Job_scheduler"]["type"] = None
                     #config_param["Job_scheduler"]["params"] = {}
                     
-                logger.debug('Automatic configuration of ParallelComputing params')
-                if("ParallelComputing" not in config_param):
-                    config_param["ParallelComputing"] = {}
-                    config_param["ParallelComputing"]["index"] = False
-                    #config_param["ParallelComputing"]["type"] = None
-                    #config_param["ParallelComputing"]["params"] = {}
+                logger.debug('Automatic configuration of MPI params')
+                if("MPI" not in config_param):
+                    config_param["MPI"] = {}
+                    config_param["MPI"]["index"] = True
+                    #config_param["MPI"]["type"] = None
+                    #config_param["MPI"]["params"] = {}
                     
                 return config_param
         
