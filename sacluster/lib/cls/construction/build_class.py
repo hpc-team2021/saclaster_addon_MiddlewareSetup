@@ -169,6 +169,9 @@ class build_sacluster:
                     self.build_peripheral_zone(zone)
                     
                 self.delete_id_params(zone)
+                
+        #ディスク作成待機とipアドレスの設定
+        self.prepareDisk()
         
         self.bar.update(100 - self.progress_sum)
         self.bar.close()
@@ -332,8 +335,7 @@ class build_sacluster:
                         sys.exit()
                 else:
                     break
-
-
+                
     
     def build_one_compute_node(self, i, zone, res_index=False):
         if i < 9:
@@ -501,9 +503,9 @@ class build_sacluster:
                     disk_id = disk_res["Disk"]["ID"]
                     logger.debug("created disk: " + disk_id + "-Success")
                     
-                    self.waitDisk(zone, disk_id)
-                    if "headnode" != disk_name:
-                        disk_res["Disk"]["ip_addr"] = self.assign_ip(zone, ip_index, disk_id)
+                    #self.waitDisk(zone, disk_id)
+                    #if "headnode" != disk_name:
+                        #disk_res["Disk"]["ip_addr"] = self.assign_ip(zone, ip_index, disk_id)
 
                     logger.debug("disk ID: " + disk_id + "-Success")
                     break
@@ -515,6 +517,17 @@ class build_sacluster:
             disk_id = "0000"
     
         return disk_res
+
+    def prepareDisk(self):
+        for zone in self.zone_list:
+            if(zone == self.head_zone):
+                self.waitDisk(zone, self.all_id_dict["clusterparams"]["server"][zone]["head"]["disk"][0]["id"])
+                
+            for comp_num, comp_info in self.all_id_dict["clusterparams"]["server"][zone]["compute"].items():
+                self.waitDisk(zone, comp_info["disk"][0]["id"])
+                self.assign_ip(zone, comp_num, comp_info["disk"][0]["id"])
+        
+        return
 
     # ディスク状態が利用可能になるまで待ち続けるコード
     def waitDisk (self, zone, diskId):
@@ -554,7 +567,7 @@ class build_sacluster:
         param = {
             "UserIPAddress": ipAddress,
             "UserSubnet": {
-                "DefaultRoute": '192.168.254.254',
+                "DefaultRoute": '{}.{}.254.254'.format(base, front),
                 "NetworkMaskLen": 16
         }
         }
