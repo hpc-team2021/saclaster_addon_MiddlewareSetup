@@ -50,6 +50,9 @@ sys.path.append(common_path + "/lib/addon/setupMoniter")
 from monitor_setup      import monitor_setup
 sys.path.append(common_path + "/lib/addon/setupMpi")
 from setup_mpi          import setup_mpi
+sys.path.append(common_path + "/lib/addon/setupJobScheduler")
+from setup_job_scheduler import setup_job_scheduler
+
 import logging
 
 logger = logging.getLogger("addon").getChild(os.path.basename(__file__))
@@ -69,10 +72,13 @@ def addon_main(cls_bil, ext_info, addon_info, f, info_list):
     proxy_setup(addon_info, service_name="squid")
     print("please check squid!!")
 
-    # port_open       (cls_bil, ext_info, addon_info, service_type="Monitor", service_name="Ganglia")
-    # monitor_setup   (cls_bil, clusterID, params, node_password, json_addon_params = json_addon_params, service_type="Monitor", service_name="Ganglia")
+    setup_job_scheduler (addon_info, f, info_list, service_name = addon_info["Job_scheduler"]["type"])
 
     # setup_mpi (cluster_id, params, node_password, json_addon_params, service_type="MPI"  , service_name="mpich")
+
+
+    # monitor_setup   (cls_bil, clusterID, params, node_password, json_addon_params = json_addon_params, service_type="Monitor", service_name="Ganglia")
+
 
 
 #############################################################
