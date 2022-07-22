@@ -220,6 +220,7 @@ def computeConnect_IP(headInfo,IP,COMPUTE_CMD):
 
 
 def headConnect_command(headInfo, HEAD_CMD):
+    out_list = []
 
     headnode = paramiko.SSHClient()
     headnode.set_missing_host_key_policy(paramiko.WarningPolicy())
@@ -241,11 +242,11 @@ def headConnect_command(headInfo, HEAD_CMD):
     for CMD in tqdm(HEAD_CMD):
         stdin, stdout, stderr = headnode.exec_command(CMD)
         time.sleep(3)
-        out =stdout.read().decode()
+        out_list.append(stdout.read().decode())
 
     headnode.close()
     del headnode, stdin, stdout, stderr
-    return out
+    return out_list
 
 
 def computeConnect_command(headInfo, IP_list, COMPUTE_CMD):
