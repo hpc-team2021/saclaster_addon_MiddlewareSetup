@@ -76,9 +76,9 @@ def addon_main(cls_bil, ext_info, addon_info, f, info_list):
 
     # setup_mpi (cluster_id, params, node_password, json_addon_params, service_type="MPI"  , service_name="mpich")
 
-
-    # monitor_setup   (cls_bil, clusterID, params, node_password, json_addon_params = json_addon_params, service_type="Monitor", service_name="Ganglia")
-
+    logger.debug("Start setting up the Monitor.")
+    monitor_setup (addon_info, f, info_list, service_name="Ganglia")
+    print("Ganglia is Done!!")
 
 
 #############################################################

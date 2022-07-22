@@ -27,7 +27,7 @@ from slurm_setup import slurm_setup
 #################
 # Main Programm #
 #################
-def slurm_main (head_ip, n_computenode, node_password, os_type,ip_list,cluster_id):
+def slurm_main (head_ip, n_computenode, node_password, os_type, ip_list, cluster_id):
    # Read json file for gaglia configuration 
     try:
         json_open = open(fileName, 'r')
@@ -46,11 +46,12 @@ def slurm_main (head_ip, n_computenode, node_password, os_type,ip_list,cluster_i
    
     munge_setup (
         head_ip = head_ip,
-        n_computenode = n_computenode,
+        ip_list = ip_list["front"],
         node_password = node_password,
         os_type = os_type,
         cmd_slurm = cmd_slurm
     )
+    """
     slurm_setup (
         node_password = node_password,
         os_type = os_type,
@@ -58,7 +59,8 @@ def slurm_main (head_ip, n_computenode, node_password, os_type,ip_list,cluster_i
         ip_list = ip_list,
         cluster_id = cluster_id
     )
-"""
+    """
+    """
     params              = get_cluster_info ()
     json_addon_params   = load_addon_params ()
     addon_info = {
@@ -71,17 +73,29 @@ def slurm_main (head_ip, n_computenode, node_password, os_type,ip_list,cluster_i
         "json_addon_params" : json_addon_params,
         "node_password"     : "test01pw"                    # 設定したパスワードを入力
     }
-""" 
-
+    """ 
     # slurm_setup ()
 
 if __name__ == '__main__':
     params = get_cluster_info()
-    cluster_id = '101099'
-    node_password = 'test01pw'
+    node_password = 'test'
+
+    params              = get_cluster_info ()
+    json_addon_params   = load_addon_params ()
+    addon_info = {
+        "clusterID"         : "535845",                 # !!! 任意のクラスターIDに変更 !!!
+        "IP_list"           :{                          # コンピュートノードの数に合わせて変更
+            "front" : ['192.168.2.1', '192.168.2.2'],
+            "back"  : ['192.169.2.1', '192.169.2.2']
+        },
+        "params"            : params,
+        "json_addon_params" : json_addon_params,
+        "node_password"     : "test01pw"                    # 設定したパスワードを入力
+    }
 
     # Get headnode IP address & computenodes num
     head_ip  = "255.255.255.255"
+    cluster_id = addon_info["clusterID"]
     n_computenode = 0
     node_dict = params.get_node_info()
     disk_dict = params.get_disk_info()
@@ -109,6 +123,7 @@ if __name__ == '__main__':
         head_ip = head_ip,
         n_computenode = n_computenode,
         node_password = node_password,
-        json_addon_params = json_addon_params,
-        os_type = os_type
+        os_type = os_type,
+        ip_list = addon_info["IP_list"],
+        cluster_id = addon_info["clusterID"]
     )

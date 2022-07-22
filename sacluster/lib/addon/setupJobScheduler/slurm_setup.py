@@ -34,7 +34,7 @@ def slurm_setup (node_password,os_type,cmd_slurm,ip_list,cluster_id):
     
     params = get_cluster_info ()
     head_list, os_type, computememory = sshConnect_main(cluster_id,params,node_password)
-   
+
     slurm_user (
         head_list = head_list,
         ip_list = ip_list, 
@@ -200,14 +200,14 @@ if __name__ == '__main__':
     f = []
 
     addon_info = {
-        "clusterID"         : "993208",                 # !!! 任意のクラスターIDに変更 !!!
+        "clusterID"         : "594970",                 # !!! 任意のクラスターIDに変更 !!!
         "IP_list"           :{                          # コンピュートノードの数に合わせて変更
-            "front" : ['192.168.3.1', '192.168.3.2'],
-            "back"  : ['192.169.3.1', '192.169.3.2']
+            "front" : ['192.168.2.1', '192.168.2.2'],
+            "back"  : ['192.169.2.1', '192.169.2.2']
         },
         "params"            : params,
         "json_addon_params" : json_addon_params,
-        "node_password"     : "test01pw"                    # 設定したパスワードを入力
+        "node_password"     : "test"                    # 設定したパスワードを入力
     }
     cluster_id       = addon_info["clusterID"]
     ip_list         = addon_info["IP_list"]

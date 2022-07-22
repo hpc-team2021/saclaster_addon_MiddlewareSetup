@@ -22,19 +22,19 @@ from load_addon_params import load_addon_params
 from port_open import port_open
 from daemon_start import daemon_start
 
-def monitor_setup(clusterID, params, nodePassword, jsonAddonParams, serviceType, serviceName):
+logger = logging.getLogger("addon").getChild(os.path.basename(__file__))
 
-    # Install Packege
-    print ("Install " + serviceName + " packege")
-    # packInstall (clusterID, params, nodePassword, jsonAddonParams, serviceType, serviceName)
 
-    # Open Port
-    print ("Open " + serviceName + "Port")
-    # portOpen (clusterID, params, nodePassword, jsonAddonParams, serviceType, serviceName)
-    
-    # Get headnode IP address & computenodes num
-    headIp  = "255.255.255.255"
-    nComputenode = 0
+def monitor_setup(addon_info, f, info_list, service_name):
+    # Variable
+    cluster_id           = addon_info["clusterID"]
+    params              = addon_info["params"]
+    node_password        = addon_info["node_password"]
+    ip_list         = addon_info["IP_list"]
+
+    # Get headnode IP address & number of computenodes
+    head_ip  = "255.255.255.255"
+    num_compute = 0
     node_dict = params.get_node_info()
     disk_dict = params.get_disk_info()
 
@@ -43,46 +43,56 @@ def monitor_setup(clusterID, params, nodePassword, jsonAddonParams, serviceType,
         disk_list = list(disk_dict[zone].keys())
         if(len(node_list) != 0):
             for i in range(len(node_list)):
-                print(clusterID + ':' + node_list[i]["Tags"][0] + ' | ' + node_list[i]['Name'])
-                if (clusterID in node_list[i]["Tags"][0] and 'headnode' in node_list[i]['Name']):
-                    headIp = node_list[i]['Interfaces'][0]['IPAddress']
-                    OSType = params.cluster_info_all[clusterID]["clusterparams"]["server"][zone]["head"]["disk"][0]["os"]
-                elif (clusterID in node_list[i]["Tags"][0]):
-                    nComputenode += 1
+                print(cluster_id + ':' + node_list[i]["Tags"][0] + ' | ' + node_list[i]['Name'])
+                if (cluster_id in node_list[i]["Tags"][0] and 'headnode' in node_list[i]['Name']):
+                    head_ip = node_list[i]['Interfaces'][0]['IPAddress']
+                    os_type = params.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["head"]["disk"][0]["os"]
+                elif (cluster_id in node_list[i]["Tags"][0]):
+                    num_compute += 1
                 else:
                     pass
         else:
             pass
 
     # Setitng to the Selected Service
-    if serviceName == 'Ganglia':
-        gangliaSetup (headIp, nComputenode, nodePassword, jsonAddonParams, OSType)
+    if addon_info["Monitor"]["index"] == True:
+        gangliaSetup (
+            head_ip = head_ip,
+            num_compute = num_compute,
+            node_password = node_password,
+            os_type = os_type,
+            ip_list = ip_list["front"]
+        )
     else:
-        print ('Skip Monitor Tool Setting')
+        logger.debug ("Skip the Monitor Setting")
         return 0
 
-    # Start & Enable Ganglia Daemon
-    print ("Start & Enable Daemon")
-    monitor_daemon_start (headIp, nComputenode, nodePassword, serviceType, serviceName, OSType, addonJson = jsonAddonParams)
-
-####################
-#  Monitor Daemon  #
-####################
-def monitor_daemon_start (headIp, nComputenode, nodePassword, serviceType, serviceName, OSType, addonJson):
-
-    for index in range(nComputenode+1):
-        if index == 0:
-            targetIp = headIp
-            daemon_start (addonJson, headIp, targetIp, nodePassword, serviceType, serviceName, OSType)
-        else:
-            targetIp = '192.168.100.' + str(index)
-            daemon_start (addonJson, headIp, targetIp, nodePassword, serviceType, serviceName, OSType)
-
 if __name__ == '__main__':
-    params = get_cluster_info()
-    clusterID = '711333'
+    params              = get_cluster_info ()
+    json_addon_params   = load_addon_params ()
 
-    # Read json file for gaglia configuration 
-    jsonAddonParams = load_addon_params ()
-    monitor_setup(clusterID, params, nodePassword = 'test', jsonAddonParams = jsonAddonParams, serviceType = 'Monitor', serviceName = 'Ganglia')
+    cls_bil  = []
+    ext_info = []
+    info_list = [1,0,0,1]
+    f = []
+
+    addon_info = {
+        "Monitor":{
+            "index": True
+        },
+        "clusterID"         : "619830",                 # !!! 任意のクラスターIDに変更 !!!
+        "IP_list"           :{                          # コンピュートノードの数に合わせて変更
+            "front" : ['192.168.2.1', '192.168.2.2'],
+            "back"  : ['192.169.2.1', '192.169.2.2']
+        },
+        "params"            : params,
+        "json_addon_params" : json_addon_params,
+        "node_password"     : "test"                    # 設定したパスワードを入力
+    }
+    cluster_id       = addon_info["clusterID"]
+    ip_list         = addon_info["IP_list"]
+    params          = addon_info["params"]
+    node_password    = addon_info["node_password"]
+   
+    monitor_setup(addon_info, f, info_list, service_name = 'Ganglia')
 
