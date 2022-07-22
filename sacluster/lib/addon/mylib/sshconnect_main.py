@@ -9,6 +9,7 @@ common_path = os.path.abspath("../../..")
 sys.path.append (common_path + "/lib/addon/mylib")
 from get_cluster_info     import get_cluster_info
 
+import subprocess
 import paramiko 
 from tqdm import tqdm
 
@@ -217,12 +218,119 @@ def computeConnect_IP(headInfo,IP,COMPUTE_CMD):
     headnode.close()
     del headnode, stdin, stdout, stderr
 
+
+def headConnect_command(headInfo, HEAD_CMD):
+
+    headnode = paramiko.SSHClient()
+    headnode.set_missing_host_key_policy(paramiko.WarningPolicy())
+    print("Headnode connecting...")
+    try:
+        headnode.connect(
+            hostname = headInfo['IP_ADDRESS'],
+            port = headInfo['PORT'],
+            username = headInfo['USER'],
+            password = headInfo['PASSWORD']
+        )
+    except Exception as err:
+        print (RED + "Fialed to connect to headnode")
+        print ("Error type: {}" .format(err))
+        print ("Exit programm" + END)
+        sys.exit ()
+    
+     #コマンド実行
+    for CMD in tqdm(HEAD_CMD):
+        stdin, stdout, stderr = headnode.exec_command(CMD)
+        time.sleep(3)
+        out =stdout.read().decode()
+
+    headnode.close()
+    del headnode, stdin, stdout, stderr
+    return out
+
+
+def computeConnect_command(headInfo, IP_list, COMPUTE_CMD):
+    out_list = []
+
+    for IP in IP_list["front"]:
+        IP_ADDRESS2 = IP
+        compInfo = {
+            'IP_ADDRESS':IP_ADDRESS2,
+            'PORT'      :22,
+            'USER'      :'root',
+            'PASSWORD'  :headInfo['PASSWORD']
+        }
+
+        head = (headInfo['IP_ADDRESS'], headInfo['PORT'])
+        compute = (compInfo['IP_ADDRESS'], compInfo['PORT'])
+
+        headnode = paramiko.SSHClient()
+        headnode.set_missing_host_key_policy(paramiko.WarningPolicy())
+        headnode.connect(hostname=headInfo['IP_ADDRESS'], port=headInfo['PORT'], username=headInfo['USER'], password=headInfo['PASSWORD'])
+        transport1 = headnode.get_transport()
+        try:
+            channel1 = transport1.open_channel("direct-tcpip", compute, head)
+        except Exception as err:
+            print (RED + "Failed to open channel to compute_node" + IP)
+            print ("Error type: {}" .format(err))
+            print ("Exit programm" + END)
+            sys.exit ()
+        computenode = paramiko.SSHClient()
+        computenode.set_missing_host_key_policy(paramiko.WarningPolicy())
+
+        print('IP : %s connecting...' %(IP))
+        computenode.connect(hostname=compInfo['IP_ADDRESS'],username=compInfo['USER'],password=compInfo['PASSWORD'],sock=channel1,auth_timeout=100)
+
+         #コマンド実行
+        for CMD in tqdm(COMPUTE_CMD):
+            stdin, stdout, stderr = computenode.exec_command(CMD)
+            time.sleep(3)
+            out_list.append(stdout.read().decode())
+
+        computenode.close()
+    headnode.close()
+
+    del headnode, stdin, stdout, stderr
+    return out_list
+
+
 if __name__ == '__main__':
     params              = get_cluster_info ()
-    nodePassword = "test01pw"
-    clusterID = "466753"                 # !!! 任意のクラスターIDに変更 !!!
-    sshConnect_main(clusterID, params, nodePassword)
+
+    cls_bil  = []
+    ext_info = []
+    info_list = [1,0,0,1]
+    f = []
+    out_comp = []
+
+    addon_info = {
+        "clusterID"         : "426176",                 # !!! 任意のクラスターIDに変更 !!!
+        "IP_list"           :{                          # コンピュートノードの数に合わせて変更
+            "front" : ['192.168.3.1', '192.168.3.2'],
+            "back"  : ['192.169.3.1', '192.169.3.2']
+        },
+        "params"            : params,
+        "node_password"     : "test01pw"                    # 設定したパスワードを入力
+    }
+    cluster_id       = addon_info["clusterID"]
+    ip_list         = addon_info["IP_list"]
+    params          = addon_info["params"]
+    node_password    = addon_info["node_password"]
 
 
-       
+    head_list, os_type, computememory = sshConnect_main(cluster_id,params,node_password)
+    
+    HEAD_CMD = ["hostname -s"]
+    COMPUTE_CMD = ["hostname -s"]
+
+    out_head = headConnect_command(head_list, HEAD_CMD)
+    print('head_stdout = %s' % out_head)
+
+    out_comp = computeConnect_command(head_list, ip_list, COMPUTE_CMD)
+    for x in out_comp:
+        print('comp_stdout = %s' % x)
+     #print('comp_stdout = %s' % out_comp[1])
+
+
+
+    
 
