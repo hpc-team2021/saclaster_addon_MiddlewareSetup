@@ -1,5 +1,6 @@
 
 import os
+import time
 from re import A
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -32,7 +33,7 @@ sys.path.append(common_path + "/lib/cls/ps")
 from ps_main import ps_main
 
 sys.path.append(common_path + "/lib/addon")
-from addon_main import addon_main, addon_start
+from addon_main import addon_main
 
 sys.path.append(common_path + "/lib/addon/setupIP")
 from setup_ip_eth0 import setup_ip_eth0
@@ -124,6 +125,8 @@ def prior_build(args):
         # setupIpEth0 (cls_bil)
 
         start_main(args.dryrun, f, info_list, int(args.thread))
+        print("Please wait a moment until all terminals are powered up...")
+        time.sleep(15)
         #eth1のIP設定の関数
         #ミドルウェアセットアップ
         addon_main(cls_bil, ext_info, middle_config_param, f, info_list)
