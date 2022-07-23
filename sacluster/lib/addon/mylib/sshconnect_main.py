@@ -6,6 +6,9 @@ from numpy import outer
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 common_path = os.path.abspath("../../..")
 
+import logging
+logger = logging.getLogger("addon").getChild(os.path.basename(__file__))
+
 sys.path.append (common_path + "/lib/addon/mylib")
 from get_cluster_info     import get_cluster_info
 
@@ -95,10 +98,10 @@ def headConnect(headInfo, HEAD_CMD):
      #コマンド実行
     for CMD in tqdm(HEAD_CMD):
         stdin, stdout, stderr = headnode.exec_command(CMD)
-        time.sleep(3)
+        # time.sleep(3)
         out = stdout.read().decode()
-        print('comp_stdout = %s' % out)
-
+        # print('comp_stdout = %s' % out)
+        logger.debug('comp_stdout = %s' % out)
     """
         while not stdout.channel.exit_status_ready():
                 if stdout.channel.recv_ready():
@@ -144,9 +147,10 @@ def computeConnect(headInfo, IP_list, COMPUTE_CMD):
          #コマンド実行
         for CMD in tqdm(COMPUTE_CMD):
             stdin, stdout, stderr = computenode.exec_command(CMD)
-            time.sleep(3)
+            # time.sleep(3)
             out = stdout.read().decode()
-            print('comp_stdout = %s' % out)
+            # print('comp_stdout = %s' % out)
+            logger.debug('comp_stdout = %s' % out)
 
         """
             while not stdout.channel.exit_status_ready():
@@ -204,9 +208,10 @@ def computeConnect_IP(headInfo,IP,COMPUTE_CMD):
         try:
             headnode.exec_command (CMD)
             stdin, stdout, stderr = computenode.exec_command(CMD)
-            time.sleep(1)
+            # time.sleep(1)
             out = stdout.read().decode()
-            print('comp_stdout = %s' % out)
+            # print('comp_stdout = %s' % out)
+            logger.debug('comp_stdout = %s' % out)
 
         except paramiko.SSHException as err:
             print (RED + "Failed to excute command on headnode")
@@ -241,7 +246,7 @@ def headConnect_command(headInfo, HEAD_CMD):
      #コマンド実行
     for CMD in tqdm(HEAD_CMD):
         stdin, stdout, stderr = headnode.exec_command(CMD)
-        time.sleep(3)
+        # time.sleep(3)
         out_list.append(stdout.read().decode())
 
     headnode.close()
@@ -284,7 +289,7 @@ def computeConnect_command(headInfo, IP_list, COMPUTE_CMD):
          #コマンド実行
         for CMD in tqdm(COMPUTE_CMD):
             stdin, stdout, stderr = computenode.exec_command(CMD)
-            time.sleep(3)
+            # time.sleep(3)
             out_list.append(stdout.read().decode())
 
         computenode.close()
