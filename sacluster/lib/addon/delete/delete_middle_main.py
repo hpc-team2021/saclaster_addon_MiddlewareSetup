@@ -22,7 +22,7 @@ from config_function import conf_pattern_2
 sys.path.append(common_path + "/lib/others")
 from info_print import printout
 sys.path.append (common_path + "/lib/addon/mylib")
-from sshconnect_main import sshConnect_main, headConnect, computeConnect, computeConnect_IP
+from sshconnect_main import sshConnect_main, headConnect, computeConnect, computeConnect_IP, headConnect_command, computeConnect_command
 from get_cluster_info     import get_cluster_info
 from load_addon_params    import load_addon_params
 
@@ -35,7 +35,7 @@ def delete_middle_main(cluster_id, info_list, f):
     middle_state = get_middle_state(cluster_id)
 
     if middle_state == True:
-        ans = conf_pattern_2("Force MPI calculation to abort?", ["yes", "no"], "no", info_list = info_list, fp = f)
+        ans = conf_pattern_2("Force HPC calculation to abort?", ["yes", "no"], "no", info_list = info_list, fp = f)
         if ans == "yes":
             print("計算を中断させるコマンドがあればそれを送る")
             pass
@@ -61,13 +61,15 @@ def get_middle_state(cluster_id):
     print("MPIのコマンドで計算途中かどうか確認する")
     logger.debug("MPI command to check if the calculation is in progress.")
     HEAD_CMD    = jsonFile ["MPI"]
-    headConnect(headInfo, HEAD_CMD)
-    
-    temp = False # 仮置き、標準出力から判断する変数にしたい
+    stdout = headConnect_command(headInfo, HEAD_CMD)
 
-    if temp:
+    matchSTR = "\n"
+    hpcRunning = check_stdout_match(stdout, matchSTR)
+    
+    if hpcRunning:
+        for out in stdout:
+            print(out)
         print("計算途中の場合、経過時間と推定必要時間の提示")
-        print("標準出力の内容が欲しいけど、現状ない...")
         middle_state = True
     else:
         middle_state = False
@@ -83,6 +85,14 @@ def get_user_pass():
             break
     return password
 
+def check_stdout_match(stdout, matchSTR):
+    flag = False
+
+    for out in stdout:
+        if matchSTR in out:
+            flag = True
+
+    return flag
 
 #############################################################
 ######################### Test code #########################

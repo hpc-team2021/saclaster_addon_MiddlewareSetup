@@ -46,7 +46,7 @@ def delete_main(api_index, f, info_list,max_workers):
     
     if temp == "yes":
         if(state == False):
-            delete_middle_main(cluster_id, info_list, f)
+            # delete_middle_main(cluster_id, info_list, f)
             conf_stop_process(info_list, f)
 
             logger.debug("Start stopping the cluster : " + str(cluster_id))

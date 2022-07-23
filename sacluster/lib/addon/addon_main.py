@@ -85,11 +85,6 @@ def addon_main(cls_bil, ext_info, addon_info, f, info_list):
 ########################## methods ##########################
 #############################################################
 
-def addon_start ():
-    print ("ミドルウェアの起動")
-    # daemonStart ()
-
-
 def get_user_pass():
     while True:
         password = input('Enter cluster Password : ')
@@ -149,31 +144,20 @@ def check_clusterID(clusterID_tmp):
     clusterID     = check_clusterID(clusterID_tmp)
     return clusterID
 
-def addon_arg_check(cls_bil, ext_info, addon_info, f, info_list):
-    # 直前まで f, info_list は使用しているの構文チェックしません
 
-    # cls_bil に clusterID が入っているか確認、無ければユーザに指定してもらう
+def addon_arg_check(cls_bil, ext_info, addon_info, f, info_list):
     try:
         addon_info["clusterID"] = cls_bil.cluster_id.split(": ")[1]
     except:
         logger.error("cls_bil does not contain clusterID.")
-        # clusterID_tmp = get_clusterID()
-        # clusterID     = check_clusterID(clusterID_tmp)
-        # addon_info["clusterID"] = clusterID
-        # cls_bil = {
-        #     "Temporary":{
-        #         "clusterID": clusterID
-        #     }
-        # }
+        sys.exit()
     
-    # cls_bil, ext_info から IP_list を取得できるか確認、無ければエラーで終了
     try:
         addon_info["IP_list"] = get_IP_list(cls_bil, ext_info)
     except:
         logger.error("Arguments for cls_bil and ext_info ERROR: They do not have enough data to create an IP_list.")
         sys.exit()
 
-    addon_info["IP_list"]           = get_IP_list(cls_bil, ext_info)
     addon_info["params"]            = get_cluster_info ()
     addon_info["json_addon_params"] = load_addon_params ()
     addon_info["node_password"]     = get_user_pass()
