@@ -17,5 +17,6 @@ def get_IP_list(cls_bil, ext_info):
             IP_front_list.append(str(base) + "." + str(front) + ".{}.{}".format(ip_zone[zone], i + 1))
             IP_back_list.append (str(base) + "." + str(back) + ".{}.{}".format(ip_zone[zone], i + 1))
 
-    IP_list = {"front":IP_front_list, "back":IP_back_list}
+
+    IP_list = {"front":sorted(IP_front_list), "back":sorted(IP_back_list)}
     return IP_list
