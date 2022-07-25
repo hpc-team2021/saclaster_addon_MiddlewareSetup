@@ -10,6 +10,9 @@ import os
 import paramiko
 from tqdm import tqdm
 
+import logging
+logger = logging.getLogger("addon").getChild(os.path.basename(__file__))
+
 # User defined Library
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 common_path = os.path.abspath("../../..")
@@ -96,7 +99,9 @@ def munge_user (head_ip, ip_list, node_password, cmd_head, cmd_compute):
 
     for i, cmd in enumerate(cmd_head):
         try:
-            headnode.exec_command (cmd)
+            stdin, stdout, stderr = headnode.exec_command (cmd)
+            out = stdout.read().decode()
+            logger.debug('comp_stdout = %s' % out)
         except paramiko.SSHException as err:
             print (RED + "Failed to excute command on headnode")
             print ("Error Type: {}" .format (err))
@@ -148,7 +153,9 @@ def munge_user (head_ip, ip_list, node_password, cmd_head, cmd_compute):
         # Execute command
         for cmd in tqdm(cmd_compute):
             try:
-                computenode.exec_command (cmd)
+                stdin, stdout, stderr = computenode.exec_command (cmd)
+                out = stdout.read().decode()
+                logger.debug('comp_stdout = %s' % out)
             except paramiko.SSHException as err:
                 print (RED + "Fialed to excute command '{}'" .format(cmd))
                 print ("Error type: {}" .format(err))

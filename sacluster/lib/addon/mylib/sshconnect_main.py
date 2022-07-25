@@ -43,19 +43,8 @@ def sshConnect_main(clusterID, params, nodePassword):
                         OSType = disk_dict[zone][disk_list[i]]["SourceArchive"]["Name"]
                          
                     elif (clusterID in node_list[i]["Tags"][0]):
-                        nComputenode+= 1  
-                        cpu = node_list[i]["ServerPlan"]["CPU"]
-                        memory = node_list[i]["ServerPlan"]["MemoryMB"]
-                        if ('1GB' in node_list[i]["ServerPlan"]["Name"]):
-                            memory = memory - (55 + 20*(cpu - 1))
-                        elif ('2GB' in node_list[i]["ServerPlan"]["Name"]):
-                            memory = memory - (55 + 20 + 20*(cpu - 1))
-                        elif ('3GB' in node_list[i]["ServerPlan"]["Name"]):
-                            memory = memory - (55 + 40 + 20*(cpu - 1))
-                        elif ('4GB' in node_list[i]["ServerPlan"]["Name"]):
-                            memory = memory - (55 + 60 + 20*(cpu - 1))
-                        elif ('5GB' in node_list[i]["ServerPlan"]["Name"]):
-                            memory = memory - (55 + 80 + 20*(cpu - 1))
+                        nComputenode+= 1 
+                    
                     else:
                         pass
         else:
@@ -68,13 +57,7 @@ def sshConnect_main(clusterID, params, nodePassword):
         'PASSWORD'  :nodePassword
     }
 
-    computememory = {
-        'COMPUTE_NUM':nComputenode,
-        'CPU'        :cpu,
-        'REAL_MEMORY':memory
-    }
-
-    return headInfo, OSType, computememory
+    return headInfo, OSType, nComputenode
 
 def headConnect(headInfo, HEAD_CMD):
     
@@ -309,7 +292,7 @@ if __name__ == '__main__':
     out_comp = []
 
     addon_info = {
-        "clusterID"         : "426176",                 # !!! 任意のクラスターIDに変更 !!!
+        "clusterID"         : "649106",                 # !!! 任意のクラスターIDに変更 !!!
         "IP_list"           :{                          # コンピュートノードの数に合わせて変更
             "front" : ['192.168.3.1', '192.168.3.2'],
             "back"  : ['192.169.3.1', '192.169.3.2']
@@ -326,7 +309,7 @@ if __name__ == '__main__':
     head_list, os_type, computememory = sshConnect_main(cluster_id,params,node_password)
     
     HEAD_CMD = ["hostname -s"]
-    COMPUTE_CMD = ["hostname -s"]
+    COMPUTE_CMD = ["slurmd -C"]
 
     out_head = headConnect_command(head_list, HEAD_CMD)
     print('head_stdout = %s' % out_head)
@@ -335,6 +318,11 @@ if __name__ == '__main__':
     for x in out_comp:
         print('comp_stdout = %s' % x)
      #print('comp_stdout = %s' % out_comp[1])
+
+    #RealMemory抽出
+    memory = out_comp[0].split()
+    print(memory)
+    print(memory[1])
 
 
 

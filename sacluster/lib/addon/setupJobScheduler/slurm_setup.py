@@ -18,7 +18,7 @@ fileName = common_path + '/lib/addon/setupJobScheduler/slurm.json'
 ConfigFile = common_path + '/lib/addon/setupJobScheduler/slurmconf.json'
 
 sys.path.append (common_path + "/lib/addon/mylib")
-from sshconnect_main import sshConnect_main, headConnect, computeConnect, computeConnect_IP
+from sshconnect_main import sshConnect_main, headConnect, computeConnect, computeConnect_command, headConnect_command
 from get_cluster_info     import get_cluster_info
 from load_addon_params    import load_addon_params
 
@@ -33,8 +33,8 @@ def slurm_setup (node_password,os_type,cmd_slurm,ip_list,cluster_id):
     print ("(Start) Setup for slurm")
     
     params = get_cluster_info ()
-    head_list, os_type, computememory = sshConnect_main(cluster_id,params,node_password)
-
+    head_list, os_type, nComputenode = sshConnect_main(cluster_id,params,node_password)
+    
     slurm_user (
         head_list = head_list,
         ip_list = ip_list, 
@@ -55,12 +55,12 @@ def slurm_setup (node_password,os_type,cmd_slurm,ip_list,cluster_id):
         cmd_head = cmd_slurm[os_type]["Head"]["slurm"]["conf"],
         cmd_compute = cmd_slurm[os_type]["Compute"]["slurm"]["conf"]
     )
-
+    
     send_slurm_conf (
         head_list = head_list,
         ip_list = ip_list,
         clusterID = cluster_id,
-        compnum = computememory
+        compnum = nComputenode
     )
 
     slurm_deamon (
@@ -98,12 +98,16 @@ def slurm_conf (head_list, ip_list, cmd_head, cmd_compute):
 
 def send_slurm_conf (head_list, ip_list, clusterID, compnum):
     print ("(Start) Sending slurm config to compute node")
-   
+
+    out_comp = []
+    COMPUTE_CMD = ["slurmd -C"]
+    out_comp = computeConnect_command(head_list, ip_list, COMPUTE_CMD)
+    memory = out_comp[0].split()
+
     json_open = open(ConfigFile, 'r')
     config_slurm = json.load(json_open)
     target_file = "/etc/slurm/slurm.conf"
-    config = "CPUs=" + str(compnum['CPU'])+ " RealMemory=" + str(compnum['REAL_MEMORY']) + " CoresPerSocket=" + str(compnum['CPU'])+ " ThreadsPerCore=1 State=UNKNOWN"
-    #NodeHostname= computenodeでhostnameで出てくるもの
+    config = memory[1]+ " " + memory[4]+ " " + memory[5]+ " " + memory[6] + " State=UNKNOWN"
 
     #コマンド作成
     cmd = ["echo" + '"#SlurmConfig" > ' + target_file]
@@ -111,11 +115,8 @@ def send_slurm_conf (head_list, ip_list, clusterID, compnum):
     conf = config_slurm["conf"]
     for config_slurm_val in conf:
         cmd.append("echo" + ' "' + config_slurm_val + '" >>' + target_file)
-    cmd.append("echo" + ' "' + 'NodeName=computenode00[1-' + str(compnum['COMPUTE_NUM']) + '] ' + config + '" >> ' + target_file)
-    #cmd.append("echo" + ' "' + 'NodeName=computenode001 ' + config + '" >> ' + target_file)
-
+    cmd.append("echo" + ' "' + 'NodeName=computenode00[1-' + str(compnum) + '] ' + config + '" >> ' + target_file)
     cmd.append("echo" + ' "' + 'PartitionName=test Nodes=ALL Default=YES MaxTime=INFINITE State=UP' + '" >> ' + target_file)
-    #cmd.append("echo" + ' "' + 'PartitionName=demo Nodes=computenode001 Default=YES MaxTime=INFINITE State=UP' + '" >> ' + target_file)
     headConnect(head_list, cmd)
 
 
@@ -200,7 +201,7 @@ if __name__ == '__main__':
     f = []
 
     addon_info = {
-        "clusterID"         : "594970",                 # !!! 任意のクラスターIDに変更 !!!
+        "clusterID"         : "649106",                 # !!! 任意のクラスターIDに変更 !!!
         "IP_list"           :{                          # コンピュートノードの数に合わせて変更
             "front" : ['192.168.2.1', '192.168.2.2'],
             "back"  : ['192.169.2.1', '192.169.2.2']
