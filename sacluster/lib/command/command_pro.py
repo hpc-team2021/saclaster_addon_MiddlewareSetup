@@ -126,7 +126,7 @@ def prior_build(args):
 
         start_main(args.dryrun, f, info_list, int(args.thread))
         print("Please wait a moment until all terminals are powered up...")
-        time.sleep(15)
+        time.sleep(20)
         #eth1のIP設定の関数
         #ミドルウェアセットアップ
         addon_main(cls_bil, ext_info, middle_config_param, f, info_list)
@@ -160,7 +160,7 @@ def prior_start(args):
         printout("All processes were completed", info_type = 0, info_list = [1,0,0,0], fp = "")
     
     if (args.middle == True):
-        addon_start()  
+        addon_start()
 
 
 def prior_stop(args):
@@ -251,7 +251,7 @@ def prior_config(args):
 
     if(args.parents == True and args.dir == None):
         logger.error('--parents option [-p] requires --input option [-d]')
-        print("error: --parents option [-p] requires --input option [-d] ")
+        print("error: --parents option [-p] requires --input option [-d]")
         sys.exit()
 
     if(args.output == True):

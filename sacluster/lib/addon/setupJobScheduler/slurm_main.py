@@ -51,7 +51,6 @@ def slurm_main (head_ip, n_computenode, node_password, os_type, ip_list, cluster
         os_type = os_type,
         cmd_slurm = cmd_slurm
     )
-    """
     slurm_setup (
         node_password = node_password,
         os_type = os_type,
@@ -59,22 +58,6 @@ def slurm_main (head_ip, n_computenode, node_password, os_type, ip_list, cluster
         ip_list = ip_list,
         cluster_id = cluster_id
     )
-    """
-    """
-    params              = get_cluster_info ()
-    json_addon_params   = load_addon_params ()
-    addon_info = {
-        "clusterID"         : "135299",                 # !!! 任意のクラスターIDに変更 !!!
-        "IP_list"           :{                          # コンピュートノードの数に合わせて変更
-            "front" : ['192.168.3.1', '192.168.3.2'],
-            "back"  : ['192.169.3.1', '192.169.3.2']
-        },
-        "params"            : params,
-        "json_addon_params" : json_addon_params,
-        "node_password"     : "test01pw"                    # 設定したパスワードを入力
-    }
-    """ 
-    # slurm_setup ()
 
 if __name__ == '__main__':
     params = get_cluster_info()

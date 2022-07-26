@@ -16,8 +16,8 @@ import subprocess
 import paramiko 
 from tqdm import tqdm
 
-#import warnings
-#warnings.filterwarnings('ignore')
+import warnings
+warnings.filterwarnings('ignore')
 # Changing standard output color for exception error
 RED = '\033[31m'
 END = '\033[0m'
