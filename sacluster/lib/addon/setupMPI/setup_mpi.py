@@ -28,8 +28,13 @@ from ssh_setup import ssh_setup
 #################
 # Main Programm #
 #################
-def setup_mpi (cluster_id, params, node_password, json_addon_params, service_type="MPI"  , service_name="mpich"):
+def setup_mpi (addon_info, f, info_list, service_name):
     print ('Start: (MPI Setting)')
+    # Variable
+    cluster_id           = addon_info["clusterID"]
+    params              = addon_info["params"]
+    node_password        = addon_info["node_password"]
+    ip_list         = addon_info["IP_list"]
 
     # Get info
     head_ip, os_type, n_computenode = get_info (cluster_id = cluster_id, params = params)
@@ -55,14 +60,14 @@ def setup_mpi (cluster_id, params, node_password, json_addon_params, service_typ
         head_ip = head_ip, 
         n_computenode = n_computenode, 
         node_password = node_password, 
-        json_addon_params = json_addon_params, 
+        ip_list = ip_list,
         os_type = os_type
         )
         
     # SSH key seting for inter connection
     ssh_setup(
         head_ip = head_ip,
-        n_computenode = n_computenode, 
+        ip_list = ip_list, 
         node_password = node_password,
         json_addon_params = json_addon_params,
         os_type = os_type
@@ -80,7 +85,7 @@ def setup_mpi (cluster_id, params, node_password, json_addon_params, service_typ
     # Ganglia Setting for the compute nodes
     mpi_comp (
         head_ip = head_ip,
-        n_computenode = n_computenode,
+        ip_list = ip_list,
         node_password = node_password,
         json_addon_params = json_addon_params,
         cmd_mpi = cmd_mpi,
@@ -136,7 +141,7 @@ def mpi_head (head_ip, node_password, json_addon_params, cmd_mpi, os_type):
 ##############################
 # MPI Setting on computenode #
 ##############################
-def mpi_comp (head_ip, n_computenode, node_password, json_addon_params, cmd_mpi, os_type):
+def mpi_comp (head_ip, ip_list, node_password, json_addon_params, cmd_mpi, os_type):
      # Configuration Setting for Headnode
     head_info = {
         'IP_ADDRESS':head_ip,
@@ -166,8 +171,8 @@ def mpi_comp (head_ip, n_computenode, node_password, json_addon_params, cmd_mpi,
     # Configuration Setting for Compute node
     transport1 = headnode.get_transport()
     head = (head_info['IP_ADDRESS'], head_info['PORT'])
-    for i_computenode in range(n_computenode):
-        IP_ADDRESS2 = '192.168.2.' + str(i_computenode+1)
+    for ip_compute in ip_list:
+        IP_ADDRESS2 = ip_compute
         comp_info = {
             'IP_ADDRESS':IP_ADDRESS2,
             'PORT'      :22,

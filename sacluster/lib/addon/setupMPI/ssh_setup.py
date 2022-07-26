@@ -21,7 +21,7 @@ from get_cluster_info import get_cluster_info
 #################
 # Main Programm #
 #################
-def ssh_setup (head_ip, n_computenode, node_password, json_addon_params, os_type):
+def ssh_setup (head_ip, ip_list, node_password, json_addon_params, os_type):
     print ('Start: (SSH setting)')
 
     # Read json file for gaglia configuration 
@@ -40,7 +40,7 @@ def ssh_setup (head_ip, n_computenode, node_password, json_addon_params, os_type
         head_ip=head_ip,
         node_password=node_password,
         cmd_json=cmd_json[os_type]['command']['Head']['ssh'],
-        n_computenode = n_computenode
+        ip_list = ip_list
     )
 
     # ssh Setting
@@ -97,7 +97,7 @@ def sshkey_create (head_ip, node_password, cmd_json):
 #################
 # Share SSH key #
 #################
-def send_sshkey (head_ip, node_password, cmd_json, n_computenode):
+def send_sshkey (head_ip, node_password, cmd_json, ip_list):
     print ('Creating SSH key on the head node')
     # Configuration Setting for Headnode
     head_info = {
@@ -124,11 +124,11 @@ def send_sshkey (head_ip, node_password, cmd_json, n_computenode):
     cmd_list = cmd_json[1:5]
     output = ""
     # Configuration Setting for Compute node
-    for i_computenode in range(n_computenode):
+    for ip_compute in ip_list:
         for i, cmd in enumerate (cmd_list):
 
             if 'ssh-copy-id' in cmd:
-                ipaddress_comp = '192.168.2.' + str(i_computenode+1)
+                ipaddress_comp = ip_compute
                 shell.send(cmd + ' ' + ipaddress_comp + '\n')
             else:
                 shell.send(cmd + '\n')

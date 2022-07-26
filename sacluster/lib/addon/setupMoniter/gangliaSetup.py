@@ -17,11 +17,14 @@ fileName = common_path + '\\lib\\addon\\setupMoniter\\gangliaConf.json'
 sys.path.append(common_path + "/lib/addon/mylib")
 from load_addon_params import load_addon_params
 
+logger = logging.getLogger("addon").getChild(os.path.basename(__file__))
+
+
 #################
 # Main Programm #
 #################
 def gangliaSetup (head_ip, num_compute, node_password, os_type, ip_list):
-    print ('Working on Ganglia Setting ...')
+    logger.debug ('Working on Ganglia Setting ...')
 
     # Read json file for gaglia configuration 
     json_open = open (fileName, 'r')
@@ -70,7 +73,7 @@ def gangliaSetup (head_ip, num_compute, node_password, os_type, ip_list):
         ip_list = ip_list
     )
 
-    print ("Ganglia Setting is done")
+    logger.debug ("Ganglia Setting is done")
 # % End of gangliaSetup ()
 
 ##############################
@@ -97,9 +100,8 @@ def gangliaInstall (head_ip, num_compute, node_password, cmd_list, ip_list):
     # Exec Command
     for cmd in tqdm(cmd_list["head"]):
         stdin, stdout, stderr = headnode.exec_command (cmd)
-        time.sleep(3)
         out = stdout.read().decode()
-        print('%s' % out)
+        logger.debug (out)
     
     transport1 = headnode.get_transport ()
     # Configuration Setting for Compute node
@@ -114,14 +116,14 @@ def gangliaInstall (head_ip, num_compute, node_password, cmd_list, ip_list):
         channel1 = transport1.open_channel("direct-tcpip", compute, head)
         computenode = paramiko.SSHClient()
         computenode.set_missing_host_key_policy(paramiko.WarningPolicy())
-        print("compurenode connecting...")
+        logger.debug ("compurenode connecting...")
         computenode.connect(
             hostname = comp_info['IP_ADDRESS'],
             username = comp_info['USER'],
             password = comp_info['PASSWORD'],
             sock = channel1
         )
-        print('computenode connected')
+        logger.debug ('computenode connected')
 
         # Exec Command
         for cmd in cmd_list["compute"]:
@@ -157,9 +159,8 @@ def gangliaPort (head_ip, num_compute, node_password, cmd_list, ip_list):
     # Exec Command
     for cmd in tqdm(cmd_list):
         stdin, stdout, stderr = headnode.exec_command (cmd)
-        time.sleep(3)
         out = stdout.read().decode()
-        print('%s' % out)
+        logger.debug (out)
     
     transport1 = headnode.get_transport ()
     # Configuration Setting for Compute node
@@ -174,21 +175,20 @@ def gangliaPort (head_ip, num_compute, node_password, cmd_list, ip_list):
         channel1 = transport1.open_channel("direct-tcpip", compute, head)
         computenode = paramiko.SSHClient()
         computenode.set_missing_host_key_policy(paramiko.WarningPolicy())
-        print("compurenode connecting...")
+        logger.debug ("compurenode connecting...")
         computenode.connect(
             hostname = comp_info['IP_ADDRESS'],
             username = comp_info['USER'],
             password = comp_info['PASSWORD'],
             sock = channel1
         )
-        print('computenode connected')
+        logger.debug ('computenode connected')
 
         # Exec Command
         for cmd in tqdm(cmd_list):
             stdin, stdout, stderr = computenode.exec_command (cmd)
-            time.sleep(3)
             out = stdout.read().decode()
-            print('%s' % out)
+            logger.debug (out)
 
         computenode.close()
     
@@ -212,39 +212,39 @@ def gangliaHead (head_ip, num_compute, node_password, json_ganglia, ip_list):
     # Connect to Headnode
     headnode = paramiko.SSHClient()
     headnode.set_missing_host_key_policy(paramiko.WarningPolicy())
-    print("hostnode connecting...")
+    logger.debug ("headnode connecting...")
     headnode.connect(
         hostname=headInfo['IP_ADDRESS'], 
         port=headInfo['PORT'], 
         username=headInfo['USER'], 
         password=headInfo['PASSWORD']
     )
-    print('hostnode connected')
+    logger.debug ('headnode connected')
 
     # gmond.conf setting
-    print ('(Start) Setting for gmond.conf')
+    logger.debug ('(Start) Setting for gmond.conf')
     gmondConfSetup (
         json_ganglia = json_ganglia, 
         num_compute = num_compute,
         node_client = headnode,
     )
-    print (' (Done) Setting for gmond.conf')
+    logger.debug (' (Done) Setting for gmond.conf')
 
     # gmetad.conf setting
-    print ('(Start) Setting for gmetad.conf')
+    logger.debug ('(Start) Setting for gmetad.conf')
     gmetadConfSetup (
         json_ganglia = json_ganglia,
         node_client = headnode
     )
-    print (' (Done) Setting for gmetad.conf')
+    logger.debug (' (Done) Setting for gmetad.conf')
 
     # ganglia.conf setting
-    print ('(Start) Setting for ganglia.conf')
+    logger.debug ('(Start) Setting for ganglia.conf')
     gangliaConfSetup (
         json_ganglia = json_ganglia,
         node_client = headnode
     )
-    print (' (Done) Setting for ganglia.conf')
+    logger.debug (' (Done) Setting for ganglia.conf')
     
     # web monitor password setting 
     # webPasswdSetting (jsonGanglia[OSType], nodeClient = headnode)
@@ -271,14 +271,7 @@ def gangliaComp (head_ip, num_compute, node_password, json_ganglia, ip_list):
     transport1 = headnode.get_transport()
         
     # Configuration Setting for Compute node
-    for i_compute, ip_compute in enumerate(ip_list):
-        if i_compute < 9:
-            host = 'computenode00' + str(i_compute + 1)
-        elif i_compute < 99:
-            host = 'computenode0' + str(i_compute + 1)
-        else:
-            host = 'computenode' + str(i_compute + 1)
-        
+    for ip_compute in ip_list:
         compInfo = {
             'IP_ADDRESS':ip_compute,
             'PORT'      :22,
@@ -290,9 +283,9 @@ def gangliaComp (head_ip, num_compute, node_password, json_ganglia, ip_list):
         computenode = paramiko.SSHClient()
         computenode.set_missing_host_key_policy(paramiko.WarningPolicy())
 
-        print("compurenode connecting...")
+        logger.debug ("computenode connecting...")
         computenode.connect(hostname=compInfo['IP_ADDRESS'],username=compInfo['USER'],password=compInfo['PASSWORD'],sock=channel1)
-        print('computenode connected')
+        logger.debug ('computenode connected')
 
         # gmond.conf setting on computenode
         gmondConfSetup (
@@ -406,7 +399,7 @@ def gmondConfSetup (json_ganglia, num_compute, node_client):
 #######################
 def webPasswdSetting (jsonGanglia, nodeClient):
     cmdMain = jsonGanglia['gangliaWeb'][0]
-    print ("Setting for Web Monitoring Service")
+    logger.debug ("Setting for Web Monitoring Service")
     userName = input ("Enter User Name for Web Login -->")
     command = cmdMain + str(" ") + userName + '\n'
     
@@ -436,7 +429,7 @@ def webPasswdSetting (jsonGanglia, nodeClient):
     while True:
         output = shell.recv(1000).decode('utf-8')
         if(re.search('#',output)):
-            print(output)
+            logger.debug (output)
             output=''
             break
 
@@ -475,9 +468,8 @@ def gmetadConfSetup (json_ganglia, node_client):
             + setting + str("' >> ") \
             + targetFile
         stdin, stdout, stderr = node_client.exec_command (cmd)
-        time.sleep(3)
         out = stdout.read().decode()
-        print('%s' % out)
+        logger.debug (out)
 
 #######################
 # ganglia.conf setting
@@ -489,18 +481,16 @@ def gangliaConfSetup (json_ganglia, node_client):
 
     cmd = cmdMain + str (" ' ' > ") + targetFile
     stdin, stdout, stderr = node_client.exec_command (cmd)
-    time.sleep(3)
     out = stdout.read().decode()
-    print('%s' % out)
+    logger.debug (out)
 
     for i, setting in tqdm (enumerate (confSetting)):
         cmd = cmdMain + str (" '") \
             + setting + str ("' >> ") \
             + targetFile
         stdin, stdout, stderr = node_client.exec_command (cmd)
-        time.sleep(3)
         out = stdout.read().decode()
-        print('%s' % out)
+        logger.debug (out)
 
 def gangliaDaemon (head_ip, num_compute, node_password, cmd_list, ip_list):
     head_info = {
@@ -524,7 +514,7 @@ def gangliaDaemon (head_ip, num_compute, node_password, cmd_list, ip_list):
     for cmd in tqdm(cmd_list["head"]):
         stdin, stdout, stderr = headnode.exec_command (cmd)
         out = stdout.read().decode()
-        print('%s' % out)
+        logger.debug (out)
     
     transport1 = headnode.get_transport ()
     # Configuration Setting for Compute node
@@ -539,14 +529,14 @@ def gangliaDaemon (head_ip, num_compute, node_password, cmd_list, ip_list):
         channel1 = transport1.open_channel("direct-tcpip", compute, head)
         computenode = paramiko.SSHClient()
         computenode.set_missing_host_key_policy(paramiko.WarningPolicy())
-        print("compurenode connecting...")
+        logger.debug ("computenode connecting...")
         computenode.connect(
             hostname = comp_info['IP_ADDRESS'],
             username = comp_info['USER'],
             password = comp_info['PASSWORD'],
             sock = channel1
         )
-        print('computenode connected')
+        logger.debug ('computenode connected')
 
         # Exec Command
         for cmd in cmd_list["compute"]:

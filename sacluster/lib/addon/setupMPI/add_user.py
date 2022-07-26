@@ -21,7 +21,7 @@ from get_cluster_info import get_cluster_info
 #################
 # Main Programm #
 #################
-def add_user_main (head_ip, n_computenode, node_password, json_addon_params, os_type):
+def add_user_main (head_ip, n_computenode, node_password, ip_list, os_type):
     print ('Start: (Adding a new user for MPI)')
 
     # Read json file for gaglia configuration 
@@ -37,7 +37,7 @@ def add_user_main (head_ip, n_computenode, node_password, json_addon_params, os_
     
     add_user_compute (
         head_ip =head_ip,
-        n_computenode = n_computenode,
+        ip_list = ip_list,
         node_password = node_password,
         cmd_json = cmd_json[os_type]["command"]
         )
@@ -105,7 +105,7 @@ def add_user_head (head_ip, node_password, cmd_json):
 ########################################
 # Adding a new user on the computenode #
 ########################################
-def add_user_compute (head_ip, n_computenode, node_password, cmd_json):
+def add_user_compute (head_ip, ip_list, node_password, cmd_json):
     # Configuration Setting for Headnode
     head_info = {
         'IP_ADDRESS':head_ip,
@@ -129,8 +129,8 @@ def add_user_compute (head_ip, n_computenode, node_password, cmd_json):
     head = (head_info['IP_ADDRESS'], head_info['PORT'])
 
     # Configuration Setting for Compute node
-    for i_computenode in range(n_computenode):
-        IP_ADDRESS2 = '192.168.2.' + str(i_computenode+1)
+    for ip_compute in ip_list:
+        IP_ADDRESS2 = ip_compute
         comp_info = {
             'IP_ADDRESS':IP_ADDRESS2,
             'PORT'      :22,
