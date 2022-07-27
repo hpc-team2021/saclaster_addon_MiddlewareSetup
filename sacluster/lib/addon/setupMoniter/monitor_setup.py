@@ -25,15 +25,15 @@ from daemon_start import daemon_start
 logger = logging.getLogger("addon").getChild(os.path.basename(__file__))
 
 
-def monitor_setup(addon_info, f, info_list, service_name):
+def monitor_setup(addon_info, f, info_list):
     # Variable
-    cluster_id           = addon_info["clusterID"]
-    params              = addon_info["params"]
-    node_password        = addon_info["node_password"]
-    ip_list         = addon_info["IP_list"]
+    cluster_id = addon_info["clusterID"]
+    params = addon_info["params"]
+    node_password = addon_info["node_password"]
+    ip_list = addon_info["IP_list"]
 
     # Get headnode IP address & number of computenodes
-    head_ip  = "255.255.255.255"
+    head_ip = "255.255.255.255"
     num_compute = 0
     node_dict = params.get_node_info()
     disk_dict = params.get_disk_info()
@@ -56,13 +56,14 @@ def monitor_setup(addon_info, f, info_list, service_name):
 
     # Setitng to the Selected Service
     if addon_info["Monitor"]["index"] == True:
-        gangliaSetup (
-            head_ip = head_ip,
-            num_compute = num_compute,
-            node_password = node_password,
-            os_type = os_type,
-            ip_list = ip_list["front"]
-        )
+        if addon_info["Monitor"]["type"] == "ganglia":
+            gangliaSetup (
+                head_ip = head_ip,
+                num_compute = num_compute,
+                node_password = node_password,
+                os_type = os_type,
+                ip_list = ip_list["front"]
+            )
     else:
         logger.debug ("Skip the Monitor Setting")
         return 0

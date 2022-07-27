@@ -262,13 +262,15 @@ def munge_install (head_ip, ip_list, node_password, cmd_head, cmd_compute):
         # Execute command
         for cmd in tqdm (cmd_compute):
             try:
-                computenode.exec_command (cmd)
+                stdin, stdout, stderr = computenode.exec_command (cmd)
             except paramiko.SSHException as err:
                 print (RED + "Fialed to excute command '{}'" .format(cmd))
                 print ("Error type: {}" .format(err))
                 print ("Exit programm" + END)
                 sys.exit ()
-            time.sleep (5)
+            while not stdout.channel.exit_status_ready():
+                if stdout.channel.recv_ready():
+                    stdoutLines = stdout.readlines()
         # close connection to compute node
         computenode.close()
         del computenode
@@ -324,12 +326,16 @@ def munge_key (head_ip, ip_list, node_password, cmd_head, cmd_compute):
                     cmd_base = cmd
                 )
             else:
-                headnode.exec_command (cmd)
+                stdin, stdout, stderr = headnode.exec_command (cmd)
         except paramiko.SSHException as err:
             print (RED + "Failed to excute command on headnode")
             print ("Error Type: {}" .format (err))
             print ("Exit Programm" + END)
             sys.exit ()
+        
+        while not stdout.channel.exit_status_ready():
+                if stdout.channel.recv_ready():
+                    stdoutLines = stdout.readlines()
     
     ####################################
     #         Compute Node             #
@@ -376,12 +382,15 @@ def munge_key (head_ip, ip_list, node_password, cmd_head, cmd_compute):
         # Execute command
         for cmd in tqdm(cmd_compute):
             try:
-                computenode.exec_command (cmd)
+                stdin, stdout, stderr = computenode.exec_command (cmd)
             except paramiko.SSHException as err:
                 print (RED + "Fialed to excute command '{}'" .format(cmd))
                 print ("Error type: {}" .format(err))
                 print ("Exit programm" + END)
                 sys.exit ()
+            while not stdout.channel.exit_status_ready():
+                if stdout.channel.recv_ready():
+                    stdoutLines = stdout.readlines()
         # close connection to compute node
         computenode.close()
         del computenode
@@ -429,13 +438,15 @@ def munge_daemon (head_ip, ip_list, node_password, cmd_head, cmd_compute):
 
     for cmd in tqdm(cmd_head):
         try:
-            headnode.exec_command (cmd)
+            stdin, stdout, stderr = headnode.exec_command (cmd)
         except paramiko.SSHException as err:
             print (RED + "Failed to excute command on headnode")
             print ("Error Type: {}" .format (err))
             print ("Exit Programm" + END)
             sys.exit ()
-    
+        while not stdout.channel.exit_status_ready():
+                if stdout.channel.recv_ready():
+                    stdoutLines = stdout.readlines()
     ####################################
     #         Compute Node             #
     ####################################
@@ -481,13 +492,16 @@ def munge_daemon (head_ip, ip_list, node_password, cmd_head, cmd_compute):
         # Execute command
         for cmd in tqdm(cmd_compute):
             try:
-                computenode.exec_command (cmd)
+                stdin, stdout, stderr = computenode.exec_command (cmd)
             except paramiko.SSHException as err:
                 print (RED + "Fialed to excute command '{}'" .format(cmd))
                 print ("Error type: {}" .format(err))
                 print ("Exit programm" + END)
                 sys.exit ()
         # close connection to compute node
+            while not stdout.channel.exit_status_ready():
+                if stdout.channel.recv_ready():
+                    stdoutLines = stdout.readlines()
         computenode.close()
         del computenode
     

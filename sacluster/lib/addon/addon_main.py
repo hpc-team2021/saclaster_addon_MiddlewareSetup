@@ -72,13 +72,13 @@ def addon_main(cls_bil, ext_info, addon_info, f, info_list):
     proxy_setup(addon_info, service_name="squid")
     print("please check squid!!")
 
-    setup_job_scheduler (addon_info, f, info_list, service_name = addon_info["Job_scheduler"]["type"])
+    setup_job_scheduler (addon_info, f, info_list, job_scheduler_info = addon_info["Job_scheduler"])
 
-    setup_mpi           (addon_info, f, info_list, service_name = addon_info["MPI"]["type"])
+    setup_mpi (addon_info, f, info_list, mpi_info = addon_info["MPI"])
     # setup_mpi (cluster_id, params, node_password, json_addon_params, service_type="MPI"  , service_name="mpich")
 
     logger.debug("Start setting up the Monitor.")
-    monitor_setup (addon_info, f, info_list, service_name="Ganglia")
+    monitor_setup (addon_info, f, info_list)
     print("Ganglia is Done!!")
 
 

@@ -25,10 +25,23 @@ sys.path.append(common_path + "/lib/addon/setypMpi")
 from add_user import add_user_main
 from ssh_setup import ssh_setup
 
+############
+#   MPI    #
+############
+def setup_mpi (addon_info, f, info_list, mpi_info):
+    if (mpi_info["index"] == True):
+        if (mpi_info["type"] == "mpich"):
+            setup_mpich (
+                addon_info = addon_info,
+                f = f,
+                info_list = info_list,
+                service_name = mpi_info["type"]   
+            )
+
 #################
-# Main Programm #
+# MPICH Programm #
 #################
-def setup_mpi (addon_info, f, info_list, service_name):
+def setup_mpich (addon_info, f, info_list, service_name):
     print ('Start: (MPI Setting)')
     # Variable
     cluster_id           = addon_info["clusterID"]
