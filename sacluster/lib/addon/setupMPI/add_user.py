@@ -37,7 +37,7 @@ def add_user_main (head_ip, n_computenode, node_password, ip_list, os_type):
     
     add_user_compute (
         head_ip =head_ip,
-        ip_list = ip_list,
+        ip_list = ip_list["front"],
         node_password = node_password,
         cmd_json = cmd_json[os_type]["command"]
         )

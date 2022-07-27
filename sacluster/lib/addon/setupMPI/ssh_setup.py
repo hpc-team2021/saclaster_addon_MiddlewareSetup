@@ -21,7 +21,7 @@ from get_cluster_info import get_cluster_info
 #################
 # Main Programm #
 #################
-def ssh_setup (head_ip, ip_list, node_password, json_addon_params, os_type):
+def ssh_setup (head_ip, ip_list, node_password, os_type):
     print ('Start: (SSH setting)')
 
     # Read json file for gaglia configuration 

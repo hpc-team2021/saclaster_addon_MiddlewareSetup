@@ -82,7 +82,6 @@ def setup_mpich (addon_info, f, info_list, service_name):
         head_ip = head_ip,
         ip_list = ip_list, 
         node_password = node_password,
-        json_addon_params = json_addon_params,
         os_type = os_type
         )
     
@@ -90,7 +89,6 @@ def setup_mpich (addon_info, f, info_list, service_name):
     mpi_head (
         head_ip = head_ip,
         node_password = node_password,
-        json_addon_params = json_addon_params,
         cmd_mpi = cmd_mpi,
         os_type = os_type
         )
@@ -100,7 +98,6 @@ def setup_mpich (addon_info, f, info_list, service_name):
         head_ip = head_ip,
         ip_list = ip_list,
         node_password = node_password,
-        json_addon_params = json_addon_params,
         cmd_mpi = cmd_mpi,
         os_type = os_type
         )
@@ -111,7 +108,7 @@ def setup_mpich (addon_info, f, info_list, service_name):
 ###########################
 # MPI Setting on Headnode #
 ###########################
-def mpi_head (head_ip, node_password, json_addon_params, cmd_mpi, os_type): 
+def mpi_head (head_ip, node_password, cmd_mpi, os_type): 
     # Configuration Setting for Headnode
     head_info = {
         'IP_ADDRESS':head_ip,
@@ -154,7 +151,7 @@ def mpi_head (head_ip, node_password, json_addon_params, cmd_mpi, os_type):
 ##############################
 # MPI Setting on computenode #
 ##############################
-def mpi_comp (head_ip, ip_list, node_password, json_addon_params, cmd_mpi, os_type):
+def mpi_comp (head_ip, ip_list, node_password, cmd_mpi, os_type):
      # Configuration Setting for Headnode
     head_info = {
         'IP_ADDRESS':head_ip,
@@ -184,7 +181,7 @@ def mpi_comp (head_ip, ip_list, node_password, json_addon_params, cmd_mpi, os_ty
     # Configuration Setting for Compute node
     transport1 = headnode.get_transport()
     head = (head_info['IP_ADDRESS'], head_info['PORT'])
-    for ip_compute in ip_list:
+    for ip_compute in ip_list["front"]:
         IP_ADDRESS2 = ip_compute
         comp_info = {
             'IP_ADDRESS':IP_ADDRESS2,
@@ -198,7 +195,7 @@ def mpi_comp (head_ip, ip_list, node_password, json_addon_params, cmd_mpi, os_ty
         try:
             channel1 = transport1.open_channel("direct-tcpip", compute, head)
         except Exception as err:
-            print (RED + "Failed to open channel to compute_node" + str(i_computenode + 1))
+            print (RED + "Failed to open channel to compute_node " + str(ip_compute))
             print ("Error type: {}" .format(err))
             print ("Exit programm" + END)
             sys.exit ()
@@ -214,7 +211,7 @@ def mpi_comp (head_ip, ip_list, node_password, json_addon_params, cmd_mpi, os_ty
                 auth_timeout = 300
                 )
         except Exception as err:
-            print (RED + "Failed to connect to compute_node" + str(i_computenode+1))
+            print (RED + "Failed to connect to compute_node " + str(ip_compute))
             print ("Error type {}" .format(err))
             print ("Exit programm" + END)
             sys.exit ()
