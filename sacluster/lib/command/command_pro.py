@@ -124,7 +124,7 @@ def prior_build(args):
     if (args.middle == True):
         # setupIpEth0 (cls_bil)
 
-        start_main(args.dryrun, f, info_list, int(args.thread))
+        start_main(args.dryrun, f, info_list, int(args.thread), middle_index=True, cluster_id = cls_bil.cluster_id.split(": ")[1])
         print("Please wait a moment until all terminals are powered up...")
         time.sleep(20)
         #eth1のIP設定の関数
