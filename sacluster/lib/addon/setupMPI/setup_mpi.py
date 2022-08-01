@@ -1,4 +1,5 @@
 import json
+from math import factorial
 from operator import index
 import re
 import string
@@ -6,6 +7,7 @@ import sys
 import time
 import logging
 import os
+from xml.etree.ElementTree import Comment
 import paramiko
 
 # User defined Library
@@ -25,6 +27,9 @@ sys.path.append(common_path + "/lib/addon/setypMpi")
 from add_user import add_user_main
 from ssh_setup import ssh_setup
 
+sys.path.append(common_path + "/lib/others")
+from info_print import printout
+
 ############
 #   MPI    #
 ############
@@ -42,7 +47,12 @@ def setup_mpi (addon_info, f, info_list, mpi_info):
 # MPICH Programm #
 #################
 def setup_mpich (addon_info, f, info_list, service_name):
-    print ('Start: (MPI Setting)')
+    print ('\n')
+    printout (
+        comment = "(Start) : Setting MPI",
+        info_list = info_list,
+        fp = f
+    )
     # Variable
     cluster_id           = addon_info["clusterID"]
     params              = addon_info["params"]
@@ -50,7 +60,7 @@ def setup_mpich (addon_info, f, info_list, service_name):
     ip_list         = addon_info["IP_list"]
 
     # Get info
-    head_ip, os_type, n_computenode = get_info (cluster_id = cluster_id, params = params)
+    head_ip, os_type, n_computenode = get_info (cluster_id = cluster_id, params = params, info_list = info_list, fp = f)
 
     # Read json file for gaglia configuration 
     try:
@@ -74,24 +84,30 @@ def setup_mpich (addon_info, f, info_list, service_name):
         n_computenode = n_computenode, 
         node_password = node_password, 
         ip_list = ip_list,
-        os_type = os_type
-        )
+        os_type = os_type,
+        info_list = info_list,
+        fp = f
+    )
         
     # SSH key seting for inter connection
     ssh_setup(
         head_ip = head_ip,
         ip_list = ip_list, 
         node_password = node_password,
-        os_type = os_type
-        )
+        os_type = os_type,
+        info_list = info_list,
+        fp = f
+    )
     
     # Ganglia Setting for the head node
     mpi_head (
         head_ip = head_ip,
         node_password = node_password,
         cmd_mpi = cmd_mpi,
-        os_type = os_type
-        )
+        os_type = os_type,
+        info_list = info_list,
+        fp = f
+    )
     
     # Ganglia Setting for the compute nodes
     mpi_comp (
@@ -99,16 +115,22 @@ def setup_mpich (addon_info, f, info_list, service_name):
         ip_list = ip_list,
         node_password = node_password,
         cmd_mpi = cmd_mpi,
-        os_type = os_type
-        )
+        os_type = os_type,
+        info_list = info_list,
+        fp = f
+    )
 
-    print (" Done: (MPI setting)")
+    printout (
+        comment = "(Done)  : Setting MPI\n",
+        info_list = info_list,
+        fp = f
+    )
 # % End of setup_mpi ()
 
 ###########################
 # MPI Setting on Headnode #
 ###########################
-def mpi_head (head_ip, node_password, cmd_mpi, os_type): 
+def mpi_head (head_ip, node_password, cmd_mpi, os_type, info_list, fp): 
     # Configuration Setting for Headnode
     head_info = {
         'IP_ADDRESS':head_ip,
@@ -120,7 +142,7 @@ def mpi_head (head_ip, node_password, cmd_mpi, os_type):
     # Connect to Headnode
     headnode = paramiko.SSHClient()
     headnode.set_missing_host_key_policy(paramiko.WarningPolicy())
-    print("Connecting to headnode ...")
+    print("Head    : Connecting to headnode ...")
     try:
         headnode.connect(
             hostname = head_info['IP_ADDRESS'],
@@ -129,20 +151,20 @@ def mpi_head (head_ip, node_password, cmd_mpi, os_type):
             password = head_info['PASSWORD']
         )
     except Exception as err:
-        print (RED + "Fialed to connect to headnode")
-        print ("Error type: {}" .format(err))
-        print ("Exit programm" + END)
+        printout ("Fialed to connect to headnode", info_list = info_list, fp = fp)
+        printout ("Error type: {}" .format(err), info_list = info_list, fp = fp)
+        printout ("Exit programm", info_list = info_list, fp = fp)
         sys.exit ()
-    print('Connected')
+    print('Head    : Connected to headnode')
 
     cmd_list = cmd_mpi[os_type]['command']['Head']['rep']
     for i, cmd in enumerate(cmd_list):
         try:
             headnode.exec_command (cmd)
         except paramiko.SSHException as err:
-            print (RED + "Failed to excute command on headnode")
-            print ("Error Type: {}" .format (err))
-            print ("Exit Programm" + END)
+            printout ("Failed to excute command on headnode")
+            printout ("Error Type: {}" .format (err))
+            printout ("Exit Programm")
             sys.exit ()
     headnode.close()
     del headnode
@@ -151,7 +173,7 @@ def mpi_head (head_ip, node_password, cmd_mpi, os_type):
 ##############################
 # MPI Setting on computenode #
 ##############################
-def mpi_comp (head_ip, ip_list, node_password, cmd_mpi, os_type):
+def mpi_comp (head_ip, ip_list, node_password, cmd_mpi, os_type, info_list, fp):
      # Configuration Setting for Headnode
     head_info = {
         'IP_ADDRESS':head_ip,
@@ -163,7 +185,7 @@ def mpi_comp (head_ip, ip_list, node_password, cmd_mpi, os_type):
     # Connect to Headnode
     headnode = paramiko.SSHClient()
     headnode.set_missing_host_key_policy(paramiko.WarningPolicy())
-    print("Connecting to headnode ...")
+    print("Head    : Connecting to headnode ...")
     try:
         headnode.connect(
             hostname = head_info['IP_ADDRESS'],
@@ -172,11 +194,11 @@ def mpi_comp (head_ip, ip_list, node_password, cmd_mpi, os_type):
             password = head_info['PASSWORD']
         )
     except Exception as err:
-        print (RED + "Fialed to connect to headnode")
-        print ("Error type: {}" .format(err))
-        print ("Exit programm")
+        printout ("Failed to connect to headnode", info_list = info_list, fp = fp)
+        printout ("Error type: " + err, info_list = info_list, fp = fp)
+        printout ("Exit programm", info_list = info_list, fp = fp)
         sys.exit ()
-    print('Connected')
+    print('Head    : Connected to headnode')
     
     # Configuration Setting for Compute node
     transport1 = headnode.get_transport()
@@ -195,13 +217,13 @@ def mpi_comp (head_ip, ip_list, node_password, cmd_mpi, os_type):
         try:
             channel1 = transport1.open_channel("direct-tcpip", compute, head)
         except Exception as err:
-            print (RED + "Failed to open channel to compute_node " + str(ip_compute))
-            print ("Error type: {}" .format(err))
-            print ("Exit programm" + END)
+            printout ("Failed to open channel to compute_node " + str(ip_compute))
+            printout ("Error type: {}" .format(err))
+            printout ("Exit programm")
             sys.exit ()
         computenode = paramiko.SSHClient()
         computenode.set_missing_host_key_policy(paramiko.WarningPolicy())
-        print("Connecting to compute node...")
+        print("Compute : Connecting to %s...", ip_compute)
         try:
             computenode.connect(
                 hostname = comp_info['IP_ADDRESS'],
@@ -211,11 +233,11 @@ def mpi_comp (head_ip, ip_list, node_password, cmd_mpi, os_type):
                 auth_timeout = 300
                 )
         except Exception as err:
-            print (RED + "Failed to connect to compute_node " + str(ip_compute))
-            print ("Error type {}" .format(err))
-            print ("Exit programm" + END)
+            printout ("Failed to connect to compute_node " + str(ip_compute), info_list = info_list, fp = fp)
+            printout ("Error type {}" .format(err), info_list = info_list ,fp = fp)
+            printout ("Exit programm", info_list =info_list, fp = fp)
             sys.exit ()
-        print('Connected')
+        print('Compute : Connected to %s', ip_compute)
 
         # Execute command
         cmd_list = cmd_mpi[os_type]['command']['Compute']['rep']
@@ -223,9 +245,9 @@ def mpi_comp (head_ip, ip_list, node_password, cmd_mpi, os_type):
             try:
                 computenode.exec_command (cmd)
             except paramiko.SSHException as err:
-                print (RED + "Fialed to excute command '{}'" .format(cmd))
-                print ("Error type: {}" .format(err))
-                print ("Exit programm" + END)
+                printout ("Failed to excute command " + cmd, info_list = info_list, fp = fp)
+                printout ("Error type: " + err, info_list = info_list, fp = fp)
+                printout ("Exit programm", info_list = info_list, fp = fp)
                 sys.exit ()
         # close connection to compute node
         computenode.close()
@@ -238,7 +260,7 @@ def mpi_comp (head_ip, ip_list, node_password, cmd_mpi, os_type):
 ############
 # get info #
 ############
-def get_info (cluster_id, params):
+def get_info (cluster_id, params, info_list, fp):
     # Get headnode IP address & computenodes num
     head_ip  = "255.255.255.255"
     n_computenode = 0
@@ -250,7 +272,7 @@ def get_info (cluster_id, params):
         disk_list = list(disk_dict[zone].keys())
         if(len(node_list) != 0):
             for i in range(len(node_list)):
-                print(cluster_id + ':' + node_list[i]["Tags"][0] + ' | ' + node_list[i]['Name'])
+                # print(cluster_id + ':' + node_list[i]["Tags"][0] + ' | ' + node_list[i]['Name'])
                 if (cluster_id in node_list[i]["Tags"][0] and 'headnode' in node_list[i]['Name']):
                     head_ip = node_list[i]['Interfaces'][0]['IPAddress']
                     os_type = params.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["head"]["disk"][0]["os"]
@@ -263,12 +285,11 @@ def get_info (cluster_id, params):
     
     if head_ip == "255.255.255.255":
         try:
-            raise ValueError (RED + "Failed to get IP address of head node")
+            raise ValueError (RED + "Failed to get IP address of headnode")
         except:
-            print ("Exit programm" + END)
+            printout ("Exit programm", info_list = info_list, fp = fp)
             sys.exit ()
     return head_ip, os_type, n_computenode
-
 
 if __name__ == '__main__':
     params = get_cluster_info()

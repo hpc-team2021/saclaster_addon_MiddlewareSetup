@@ -1,3 +1,4 @@
+from distutils.log import info
 import time
 import os
 import sys
@@ -11,6 +12,9 @@ logger = logging.getLogger("addon").getChild(os.path.basename(__file__))
 
 sys.path.append (common_path + "/lib/addon/mylib")
 from get_cluster_info     import get_cluster_info
+
+sys.path.append (common_path + "/lib/others")
+from info_print import printout
 
 import subprocess
 import paramiko 
@@ -63,7 +67,7 @@ def headConnect(headInfo, HEAD_CMD):
     
     headnode = paramiko.SSHClient()
     headnode.set_missing_host_key_policy(paramiko.WarningPolicy())
-    print("Headnode connecting...")
+    print("Head    : Connecting to headnode ...")
     try:
         headnode.connect(
             hostname = headInfo['IP_ADDRESS'],
@@ -124,7 +128,7 @@ def computeConnect(headInfo, IP_list, COMPUTE_CMD):
         computenode = paramiko.SSHClient()
         computenode.set_missing_host_key_policy(paramiko.WarningPolicy())
 
-        print('IP : %s connecting...' %(IP))
+        print('Compute : %s connecting...' %(IP))
         computenode.connect(hostname=compInfo['IP_ADDRESS'],username=compInfo['USER'],password=compInfo['PASSWORD'],sock=channel1,auth_timeout=100)
 
          #コマンド実行
@@ -183,10 +187,10 @@ def computeConnect_IP(headInfo,IP,COMPUTE_CMD):
     computenode = paramiko.SSHClient()
     computenode.set_missing_host_key_policy(paramiko.WarningPolicy())
 
-    print('Connecting %s ' %(IP))
+    print('Compute : Connecting to %s ...' %(IP))
     computenode.connect(hostname=compInfo['IP_ADDRESS'],username=compInfo['USER'],password=compInfo['PASSWORD'],sock=channel1,auth_timeout=100)
 
-        #コマンド実行
+    #コマンド実行
     for CMD in tqdm(COMPUTE_CMD):
         try:
             headnode.exec_command (CMD)
@@ -212,7 +216,7 @@ def headConnect_command(headInfo, HEAD_CMD):
 
     headnode = paramiko.SSHClient()
     headnode.set_missing_host_key_policy(paramiko.WarningPolicy())
-    print("Headnode connecting...")
+    print ("   Head : Connecting to the Headnode")
     try:
         headnode.connect(
             hostname = headInfo['IP_ADDRESS'],
@@ -266,21 +270,23 @@ def computeConnect_command(headInfo, IP_list, COMPUTE_CMD):
         computenode = paramiko.SSHClient()
         computenode.set_missing_host_key_policy(paramiko.WarningPolicy())
 
-        print('IP : %s connecting...' %(IP))
+        print ('Compute : Connecting to %s ...' %(IP))
         computenode.connect(hostname=compInfo['IP_ADDRESS'],username=compInfo['USER'],password=compInfo['PASSWORD'],sock=channel1,auth_timeout=100)
+        print ('Compute : Connected to %s' %(IP))
 
          #コマンド実行
+        print ('Compute : %s will excute command' %(IP))
         for CMD in tqdm(COMPUTE_CMD):
             stdin, stdout, stderr = computenode.exec_command(CMD)
             # time.sleep(3)
             out_list.append(stdout.read().decode())
+        print ('Compute : %s finished excuting command' %(IP))
 
         computenode.close()
     headnode.close()
 
     del headnode, stdin, stdout, stderr
     return out_list
-
 
 if __name__ == '__main__':
     params              = get_cluster_info ()

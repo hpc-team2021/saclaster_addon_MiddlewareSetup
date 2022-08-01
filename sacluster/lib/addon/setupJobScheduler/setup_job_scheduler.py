@@ -18,6 +18,9 @@ from get_cluster_info import get_cluster_info
 sys.path.append(common_path + "/lib/addon/setupJobScheduler")
 from slurm_main import slurm_main 
 
+sys.path.append (common_path + "/lib/others")
+from info_print import printout
+
 #################
 # Main Programm #
 #################
@@ -33,13 +36,26 @@ def setup_job_scheduler (addon_info, f, info_list, job_scheduler_info):
     
     if (job_scheduler_info["index"] == True):
         if (job_scheduler_info["type"] == "slurm"):
+            printout (
+                comment = "(Start) : Setting Job Schduler",
+                info_list = info_list,
+                fp = f
+            )
+
             slurm_main (
                 head_ip = head_ip,
                 n_computenode = n_computenode,
                 node_password = node_password,
                 os_type = os_type,
                 ip_list = ip_list,
-                cluster_id = cluster_id   
+                cluster_id = cluster_id,
+                info_list = info_list,
+                fp = f  
+            )
+            printout (
+                comment = "(Done)  : Setting Job Schduler",
+                info_list = info_list,
+                fp = f
             )
     
 ############

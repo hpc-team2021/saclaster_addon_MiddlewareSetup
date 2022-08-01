@@ -14,9 +14,18 @@ from sshconnect_main import sshConnect_main, headConnect, computeConnect, comput
 from get_cluster_info     import get_cluster_info
 from load_addon_params    import load_addon_params
 
+sys.path.append (common_path + "/lib/addon/others")
+from info_print import printout
+
 #ローカルのネットワークのFireWallのゾーンを指定したゾーンに変更する
 def switch_fw_zone(addon_info, fp, info_list):
-     # jsonファイる読み込み
+    printout (
+        comment = "(Start) : Setting Firewall",
+        info_list = info_list,
+        fp = fp
+    )
+
+    # jsonファイる読み込み
     json_open = open(fileName, 'r')
     jsonFile = json.load(json_open)
 
@@ -29,7 +38,7 @@ def switch_fw_zone(addon_info, fp, info_list):
     #クラスタ情報読み込み
     headInfo, OSType, nComputenode = sshConnect_main(clusterID, params, nodePassword)
 
- #実行コマンドの読み込み
+    #実行コマンドの読み込み
     HEAD_CMD = jsonFile['Firewall'][OSType]['Head']
     COMPUTE_CMD = jsonFile["Firewall"][OSType]["Compute"] 
 
@@ -37,6 +46,11 @@ def switch_fw_zone(addon_info, fp, info_list):
     headConnect(headInfo, HEAD_CMD)
     computeConnect(headInfo,IP_list,COMPUTE_CMD)
 
+    printout (
+        comment = "(Done)  : Setting Firewall",
+        info_list = info_list,
+        fp = fp
+    )
 if __name__ == '__main__':
     params              = get_cluster_info ()
     json_addon_params   = load_addon_params ()

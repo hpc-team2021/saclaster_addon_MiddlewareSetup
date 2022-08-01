@@ -43,7 +43,7 @@ def monitor_setup(addon_info, f, info_list):
         disk_list = list(disk_dict[zone].keys())
         if(len(node_list) != 0):
             for i in range(len(node_list)):
-                print(cluster_id + ':' + node_list[i]["Tags"][0] + ' | ' + node_list[i]['Name'])
+                # print(cluster_id + ':' + node_list[i]["Tags"][0] + ' | ' + node_list[i]['Name'])
                 if (cluster_id in node_list[i]["Tags"][0] and 'headnode' in node_list[i]['Name']):
                     head_ip = node_list[i]['Interfaces'][0]['IPAddress']
                     os_type = params.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["head"]["disk"][0]["os"]
@@ -62,7 +62,9 @@ def monitor_setup(addon_info, f, info_list):
                 num_compute = num_compute,
                 node_password = node_password,
                 os_type = os_type,
-                ip_list = ip_list["front"]
+                ip_list = ip_list["front"],
+                info_list = info_list,
+                fp = f
             )
     else:
         logger.debug ("Skip the Monitor Setting")

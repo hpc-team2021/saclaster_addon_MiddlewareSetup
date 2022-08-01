@@ -30,8 +30,6 @@ from get_cluster_info import get_cluster_info
 # Main Programm #
 #################
 def munge_setup (head_ip, ip_list, node_password, os_type, cmd_slurm):
-    print ("(Start) Setup for mugnge")
-    
     munge_user (
         head_ip = head_ip,
         ip_list = ip_list,
@@ -64,10 +62,10 @@ def munge_setup (head_ip, ip_list, node_password, os_type, cmd_slurm):
         cmd_compute = cmd_slurm[os_type]["Compute"]["munge"]["daemon"]
     )
 
-    print ("(Done) Setup for mugnge")
+    print ("(Done)  : Setup for munge")
 
 def munge_user (head_ip, ip_list, node_password, cmd_head, cmd_compute):
-    print ("(Start) Create munge user")
+    print ("(Start) :  Create munge user")
     ####################
     #    Head Node     #
     ####################
@@ -169,7 +167,7 @@ def munge_user (head_ip, ip_list, node_password, cmd_head, cmd_compute):
     # close connection to head node
     headnode.close()
     del headnode
-    print ("(Done) Create munge user")
+    print ("(Done)  : Create munge user")
 
 #########################################################################################
 #
@@ -177,7 +175,7 @@ def munge_user (head_ip, ip_list, node_password, cmd_head, cmd_compute):
 #
 ##########################################################################################
 def munge_install (head_ip, ip_list, node_password, cmd_head, cmd_compute):
-    print ("(Start) Install packages for munge")
+    print ("(Start) : Install packages for munge")
     ####################
     #    Head Node     #
     ####################
@@ -278,7 +276,7 @@ def munge_install (head_ip, ip_list, node_password, cmd_head, cmd_compute):
     # close connection to head node
     headnode.close()
     del headnode
-    print ("(Done) Install packages for munge")
+    print ("(Done)  : Install packages for munge")
 
 ############################################################################################
 #
@@ -286,7 +284,7 @@ def munge_install (head_ip, ip_list, node_password, cmd_head, cmd_compute):
 #
 ############################################################################################
 def munge_key (head_ip, ip_list, node_password, cmd_head, cmd_compute):
-    print ("(Start) Setting for munge key")
+    print ("(Start) : Setting for munge key")
     ####################
     #    Head Node     #
     ####################
@@ -334,8 +332,8 @@ def munge_key (head_ip, ip_list, node_password, cmd_head, cmd_compute):
             sys.exit ()
         
         while not stdout.channel.exit_status_ready():
-                if stdout.channel.recv_ready():
-                    stdoutLines = stdout.readlines()
+            if stdout.channel.recv_ready():
+                stdoutLines = stdout.readlines()
     
     ####################################
     #         Compute Node             #
@@ -398,7 +396,7 @@ def munge_key (head_ip, ip_list, node_password, cmd_head, cmd_compute):
     # close connection to head node
     headnode.close()
     del headnode
-    print ("(Done) Setting for munge key")
+    print ("(Done)  : Setting for munge key")
 
 ########################################################################################
 #
@@ -406,7 +404,7 @@ def munge_key (head_ip, ip_list, node_password, cmd_head, cmd_compute):
 #
 #########################################################################################
 def munge_daemon (head_ip, ip_list, node_password, cmd_head, cmd_compute):
-    print ("(Start) Enable munge daemon")
+    print ("(Start) : Enable munge daemon")
     ####################
     #    Head Node     #
     ####################
@@ -508,7 +506,7 @@ def munge_daemon (head_ip, ip_list, node_password, cmd_head, cmd_compute):
     # close connection to head node
     headnode.close()
     del headnode
-    print ("(Done) Enable munge daemon")
+    print ("(Done)  : Enable munge daemon")
 
 ##############################################################################################
 #
@@ -516,7 +514,7 @@ def munge_daemon (head_ip, ip_list, node_password, cmd_head, cmd_compute):
 #
 ##############################################################################################
 def send_munge_key (ssh_client, node_password, ip_list, cmd_base):
-    print ("(Start) Sending munge key to compute node")
+    print ("\n(Start) : Sending munge key to compute node")
     # Interacting to shell
     try:
         shell = ssh_client.invoke_shell ()
@@ -543,7 +541,7 @@ def send_munge_key (ssh_client, node_password, ip_list, cmd_base):
         output = ''
         while True:
             output = shell.recv(1000).decode('utf-8')
-            print (output)
+            # print (output)
             if 'Are you sure' in output:
                 try:
                     shell.send ("yes\n")
@@ -567,7 +565,7 @@ def send_munge_key (ssh_client, node_password, ip_list, cmd_base):
 
     # Close channel to shell
     shell.close ()
-    print ("(Done) Sending munge key to compute node")
+    print ("(Done)  : Sending munge key to compute node")
 
 if __name__ == '__main__':
     params = get_cluster_info()

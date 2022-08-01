@@ -30,8 +30,6 @@ END = '\033[0m'
 # Main Programm #
 #################
 def slurm_setup (node_password,os_type,cmd_slurm,ip_list,cluster_id):
-    print ("(Start) Setup for slurm")
-    
     params = get_cluster_info ()
     head_list, os_type, nComputenode = sshConnect_main(cluster_id,params,node_password)
     
@@ -70,34 +68,32 @@ def slurm_setup (node_password,os_type,cmd_slurm,ip_list,cluster_id):
         cmd_compute = cmd_slurm[os_type]["Compute"]["slurm"]["daemon"]
     )
 
-    print ("(Done) Setup for slurm")
-
 def slurm_user (head_list, ip_list, cmd_head, cmd_compute):
-    print ("(Start) Create slurmuser")
+    print ("(Start) : Create slurmuser")
     
     headConnect(head_list, cmd_head)
     computeConnect(head_list, ip_list, cmd_compute)
 
-    print ("(Done) Create slurm user")
+    print ("(Done)  : Create slurm user")
 
 def slurm_install (head_list, ip_list, cmd_head, cmd_compute):
-    print ("(Start) Install packages for slurm")
+    print ("(Start) : Install packages for slurm")
 
     headConnect(head_list, cmd_head)
     computeConnect(head_list, ip_list, cmd_compute)
 
-    print ("(Done) Install packages for slurm")
+    print ("(Done)  : Install packages for slurm")
 
 def slurm_conf (head_list, ip_list, cmd_head, cmd_compute):
-    print ("(Start) Setting for slurm conf")
+    print ("(Start) : Setting for slurm conf")
 
     headConnect(head_list, cmd_head)
     computeConnect(head_list, ip_list, cmd_compute)
 
-    print ("(Done) Setting for slurm conf")
+    print ("(Done)  : Setting for slurm conf")
 
 def send_slurm_conf (head_list, ip_list, clusterID, compnum):
-    print ("(Start) Sending slurm config to compute node")
+    print ("(Start) : Sending slurm config to compute node")
 
     out_comp = []
     COMPUTE_CMD = ["slurmd -C"]
@@ -156,7 +152,7 @@ def send_slurm_conf (head_list, ip_list, clusterID, compnum):
         output = ''
         while True:
             output = shell.recv(1000).decode('utf-8')
-            print (output)
+            # print (output)
             if 'Are you sure' in output:
                 try:
                     shell.send ("yes\n")
@@ -180,15 +176,15 @@ def send_slurm_conf (head_list, ip_list, clusterID, compnum):
 
     # Close channel to shell
     shell.close ()
-    print ("(Done) Sending  slurm config to compute node")
+    print ("(Done)  : Sending  slurm config to compute node")
 
 def slurm_deamon (head_list, ip_list, cmd_head, cmd_compute):
-    print ("(Start) Enable slurm daemon")
+    print ("(Start) : Enable slurm daemon")
 
     headConnect(head_list, cmd_head)
     computeConnect  (head_list, ip_list, cmd_compute)
 
-    print ("(Done) Enable slurm daemon")
+    print ("(Done)  : Enable slurm daemon")
 
 
 if __name__ == '__main__':

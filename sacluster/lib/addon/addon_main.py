@@ -69,7 +69,7 @@ def addon_main(cls_bil, ext_info, addon_info, f, info_list):
     switch_fw_zone(addon_info, f, info_list)
 
     logger.debug("Start setting up the Proxy server.")
-    proxy_setup(addon_info, service_name="squid")
+    proxy_setup(addon_info, f, info_list, service_name="squid")
 
     logger.debug("Start setting up job scheduler.")
     setup_job_scheduler (addon_info, f, info_list, job_scheduler_info = addon_info["Job_scheduler"])

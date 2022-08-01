@@ -12,22 +12,26 @@ fileName = common_path + '/lib/addon/setupJobScheduler/slurm.json'
 RED = '\033[31m'
 END = '\033[0m'
 
-sys.path.append(common_path + "/lib/addon/mylib")
+sys.path.append (common_path + "/lib/addon/mylib")
 from load_addon_params import load_addon_params
 from get_cluster_info import get_cluster_info
 from sshconnect_main import sshConnect_main, headConnect, computeConnect, computeConnect_IP
 from get_cluster_info     import get_cluster_info
 from load_addon_params    import load_addon_params
 
-sys.path.append(common_path + "/lib/addon/setupJobScheduler")
+sys.path.append (common_path + "/lib/addon/setupJobScheduler")
 from munge_setup import munge_setup 
-from slurm_setup import slurm_setup 
+from slurm_setup import slurm_setup
+
+sys.path.append (common_path + "/lib/others")
+from info_print import printout
+
 # from slurm_setup import slurm_setup
 
 #################
 # Main Programm #
 #################
-def slurm_main (head_ip, n_computenode, node_password, os_type, ip_list, cluster_id):
+def slurm_main (head_ip, n_computenode, node_password, os_type, ip_list, cluster_id, info_list, fp):
    # Read json file for gaglia configuration 
     try:
         json_open = open(fileName, 'r')
@@ -43,7 +47,12 @@ def slurm_main (head_ip, n_computenode, node_password, os_type, ip_list, cluster
         print ("Error type: {}" .format(err))
         print ("Exit programm" + END)
         sys.exit ()
-   
+    
+    printout (
+        comment ="(Start) : Setting munge",
+        info_list = info_list,
+        fp = fp 
+    )
     munge_setup (
         head_ip = head_ip,
         ip_list = ip_list["front"],
@@ -51,12 +60,28 @@ def slurm_main (head_ip, n_computenode, node_password, os_type, ip_list, cluster
         os_type = os_type,
         cmd_slurm = cmd_slurm
     )
+    printout (
+        comment ="(Done)  : Setting munge",
+        info_list = info_list,
+        fp = fp 
+    )
+
+    printout (
+        comment ="(Start) : Setting Slurm",
+        info_list = info_list,
+        fp = fp 
+    )
     slurm_setup (
         node_password = node_password,
         os_type = os_type,
         cmd_slurm = cmd_slurm,
         ip_list = ip_list,
         cluster_id = cluster_id
+    )
+    printout (
+        comment = "(Done)  : Setting Slurm",
+        info_list = info_list,
+        fp = fp
     )
 
 if __name__ == '__main__':

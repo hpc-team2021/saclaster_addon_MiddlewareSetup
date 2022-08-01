@@ -17,14 +17,17 @@ fileName = common_path + '\\lib\\addon\\setupMoniter\\gangliaConf.json'
 sys.path.append(common_path + "/lib/addon/mylib")
 from load_addon_params import load_addon_params
 
-logger = logging.getLogger("addon").getChild(os.path.basename(__file__))
+sys.path.append (common_path + "/lib/others")
+from info_print import printout
 
+logger = logging.getLogger("addon").getChild(os.path.basename(__file__))
+LOG_LEVEL = logging.INFO
 
 #################
 # Main Programm #
 #################
-def gangliaSetup (head_ip, num_compute, node_password, os_type, ip_list):
-    logger.debug ('Working on Ganglia Setting ...')
+def gangliaSetup (head_ip, num_compute, node_password, os_type, ip_list, info_list, fp):
+    printout (comment = "(Start) : Setting Ganglia", info_list = info_list, fp = fp )
 
     # Read json file for gaglia configuration 
     json_open = open (fileName, 'r')
@@ -36,7 +39,7 @@ def gangliaSetup (head_ip, num_compute, node_password, os_type, ip_list):
         num_compute = num_compute,
         node_password = node_password,
         cmd_list = json_ganglia[os_type]["install"],
-        ip_list = ip_list
+        ip_list = ip_list,
     )
 
     # Port Open
@@ -73,13 +76,14 @@ def gangliaSetup (head_ip, num_compute, node_password, os_type, ip_list):
         ip_list = ip_list
     )
 
-    logger.debug ("Ganglia Setting is done")
+    printout (comment = "(Done)  : Setting Gnalig", info_list = info_list, fp = fp)
 # % End of gangliaSetup ()
 
 ##############################
 # Ganglia Install
 #############################
 def gangliaInstall (head_ip, num_compute, node_password, cmd_list, ip_list):
+    print ("(Start) : Install Ganglia")
     head_info = {
         'IP_ADDRESS':head_ip,
         'PORT'      :22,
@@ -126,7 +130,7 @@ def gangliaInstall (head_ip, num_compute, node_password, cmd_list, ip_list):
         logger.debug ('computenode connected')
 
         # Exec Command
-        for cmd in cmd_list["compute"]:
+        for cmd in tqdm (cmd_list["compute"]):
             stdin, stdout, stderr = computenode.exec_command (cmd)
 
         computenode.close()
@@ -134,11 +138,13 @@ def gangliaInstall (head_ip, num_compute, node_password, cmd_list, ip_list):
     headnode.close()
     computenode.close()
     del headnode, computenode
+    print ("(Done)  : Install Ganglia")
 
 ##############################
 #        Ganglia Port 
 ############################# 
 def gangliaPort (head_ip, num_compute, node_password, cmd_list, ip_list):
+    print ("(Start) : Open Ganglia Port")
     head_info = {
         'IP_ADDRESS':head_ip,
         'PORT'      :22,
@@ -175,7 +181,7 @@ def gangliaPort (head_ip, num_compute, node_password, cmd_list, ip_list):
         channel1 = transport1.open_channel("direct-tcpip", compute, head)
         computenode = paramiko.SSHClient()
         computenode.set_missing_host_key_policy(paramiko.WarningPolicy())
-        logger.debug ("compurenode connecting...")
+        logger.debug ("computenode connecting...")
         computenode.connect(
             hostname = comp_info['IP_ADDRESS'],
             username = comp_info['USER'],
@@ -195,6 +201,7 @@ def gangliaPort (head_ip, num_compute, node_password, cmd_list, ip_list):
     headnode.close()
     computenode.close()
     del headnode, computenode
+    print ("(Done)  : Open Ganglia Port")
 # % End of gangliaPort ()
 
 ###############################
@@ -222,29 +229,29 @@ def gangliaHead (head_ip, num_compute, node_password, json_ganglia, ip_list):
     logger.debug ('headnode connected')
 
     # gmond.conf setting
-    logger.debug ('(Start) Setting for gmond.conf')
+    logger.debug ('(Start) : Setting for gmond.conf')
     gmondConfSetup (
         json_ganglia = json_ganglia, 
         num_compute = num_compute,
         node_client = headnode,
     )
-    logger.debug (' (Done) Setting for gmond.conf')
+    logger.debug ('(Done)  : Setting for gmond.conf')
 
     # gmetad.conf setting
-    logger.debug ('(Start) Setting for gmetad.conf')
+    logger.debug ('(Start) : Setting for gmetad.conf')
     gmetadConfSetup (
         json_ganglia = json_ganglia,
         node_client = headnode
     )
-    logger.debug (' (Done) Setting for gmetad.conf')
+    logger.debug ('(Done)  : Setting for gmetad.conf')
 
     # ganglia.conf setting
-    logger.debug ('(Start) Setting for ganglia.conf')
+    logger.debug ('(Start) : Setting for ganglia.conf')
     gangliaConfSetup (
         json_ganglia = json_ganglia,
         node_client = headnode
     )
-    logger.debug (' (Done) Setting for ganglia.conf')
+    logger.debug ('(Done)  : Setting for ganglia.conf')
     
     # web monitor password setting 
     # webPasswdSetting (jsonGanglia[OSType], nodeClient = headnode)
@@ -305,6 +312,7 @@ def gangliaComp (head_ip, num_compute, node_password, json_ganglia, ip_list):
 # gmond.conf setting   #
 ########################
 def gmondConfSetup (json_ganglia, num_compute, node_client):
+    print ("(Start) : Setting gmond.conf")
     cmdMain = json_ganglia['command'][0]
     targetFile = json_ganglia['targetFile']['gmond']
 
@@ -392,6 +400,8 @@ def gmondConfSetup (json_ganglia, num_compute, node_client):
         cmd = cmdMain + str (" '") + setting \
             + str ("' >> ") + targetFile
         stdin, stdout, stderr = node_client.exec_command (cmd)
+    
+    print ("(Done) : Setting gmond.conf")
 # End of gmondConfSetup ()
 
 #######################
@@ -459,6 +469,7 @@ def webPasswdSetting (jsonGanglia, nodeClient):
 # gmetad.conf setting
 ########################
 def gmetadConfSetup (json_ganglia, node_client):
+    print ("(Start) : Setting gmetad.conf")
     cmdMain = json_ganglia["command"][0]
     targetFile = json_ganglia["targetFile"]["gmetad"]
     confSetting = json_ganglia["gmetad"]
@@ -470,11 +481,13 @@ def gmetadConfSetup (json_ganglia, node_client):
         stdin, stdout, stderr = node_client.exec_command (cmd)
         out = stdout.read().decode()
         logger.debug (out)
+    print ("(Done)  : Setting gmetad.conf")
 
 #######################
 # ganglia.conf setting
 #######################
 def gangliaConfSetup (json_ganglia, node_client):
+    print ("(Start) : ganglia.conf")
     cmdMain = json_ganglia["command"][0]
     targetFile = json_ganglia["targetFile"]["gangliaConf"]
     confSetting = json_ganglia["gangliaConf"]
@@ -491,8 +504,10 @@ def gangliaConfSetup (json_ganglia, node_client):
         stdin, stdout, stderr = node_client.exec_command (cmd)
         out = stdout.read().decode()
         logger.debug (out)
+    print ("(Done)  : ganglia.conf")
 
 def gangliaDaemon (head_ip, num_compute, node_password, cmd_list, ip_list):
+    print ("(Start) : Setting Ganglia Daemon")
     head_info = {
         'IP_ADDRESS':head_ip,
         'PORT'      :22,
@@ -547,3 +562,4 @@ def gangliaDaemon (head_ip, num_compute, node_password, cmd_list, ip_list):
     headnode.close()
     computenode.close()
     del headnode, computenode
+    print ("(Done)  : Setting Ganglia Daemon")

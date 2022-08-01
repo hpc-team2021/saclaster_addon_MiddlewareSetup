@@ -1,3 +1,4 @@
+from distutils.log import info
 from socket import IP_MULTICAST_LOOP
 import sys
 import os
@@ -14,8 +15,14 @@ from sshconnect_main import sshConnect_main, headConnect, computeConnect, comput
 from get_cluster_info     import get_cluster_info
 from load_addon_params    import load_addon_params
 
+sys.path.append (common_path + "/lib/others")
+from info_print import printout
+
 def edit_host(addon_info, fp, info_list):
-    # jsonファイる読み込み
+    print ("\n")
+    printout (comment = "(Start) : Setting hosts file", info_list = info_list, fp = fp)
+
+    # jsonファイル読み込み
     json_open = open(fileName, 'r')
     jsonFile = json.load(json_open)
 
@@ -58,10 +65,19 @@ def edit_host(addon_info, fp, info_list):
     Head_CMD.append('systemctl restart systemd-hostnamed')
 
     # 各ノードにコマンドを送る
-    print("Change Hostname")
+    print ("Change Hostname")
+    printout (
+        comment = "Change Hostname", 
+        info_list = info_list, 
+        fp = fp
+    )
     headConnect (headInfo, Head_CMD)
-
-
+    printout (
+        comment = "(Done)  : Setting hosts file",
+        info_list = info_list,
+        fp = fp
+    )
+    print ("\n")
 
 
 # 単体テストのコード
