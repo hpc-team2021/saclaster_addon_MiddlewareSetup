@@ -22,7 +22,7 @@ from get_cluster_info import get_cluster_info
 # Main Programm #
 #################
 def ssh_setup (head_ip, ip_list, node_password, os_type):
-    print ('Start: (SSH setting)')
+    print ('(Start): SSH setting')
 
     # Read json file for gaglia configuration 
     json_open = open(fileName, 'r')
@@ -44,14 +44,14 @@ def ssh_setup (head_ip, ip_list, node_password, os_type):
     )
 
     # ssh Setting
-    print (" Done: (SSH setting)")
+    print ("(Done)  : SSH setting")
 # End of ssh_setup ()
 
 ####################################
 # Creating SSH key on the headnode #
 ####################################
 def sshkey_create (head_ip, node_password, cmd_json): 
-    print ('Creating SSH key on the head node')
+    print ('(Start) : Creating SSH key on the head node')
     # Configuration Setting for Headnode
     head_info = {
         'IP_ADDRESS':head_ip,
@@ -84,7 +84,7 @@ def sshkey_create (head_ip, node_password, cmd_json):
         output = output + shell.recv(1000).decode('utf-8')
         if '#' in output:
             break
-        print (output)
+        # print (output)
         if '#' not in output:
            shell.send("\n")
            time.sleep (2)
@@ -92,13 +92,13 @@ def sshkey_create (head_ip, node_password, cmd_json):
     headnode.close()
     del headnode
     print ('Disconnect from headnode')
-    print ('Creating SSH key is done')
+    print ('(Done)  : Creating SSH key is done')
 
 #################
 # Share SSH key #
 #################
 def send_sshkey (head_ip, node_password, cmd_json, ip_list):
-    print ('Creating SSH key on the head node')
+    print ('(Start) : Send SSH key to computenodes')
     # Configuration Setting for Headnode
     head_info = {
         'IP_ADDRESS':head_ip,
@@ -134,12 +134,12 @@ def send_sshkey (head_ip, node_password, cmd_json, ip_list):
                 shell.send(cmd + '\n')
             time.sleep (2)
             output = output + shell.recv(1000).decode('utf-8')
-            print (output)
+            # print (output)
     
     headnode.close()
     del headnode
     print ('Disconnect from headnode')
-    print ('Copying SSH key is done')
+    print ('(Done)  : Send SSH key to computenodes')
 
 
 if __name__ == '__main__':

@@ -13,14 +13,23 @@ fileName = common_path + "/lib/addon/setupProxy/proxy.json"
 
 sys.path.append (common_path + "/lib/addon/mylib")
 from sshconnect_main import sshConnect_main, headConnect, computeConnect, computeConnect_IP
-from get_cluster_info     import get_cluster_info
-from load_addon_params    import load_addon_params
-from pack_install    import pack_install
-from daemon_start    import daemon_start
+from get_cluster_info import get_cluster_info
+from load_addon_params import load_addon_params
+from pack_install import pack_install
+from daemon_start import daemon_start
 
+sys.path.append (common_path + "/lib/others")
+from info_print import printout
 
 
 def proxy_setup(addon_info, f, info_list, service_name):
+    print ("\n")
+    printout (
+        comment = "(Start) : Setting Proxy",
+        info_list = info_list,
+        fp = f
+    )
+
     # jsonファイる読み込み
     json_open = open(fileName, 'r')
     jsonFile = json.load(json_open)
@@ -52,8 +61,6 @@ def proxy_setup(addon_info, f, info_list, service_name):
     HEAD_CMD    = jsonFile [OSType]["command"]["Head"]["setup"]
     headConnect(headInfo, HEAD_CMD)
 
-    
-
     # head 実行コマンドの読み込み,実行
     logger.debug("Run proxy install CMD in compute.")
     HEAD_CMD    = jsonFile [OSType]["command"]["Compute"]["install"]
@@ -66,6 +73,12 @@ def proxy_setup(addon_info, f, info_list, service_name):
     logger.debug("Run proxy setup CMD in compute.")
     HEAD_CMD    = jsonFile [OSType]["command"]["Compute"]["setup"]
     computeConnect(headInfo, IP_list, HEAD_CMD)
+
+    printout (
+        comment = "(Done)  : Setting Proxy\n",
+        info_list = info_list,
+        fp = f
+    )
 
 
 # 単体テスト

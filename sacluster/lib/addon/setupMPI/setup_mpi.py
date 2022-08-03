@@ -94,7 +94,7 @@ def setup_mpich (addon_info, f, info_list, service_name):
         head_ip = head_ip,
         ip_list = ip_list, 
         node_password = node_password,
-        os_type = os_type,
+        os_type = os_type
     )
     
     # Ganglia Setting for the head node
@@ -221,7 +221,7 @@ def mpi_comp (head_ip, ip_list, node_password, cmd_mpi, os_type, info_list, fp):
             sys.exit ()
         computenode = paramiko.SSHClient()
         computenode.set_missing_host_key_policy(paramiko.WarningPolicy())
-        print("Compute : Connecting to %s...", ip_compute)
+        print("Compute : Connecting to " + str(ip_compute))
         try:
             computenode.connect(
                 hostname = comp_info['IP_ADDRESS'],
@@ -235,7 +235,7 @@ def mpi_comp (head_ip, ip_list, node_password, cmd_mpi, os_type, info_list, fp):
             printout ("Error type {}" .format(err), info_list = info_list ,fp = fp)
             printout ("Exit programm", info_list =info_list, fp = fp)
             sys.exit ()
-        print('Compute : Connected to %s', ip_compute)
+        print('Compute : Connected to ' + str(ip_compute))
 
         # Execute command
         cmd_list = cmd_mpi[os_type]['command']['Compute']['rep']
@@ -290,39 +290,31 @@ def get_info (cluster_id, params, info_list, fp):
     return head_ip, os_type, n_computenode
 
 if __name__ == '__main__':
-    params = get_cluster_info()
-    cluster_id = '290516'
-    node_password = 'test'
+    params              = get_cluster_info ()
+    json_addon_params   = load_addon_params ()
 
-    # Get headnode IP address & computenodes num
-    head_ip  = "255.255.255.255"
-    n_computenode = 0
-    node_dict = params.get_node_info()
-    disk_dict = params.get_disk_info()
+    cls_bil  = []
+    ext_info = []
+    info_list = [1,0,0,1]
+    f = None
 
-    for zone, url in params.url_list.items():
-        node_list = node_dict[zone]
-        disk_list = list(disk_dict[zone].keys())
-        if(len(node_list) != 0):
-            for i in range(len(node_list)):
-                print(cluster_id + ':' + node_list[i]["Tags"][0] + ' | ' + node_list[i]['Name'])
-                if (cluster_id in node_list[i]["Tags"][0] and 'headnode' in node_list[i]['Name']):
-                    headIp = node_list[i]['Interfaces'][0]['IPAddress']
-                    os_type = params.cluster_info_all[cluster_id]["clusterparams"]["server"][zone]["head"]["disk"][0]["os"]
-                elif (cluster_id in node_list[i]["Tags"][0]):
-                    n_computenode += 1
-                else:
-                    pass
-        else:
-            pass
-
-    # Read json file for gaglia configuration 
-    json_addon_params = load_addon_params ()
-    setup_mpi (
-        cluster_id = cluster_id,
-        params = params,
-        node_password = node_password,
-        json_addon_params = json_addon_params,
-        service_type="MPI",
-        service_name="mpich"
-    )
+    addon_info = {
+        "mpi":{
+            "index": True,
+            "type": "mpich"
+        },
+        "clusterID"         : "833101",                 # !!! 任意のクラスターIDに変更 !!!
+        "IP_list"           :{                          # コンピュートノードの数に合わせて変更
+            "front" : ['192.168.2.1', '192.168.2.2'],
+            "back"  : ['192.169.2.1', '192.169.2.2']
+        },
+        "params"            : params,
+        "json_addon_params" : json_addon_params,
+        "node_password"     : "test"                    # 設定したパスワードを入力
+    }
+    cluster_id       = addon_info["clusterID"]
+    ip_list         = addon_info["IP_list"]
+    params          = addon_info["params"]
+    node_password    = addon_info["node_password"]
+   
+    setup_mpi (addon_info, f, info_list, mpi_info = addon_info["mpi"])
