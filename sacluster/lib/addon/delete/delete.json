@@ -1,7 +1,5 @@
 {
     "MPI":[
-        "hostname",
-        "ls -la /",
-        "hostname"
+        "squeue"
     ]
 }

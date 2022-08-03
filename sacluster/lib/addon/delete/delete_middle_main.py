@@ -37,10 +37,10 @@ def delete_middle_main(cluster_id, info_list, f):
     if middle_state == True:
         ans = conf_pattern_2("Force HPC calculation to abort?", ["yes", "no"], "no", info_list = info_list, fp = f)
         if ans == "yes":
-            print("計算を中断させるコマンドがあればそれを送る")
+            # print("計算を中断させるコマンドがあればそれを送る")
             pass
         else:
-            printout("Stop processing.", info_type = 0, info_list = info_list, fp = f)
+            # printout("Stop processing.", info_type = 0, info_list = info_list, fp = f)
             sys.exit()
 
 #############################################################
@@ -58,18 +58,15 @@ def get_middle_state(cluster_id):
     nodePassword = get_user_pass()
     headInfo, OSType, nComputenode = sshConnect_main(cluster_id, params, nodePassword)
     
-    print("MPIのコマンドで計算途中かどうか確認する")
     logger.debug("MPI command to check if the calculation is in progress.")
     HEAD_CMD    = jsonFile ["MPI"]
-    stdout = headConnect_command(headInfo, HEAD_CMD)
+    stdout      = headConnect_command(headInfo, HEAD_CMD)
 
-    matchSTR = "\n"
-    hpcRunning = check_stdout_match(stdout, matchSTR)
-    
+    matchSTR    = [" R ", " PD ", " CF ", " CG "]
+    hpcRunning  = check_stdout_match(stdout, matchSTR)
     if hpcRunning:
         for out in stdout:
             print(out)
-        print("計算途中の場合、経過時間と推定必要時間の提示")
         middle_state = True
     else:
         middle_state = False
@@ -88,9 +85,10 @@ def get_user_pass():
 def check_stdout_match(stdout, matchSTR):
     flag = False
 
-    for out in stdout:
-        if matchSTR in out:
-            flag = True
+    for tempSTR in matchSTR:
+        for out in stdout:
+            if tempSTR in out:
+                flag = True
 
     return flag
 
