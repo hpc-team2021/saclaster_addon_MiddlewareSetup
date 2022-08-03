@@ -95,8 +95,6 @@ def setup_mpich (addon_info, f, info_list, service_name):
         ip_list = ip_list, 
         node_password = node_password,
         os_type = os_type,
-        info_list = info_list,
-        fp = f
     )
     
     # Ganglia Setting for the head node

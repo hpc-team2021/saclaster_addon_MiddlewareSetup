@@ -1,1 +1,7 @@
 build/
+.vscode/
+*-38.pyc
+*-39.pyc
+*-py3.8.egg
+*-py3.9.egg
+*.DS_Store

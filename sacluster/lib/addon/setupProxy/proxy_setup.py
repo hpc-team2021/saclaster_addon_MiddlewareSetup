@@ -20,7 +20,7 @@ from daemon_start    import daemon_start
 
 
 
-def proxy_setup(addon_info, service_name):
+def proxy_setup(addon_info, f, info_list, service_name):
     # jsonファイる読み込み
     json_open = open(fileName, 'r')
     jsonFile = json.load(json_open)
