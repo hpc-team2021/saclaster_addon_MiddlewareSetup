@@ -36,13 +36,11 @@ sys.path.append(common_path + "/lib/auth")
 from auth_func_pro import authentication_cli
 
 sys.path.append(common_path + "/lib/addon/mylib")
-from edit_host          import edit_host
 from get_cluster_info   import get_cluster_info
 from load_addon_params  import load_addon_params
-from port_open          import port_open
 from get_IP_list        import get_IP_list
 sys.path.append(common_path + "/lib/addon/setupIP")
-from setup_ip_eth1      import setup_ip_eth1
+from edit_host          import edit_host
 from switch_fw_zone     import switch_fw_zone
 sys.path.append(common_path + "/lib/addon/setupProxy")
 from proxy_setup        import proxy_setup
