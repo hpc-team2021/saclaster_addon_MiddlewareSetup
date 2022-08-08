@@ -374,4 +374,4 @@ def command_main():
         args.handler(args)
 
 if __name__ == "__main__":
-   
+    command_main()
