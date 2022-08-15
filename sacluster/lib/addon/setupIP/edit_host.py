@@ -8,7 +8,7 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 common_path = os.path.abspath("../../..")
 
 # #読みたいjsonファイルのパス
-fileName = common_path + "/lib/addon/satupIP/edit_host.json"
+fileName = common_path + '/lib/addon/setupIP/edit_host.json'
 
 sys.path.append (common_path + "/lib/addon/satupIP")
 from sshconnect_main import sshConnect_main, headConnect, computeConnect, computeConnect_IP

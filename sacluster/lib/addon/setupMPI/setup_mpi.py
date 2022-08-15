@@ -5,7 +5,6 @@ import re
 import string
 import sys
 import time
-import logging
 import os
 from xml.etree.ElementTree import Comment
 import paramiko
@@ -13,15 +12,19 @@ import paramiko
 # User defined Library
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 common_path = os.path.abspath("../../..")
-fileName = common_path + '\\lib\\addon\\setupMpi\\mpich.json'
+fileName = common_path + '/lib/addon/setupMpi/mpich.json'
 
 # Changing standard output color for exception error
 RED = '\033[31m'
 END = '\033[0m'
 
+import logging
+logger = logging.getLogger("addon").getChild(os.path.basename(__file__))
+
 sys.path.append(common_path + "/lib/addon/mylib")
 from load_addon_params import load_addon_params
 from get_cluster_info import get_cluster_info
+from sshconnect_main import sshConnect_main, headConnect, computeConnect
 
 sys.path.append(common_path + "/lib/addon/setypMpi")
 from add_user import add_user_main
@@ -118,6 +121,15 @@ def setup_mpich (addon_info, f, info_list, service_name):
         fp = f
     )
 
+    #mpich PATH
+    mpi_path(
+        head_ip = head_ip,
+        ip_list = ip_list,
+        node_password = node_password,
+        cmd_mpi_head = cmd_mpi[os_type]["command"]["Head"]["path"],
+        cmd_mpi_comp = cmd_mpi[os_type]["command"]["Compute"]["path"]
+    )
+
     printout (
         comment = "(Done)  : Setting MPI\n",
         info_list = info_list,
@@ -158,14 +170,16 @@ def mpi_head (head_ip, node_password, cmd_mpi, os_type, info_list, fp):
     cmd_list = cmd_mpi[os_type]['command']['Head']['rep']
     for i, cmd in enumerate(cmd_list):
         try:
-            headnode.exec_command (cmd)
+            stdin, stdout, stderr = headnode.exec_command (cmd)
+            out = stdout.read().decode()
+            logger.debug('comp_stdout = %s' % out)
         except paramiko.SSHException as err:
             printout ("Failed to excute command on headnode")
             printout ("Error Type: {}" .format (err))
             printout ("Exit Programm")
             sys.exit ()
     headnode.close()
-    del headnode
+    del headnode,stdin, stdout, stderr
 # % End of gangliaHead ()
 
 ##############################
@@ -241,7 +255,9 @@ def mpi_comp (head_ip, ip_list, node_password, cmd_mpi, os_type, info_list, fp):
         cmd_list = cmd_mpi[os_type]['command']['Compute']['rep']
         for i, cmd in enumerate(cmd_list):
             try:
-                computenode.exec_command (cmd)
+                stdin, stdout, stderr = computenode.exec_command (cmd)
+                out = stdout.read().decode()
+                logger.debug('comp_stdout = %s' % out)
             except paramiko.SSHException as err:
                 printout ("Failed to excute command " + cmd, info_list = info_list, fp = fp)
                 printout ("Error type: " + err, info_list = info_list, fp = fp)
@@ -254,6 +270,19 @@ def mpi_comp (head_ip, ip_list, node_password, cmd_mpi, os_type, info_list, fp):
     # close connection to head node
     headnode.close()
     del headnode
+
+def mpi_path(head_ip, ip_list, node_password, cmd_mpi_head, cmd_mpi_comp):
+    print ("Start setting mpi path")
+    head_list = {
+        'IP_ADDRESS':head_ip,
+        'PORT'      :22,
+        'USER'      :'root',
+        'PASSWORD'  :node_password
+    }
+    headConnect(head_list, cmd_mpi_head)
+    computeConnect(head_list, ip_list, cmd_mpi_comp)
+    print ("Done setting mpi path")
+
 
 ############
 # get info #
