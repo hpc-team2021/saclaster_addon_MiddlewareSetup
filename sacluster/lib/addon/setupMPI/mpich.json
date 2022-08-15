@@ -95,8 +95,7 @@
                 ],
                 "rep":
                 [
-                    "yum -y install mpich",
-                    "yum -y install mpich-devel"
+                    "yum -y install mpich"
                 ],
                 "nfs":
                 [
@@ -121,11 +120,6 @@
                     "ssh-copy-id -f",
                     "eval `ssh-agent`",
                     "ssh-add ~/.ssh/id_dsa"
-                ],
-                "path":
-                [
-                    "echo \"PATH=/usr/lib64/mpich/bin:$PATH\"  >> ~/.bash_profile",
-                    "echo \"export PATH\"  >> ~/.bash_profile"
                 ]
             },
             "Compute":
@@ -135,7 +129,7 @@
                     "sudo yum -y install nfs-utils",
                     "sudo systemctl enable nfs-utils",
                     "sudo systemctl start nfs-utils",
-                    "sy - mpiuser",
+                    "su - mpiuser",
                     "mkdir share",
                     "sudo mount -t nfs manager:/home/mpiuser/share ~/share",
                     "echo \"manager:/home/mpiuser/share /home/mpiuser/share nfs\" >> /etc/fstab",
@@ -146,18 +140,12 @@
                 ],
                 "rep":
                 [
-                    "yum -y install mpich",
-                    "yum -y install mpich-devel"
+                    "yum -y install mpich"
                 ],
                 "mpiuser":
                 [
                     "adduser mpiuser",
                     "passwd mpiuser"
-                ],
-                "path":
-                [
-                    "echo \"PATH=/usr/lib64/mpich/bin:$PATH\"  >> ~/.bash_profile",
-                    "echo \"export PATH\"  >> ~/.bash_profile"
                 ]
             }
         }

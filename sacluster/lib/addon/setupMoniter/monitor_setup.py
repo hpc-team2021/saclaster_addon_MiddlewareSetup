@@ -17,7 +17,10 @@ sys.path.append(common_path + "/lib/auth")
 from auth_func_pro import authentication_cli
 sys.path.append(common_path + "/lib/addon/mylib")
 from get_cluster_info import get_cluster_info
+from pack_install import pack_install
 from load_addon_params import load_addon_params
+from port_open import port_open
+from daemon_start import daemon_start
 
 logger = logging.getLogger("addon").getChild(os.path.basename(__file__))
 

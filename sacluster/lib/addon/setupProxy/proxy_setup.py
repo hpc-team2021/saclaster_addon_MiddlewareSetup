@@ -15,6 +15,8 @@ sys.path.append (common_path + "/lib/addon/mylib")
 from sshconnect_main import sshConnect_main, headConnect, computeConnect, computeConnect_IP
 from get_cluster_info import get_cluster_info
 from load_addon_params import load_addon_params
+from pack_install import pack_install
+from daemon_start import daemon_start
 
 sys.path.append (common_path + "/lib/others")
 from info_print import printout

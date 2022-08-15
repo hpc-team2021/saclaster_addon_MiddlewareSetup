@@ -35,6 +35,10 @@ from ps_main import ps_main
 sys.path.append(common_path + "/lib/addon")
 from addon_main import addon_main
 
+sys.path.append(common_path + "/lib/addon/setupIP")
+from setup_ip_eth0 import setup_ip_eth0
+
+
 
 import logging
 

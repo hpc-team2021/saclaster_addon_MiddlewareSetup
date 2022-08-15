@@ -16,8 +16,7 @@ logger = logging.getLogger("addon").getChild(os.path.basename(__file__))
 # User defined Library
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 common_path = os.path.abspath("../../..")
-#fileName = common_path + '/lib/addon/setupMpi/mpich.json'
-fileName = common_path + '/lib/addon/setupJobScheduler/slurm.json'
+fileName = common_path + '\\lib\\addon\\setupMpi\\mpich.json'
 
 # Changing standard output color for exception error
 RED = '\033[31m'
@@ -208,9 +207,7 @@ def munge_install (head_ip, ip_list, node_password, cmd_head, cmd_compute):
 
     for cmd in tqdm(cmd_head):
         try:
-            stdin, stdout, stderr = headnode.exec_command (cmd)
-            out = stdout.read().decode()
-            logger.debug('comp_stdout = %s' % out)
+            headnode.exec_command (cmd)
         except paramiko.SSHException as err:
             print (RED + "Failed to excute command on headnode")
             print ("Error Type: {}" .format (err))
@@ -264,8 +261,6 @@ def munge_install (head_ip, ip_list, node_password, cmd_head, cmd_compute):
         for cmd in tqdm (cmd_compute):
             try:
                 stdin, stdout, stderr = computenode.exec_command (cmd)
-                out = stdout.read().decode()
-                logger.debug('comp_stdout = %s' % out)
             except paramiko.SSHException as err:
                 print (RED + "Fialed to excute command '{}'" .format(cmd))
                 print ("Error type: {}" .format(err))
@@ -330,8 +325,6 @@ def munge_key (head_ip, ip_list, node_password, cmd_head, cmd_compute):
                 )
             else:
                 stdin, stdout, stderr = headnode.exec_command (cmd)
-                out = stdout.read().decode()
-                logger.debug('comp_stdout = %s' % out)
         except paramiko.SSHException as err:
             print (RED + "Failed to excute command on headnode")
             print ("Error Type: {}" .format (err))
@@ -388,8 +381,6 @@ def munge_key (head_ip, ip_list, node_password, cmd_head, cmd_compute):
         for cmd in tqdm(cmd_compute):
             try:
                 stdin, stdout, stderr = computenode.exec_command (cmd)
-                out = stdout.read().decode()
-                logger.debug('comp_stdout = %s' % out)
             except paramiko.SSHException as err:
                 print (RED + "Fialed to excute command '{}'" .format(cmd))
                 print ("Error type: {}" .format(err))
@@ -446,8 +437,6 @@ def munge_daemon (head_ip, ip_list, node_password, cmd_head, cmd_compute):
     for cmd in tqdm(cmd_head):
         try:
             stdin, stdout, stderr = headnode.exec_command (cmd)
-            out = stdout.read().decode()
-            logger.debug('comp_stdout = %s' % out)
         except paramiko.SSHException as err:
             print (RED + "Failed to excute command on headnode")
             print ("Error Type: {}" .format (err))
@@ -502,8 +491,6 @@ def munge_daemon (head_ip, ip_list, node_password, cmd_head, cmd_compute):
         for cmd in tqdm(cmd_compute):
             try:
                 stdin, stdout, stderr = computenode.exec_command (cmd)
-                out = stdout.read().decode()
-                logger.debug('comp_stdout = %s' % out)
             except paramiko.SSHException as err:
                 print (RED + "Fialed to excute command '{}'" .format(cmd))
                 print ("Error type: {}" .format(err))
@@ -582,32 +569,14 @@ def send_munge_key (ssh_client, node_password, ip_list, cmd_base):
 
 if __name__ == '__main__':
     params = get_cluster_info()
-    cluster_id = '358376'
-    node_password = 'test01pw'
+    cluster_id = '290516'
+    node_password = 'test'
 
-    params              = get_cluster_info ()
-    json_addon_params   = load_addon_params ()
-
-    cls_bil  = []
-    ext_info = []
-    info_list = [1,0,0,1]
-    f = []
-
-    addon_info = {
-        "IP_list"           :{                          # コンピュートノードの数に合わせて変更
-            "front" : ['192.168.3.1', '192.168.3.2'],
-            "back"  : ['192.169.3.1', '192.169.3.2']
-        }
-    }
-   
-    ip_list         = addon_info["IP_list"]
-   
     # Get headnode IP address & computenodes num
     head_ip  = "255.255.255.255"
     n_computenode = 0
     node_dict = params.get_node_info()
     disk_dict = params.get_disk_info()
-    
 
     for zone, url in params.url_list.items():
         node_list = node_dict[zone]
@@ -624,29 +593,13 @@ if __name__ == '__main__':
                     pass
         else:
             pass
-    
-    try:
-        json_open = open(fileName, 'r')
-    except OSError as err:
-        print (RED + "Fialed to open file: {}" .format(fileName))
-        print ("Error type: {}" .format(err))
-        print ("Exit rogramm" + END)
-        sys.exit ()
-    try:
-        cmd_slurm = json.load(json_open)
-    except json.JSONDecodeError as err:
-        print (RED + "Fialed to decode JSON file: {}" .format(fileName))
-        print ("Error type: {}" .format(err))
-        print ("Exit programm" + END)
-        sys.exit ()
+
     # Read json file for gaglia configuration 
     json_addon_params = load_addon_params ()
-
     munge_setup (
         head_ip = head_ip,
         ip_list = ip_list,
         node_password = node_password,
-        #json_addon_params = json_addon_params,
-        os_type = os_type,
-        cmd_slurm = cmd_slurm
+        json_addon_params = json_addon_params,
+        os_type = os_type
     )
