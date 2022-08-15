@@ -19,7 +19,8 @@
                 ],
                 "rep":
                 [
-                    "yum -y install mpich"
+                    "yum -y install mpich",
+                    "yum -y install mpich-devel"
                 ],
                 "nfs":
                 [
@@ -44,6 +45,11 @@
                     "ssh-copy-id -f",
                     "eval `ssh-agent`",
                     "ssh-add ~/.ssh/id_dsa"
+                ],
+                "path":
+                [
+                    "echo \"PATH=/usr/lib64/mpich/bin:$PATH \" >> ~/.bash_profile",
+                    "echo \"export PATH \" >>~/.bash_profile"
                 ]
             },
             "Compute":
@@ -64,7 +70,8 @@
                 ],
                 "rep":
                 [
-                    "yum -y install mpich"
+                    "yum -y install mpich",
+                    "yum -y install mpich-devel"
                 ],
                 "mpiuser":
                 [
@@ -95,7 +102,8 @@
                 ],
                 "rep":
                 [
-                    "yum -y install mpich"
+                    "yum -y install mpich",
+                    "yum -y install mpich-devel"
                 ],
                 "nfs":
                 [
@@ -120,6 +128,11 @@
                     "ssh-copy-id -f",
                     "eval `ssh-agent`",
                     "ssh-add ~/.ssh/id_dsa"
+                ],
+                "path":
+                [
+                    "echo \"PATH=/usr/lib64/mpich/bin:$PATH \" >> ~/.bash_profile",
+                    "echo \"export PATH \" >>~/.bash_profile"
                 ]
             },
             "Compute":
@@ -140,12 +153,18 @@
                 ],
                 "rep":
                 [
-                    "yum -y install mpich"
+                    "yum -y install mpich",
+                    "yum -y install mpich-devel"
                 ],
                 "mpiuser":
                 [
                     "adduser mpiuser",
                     "passwd mpiuser"
+                ],
+                "path":
+                [
+                    "echo \"PATH=/usr/lib64/mpich/bin:$PATH \" >> ~/.bash_profile",
+                    "echo \"export PATH \" >>~/.bash_profile"
                 ]
             }
         }
