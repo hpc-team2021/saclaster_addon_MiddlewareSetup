@@ -83,6 +83,7 @@ def addon_main(cls_bil, ext_info, addon_info, f, info_list):
 ########################## methods ##########################
 #############################################################
 
+
 def get_user_pass():
     while True:
         password = input('Enter cluster Password : ')
@@ -90,57 +91,6 @@ def get_user_pass():
         if password != '':
             break
     return password
-
-
-def get_clusterID():
-    while True:
-        clusterID_tmp = input('Enter clusterID : ')
-        clusterID_tmp = clusterID_tmp.strip()
-        if len(clusterID_tmp) == 6:
-            try:
-                checkNum = int(clusterID_tmp)
-                if 0 < checkNum & checkNum < 1000000:
-                    break
-            except:
-                print("[ERROR]: You put a worng Cluster ID")
-                continue
-        else:
-            print("[ERROR]: You put a worng Cluster ID")
-    return clusterID_tmp
-
-
-def check_clusterID(clusterID_tmp):
-    # 認証周り
-    auth_res = authentication_cli(fp = '', info_list = [1,0,0,0], api_index = True)
-    max_workers = 1
-    fp = ""
-    monitor_info_list = [1,0,0,0]
-
-    #set url
-    url_list = {}
-    zone_list = ['tk1a','tk1b', 'is1a', 'is1b']
-    sub_url = ["/server","/disk","/switch","/interface","/bridge","/tag","/appliance","/power"]
-    for zone in zone_list:
-        url_list[zone] = "https://secure.sakura.ad.jp/cloud/zone/"+ zone +"/api/cloud/1.1"
-
-    # 引数のクラスターIＤが存在するか調査、存在すれば終了
-    ID_list = []
-    for zone in zone_list:
-        get_cluster_serever_info    = get(url_list[zone] + sub_url[0], auth_res)
-        for i, server in enumerate(get_cluster_serever_info["Servers"]):
-            ID = server["Tags"][0].split(": ")[1]
-            ID_list.append(ID)
-            if ID == clusterID_tmp:
-                clusterID = clusterID_tmp
-                return clusterID
-
-    print("[ERROR]: There is not " + clusterID_tmp + " in your servers.")
-    print("Cluster IDs are as follows.")
-    print(set(ID_list))
-    print("Please enter your cluster ID again.")
-    clusterID_tmp = get_clusterID()
-    clusterID     = check_clusterID(clusterID_tmp)
-    return clusterID
 
 
 def addon_arg_check(cls_bil, ext_info, addon_info, f, info_list):
@@ -161,7 +111,6 @@ def addon_arg_check(cls_bil, ext_info, addon_info, f, info_list):
     addon_info["node_password"]     = get_user_pass()
     
     return addon_info
-
 
 
 #############################################################

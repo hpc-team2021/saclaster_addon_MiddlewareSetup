@@ -37,37 +37,5 @@ def get_cluster_info():
 
     return params
 
-
-
-def res_check(res, met,com_index=False):
-    met_dict = {"get": "is_ok", "post": "is_ok", "put": "Success","delete": "Success"}
-    index = met_dict[met]
-    msg = ""
-    logger.debug("confirm API request(" + str(met) + ")")
-    if (index in res.keys()):
-        if res[index] == True:
-            logger.debug("API processing succeeded")
-            check = True
-            return check, msg
-        else:
-            logger.warning("API processing failed")
-            if com_index == False:
-                check = False
-                return check, msg
-            else:
-                msg = list("Error:")
-                check = False
-                return check, msg
-
-    elif ("is_fatal" in res.keys()):
-        logger.warning("API processing failed")
-        if com_index == False:
-            check = False
-            return check, msg
-        else:
-            msg = ["Status:" + res["status"], "Error:" + res["error_msg"]]
-            check = False
-            return check, msg
-
 if __name__ == '__main__':
     sys.exit(get_cluster_info())

@@ -59,18 +59,18 @@ def proxy_setup(addon_info, f, info_list, service_name):
     HEAD_CMD    = jsonFile [OSType]["command"]["Head"]["setup"]
     headConnect(headInfo, HEAD_CMD)
 
-    # head 実行コマンドの読み込み,実行
+    # Compute 実行コマンドの読み込み,実行
     logger.debug("Run proxy install CMD in compute.")
-    HEAD_CMD    = jsonFile [OSType]["command"]["Compute"]["install"]
-    computeConnect(headInfo, IP_list, HEAD_CMD)
+    COMP_CMD    = jsonFile [OSType]["command"]["Compute"]["install"]
+    computeConnect(headInfo, IP_list, COMP_CMD)
     
     logger.debug("Run proxy port open CMD in compute.")
-    HEAD_CMD    = jsonFile [OSType]["command"]["Compute"]["port"]
-    computeConnect(headInfo, IP_list, HEAD_CMD)
+    COMP_CMD    = jsonFile [OSType]["command"]["Compute"]["port"]
+    computeConnect(headInfo, IP_list, COMP_CMD)
     
     logger.debug("Run proxy setup CMD in compute.")
-    HEAD_CMD    = jsonFile [OSType]["command"]["Compute"]["setup"]
-    computeConnect(headInfo, IP_list, HEAD_CMD)
+    COMP_CMD    = jsonFile [OSType]["command"]["Compute"]["setup"]
+    computeConnect(headInfo, IP_list, COMP_CMD)
 
     printout (
         comment = "(Done)  : Setting Proxy\n",
