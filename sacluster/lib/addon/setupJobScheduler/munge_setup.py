@@ -16,7 +16,7 @@ logger = logging.getLogger("addon").getChild(os.path.basename(__file__))
 # User defined Library
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 common_path = os.path.abspath("../../..")
-fileName = common_path + '\\lib\\addon\\setupMpi\\mpich.json'
+fileName = common_path + '/lib/addon/setupJobScheduler/slurm.json'
 
 # Changing standard output color for exception error
 RED = '\033[31m'
@@ -207,7 +207,9 @@ def munge_install (head_ip, ip_list, node_password, cmd_head, cmd_compute):
 
     for cmd in tqdm(cmd_head):
         try:
-            headnode.exec_command (cmd)
+            stdin, stdout, stderr = headnode.exec_command (cmd)
+            out = stdout.read().decode()
+            logger.debug('head_stdout = %s' % out)
         except paramiko.SSHException as err:
             print (RED + "Failed to excute command on headnode")
             print ("Error Type: {}" .format (err))
@@ -261,6 +263,8 @@ def munge_install (head_ip, ip_list, node_password, cmd_head, cmd_compute):
         for cmd in tqdm (cmd_compute):
             try:
                 stdin, stdout, stderr = computenode.exec_command (cmd)
+                out = stdout.read().decode()
+                logger.debug('comp_stdout = %s' % out)
             except paramiko.SSHException as err:
                 print (RED + "Fialed to excute command '{}'" .format(cmd))
                 print ("Error type: {}" .format(err))
@@ -325,6 +329,8 @@ def munge_key (head_ip, ip_list, node_password, cmd_head, cmd_compute):
                 )
             else:
                 stdin, stdout, stderr = headnode.exec_command (cmd)
+                out = stdout.read().decode()
+                logger.debug('head_stdout = %s' % out)
         except paramiko.SSHException as err:
             print (RED + "Failed to excute command on headnode")
             print ("Error Type: {}" .format (err))
@@ -381,6 +387,8 @@ def munge_key (head_ip, ip_list, node_password, cmd_head, cmd_compute):
         for cmd in tqdm(cmd_compute):
             try:
                 stdin, stdout, stderr = computenode.exec_command (cmd)
+                out = stdout.read().decode()
+                logger.debug('comp_stdout = %s' % out)
             except paramiko.SSHException as err:
                 print (RED + "Fialed to excute command '{}'" .format(cmd))
                 print ("Error type: {}" .format(err))
