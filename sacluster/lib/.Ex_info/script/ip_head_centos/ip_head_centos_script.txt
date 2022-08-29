@@ -1,0 +1,25 @@
+ADDRESSES=$(cat @@@addresses_ip_head_centos@@@)
+
+COUNT=1
+echo "$ADDRESSES" | while read -r address;
+do
+    DEVICE="eth$COUNT"
+    COUNT=$(( COUNT + 1 ))
+    
+    IP=`echo "$address" | awk -F '/' '{print $1}'`
+    PREFIX=`echo "$address" | awk -F '/' '{print $2}'`
+    
+    echo $IP
+    echo $PREFIX
+
+cat <<-EOF > "/etc/sysconfig/network-scripts/ifcfg-$DEVICE"
+DEVICE=$DEVICE
+BOOTPROTO=static
+ONBOOT=yes
+TYPE=Ethernet
+IPADDR=$IP
+PREFIX=$PREFIX
+EOF
+
+    ifup $DEVICE
+done

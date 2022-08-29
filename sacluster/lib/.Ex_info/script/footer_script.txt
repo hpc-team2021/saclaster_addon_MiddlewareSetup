@@ -1,0 +1,2 @@
+echo "* 設定完了"
+_motd end

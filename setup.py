@@ -24,19 +24,48 @@ def _requires_from_file(filename):
 if __name__ == "__main__":
                 
     setup(
-        name='sacluster',
-        version='0.0.1',
-        description="This package called sacluster is used to construct, modify, delete, start, stop compute clusters on the sakura cloud.",
-        author="KIT zyuyo souhatsu group",
+        name        = 'sacluster',
+        version     = '0.0.2',
+        description = "This package called sacluster is used to construct, modify, delete, start, stop compute clusters on the sakura cloud.",
+        author      = "KIT zyuyo souhatsu group",
         #install_requires=["requests","pandas","datetime"],
         #include_package_data=True,
         install_requires = _requires_from_file('requirements.txt'),
         #packages = setuptools.find_packages(),
-        packages = ["sacluster", "sacluster.lib", "sacluster.lib.command", "sacluster.lib.auth", "sacluster.lib.cls", "sacluster.lib.cls.construction", "sacluster.lib.cls.delete", "sacluster.lib.cls.modify", "sacluster.lib.cls.start", "sacluster.lib.cls.stop", "sacluster.lib.cls.config", "sacluster.lib.cls.ps", "sacluster.lib.def_conf", "sacluster.lib.notif", "sacluster.lib.others"],
+        packages = [
+            "sacluster", 
+            "sacluster.lib", 
+            "sacluster.lib.command", 
+            "sacluster.lib.auth", 
+            "sacluster.lib.cls", 
+            "sacluster.lib.cls.construction", 
+            "sacluster.lib.cls.delete", 
+            "sacluster.lib.cls.modify", 
+            "sacluster.lib.cls.start", 
+            "sacluster.lib.cls.stop", 
+            "sacluster.lib.cls.config", 
+            "sacluster.lib.cls.ps", 
+            "sacluster.lib.def_conf", 
+            "sacluster.lib.notif", 
+            "sacluster.lib.others",
+            "sacluster.lib.addon",
+            "sacluster.lib.addon.mylib",
+            "sacluster.lib.addon.setupIp",
+            "sacluster.lib.addon.setupProxy",
+            "sacluster.lib.addon.setupJobScheduler",
+            "sacluster.lib.addon.setupMPI",
+            "sacluster.lib.addon.setupMoniter",
+            "sacluster.lib.addon.delete"
+        ],
         #packages=find_packages(where = "lib"),
         #package_dir={"": "sacluster", "sacluster": "log"},
         package_data = {
-            'sacluster': ['lib/.Ex_info/config_checker.json', 'lib/.Ex_info/external_info.json'],
+            'sacluster': [
+                'lib/.Ex_info/config_checker.json', 
+                'lib/.Ex_info/config_checker_middle.json', 
+                'lib/.Ex_info/external_info.json',
+                'lib/.Ex_info/external_info_middle.json'
+            ],
         },
         #data_files = [
             #("sacluster", ["/log"]),
@@ -50,8 +79,8 @@ if __name__ == "__main__":
             ]
         },
         classifiers=[
-        "Programming Language :: Python :: 3.7.7",
-        "License :: Apache License 2.0"
+            "Programming Language :: Python :: 3.9.6",
+            "License :: Apache License 2.0"
         ],
     )
 

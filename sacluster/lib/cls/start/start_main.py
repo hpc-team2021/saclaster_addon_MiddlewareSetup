@@ -16,7 +16,7 @@ from load_external_data import external_data
 
 logger = logging.getLogger("sacluster").getChild(os.path.basename(__file__))
 
-def start_main(api_index, f, info_list,max_workers):
+def start_main(api_index, f, info_list,max_workers, middle_index = False, cluster_id =""):
     logger.debug('Setting authentication info')
     auth_info = authentication_cli(fp = f, info_list  = info_list, api_index = api_index)
     
@@ -26,10 +26,14 @@ def start_main(api_index, f, info_list,max_workers):
     logger.debug('Getting cluster information')
     params = get_params.get_params(ext_info, auth_info, info_list = info_list, f = f, api_index = api_index)
     params()
-    params.show_cluster_info()
-    
-    index, cluster_id = get_cluster_id.get_cluster_id(params.cluster_info_all, info_list, f, api_index)
-    
+        
+    if not middle_index:
+        params.show_cluster_info()
+        index, cluster_id = get_cluster_id.get_cluster_id(params.cluster_info_all, info_list, f, api_index)
+    else:
+        cluster_id  = cluster_id
+        index       = True
+
     if(index == True):
         logger.debug("Starting up the cluster : " + str(cluster_id))
         printout("Starting up the cluster : " + str(cluster_id), info_type = 0, info_list = info_list, fp = f)

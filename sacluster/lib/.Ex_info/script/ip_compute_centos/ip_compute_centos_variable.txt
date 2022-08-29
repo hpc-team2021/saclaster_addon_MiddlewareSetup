@@ -1,0 +1,1 @@
+# @sacloud-textarea heredoc required addresses_ip_compute_centos "IPアドレス/プレフィックス" ex="192.168.1.1/24"

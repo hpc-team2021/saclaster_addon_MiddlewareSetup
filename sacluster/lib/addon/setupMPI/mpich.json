@@ -1,0 +1,172 @@
+{
+    "CentOS 7.9 (2009) 64bit":
+    {
+        "command":
+        {
+            "Head":
+            {
+                "latest": 
+                [
+                    "yum -y install python3",
+                    "su - mpiuser",
+                    "cd ~/share",
+                    "wget https://www.mpich.org/static/downloads/4.0.2/mpich-4.0.2.tar.gz",
+                    "tar -xzf mpich-4.0.2.tar.gz",
+                    "cd mpich-4.0.2",
+                    "./configure --prefix=/usr/local",
+                    "make",
+                    "sudo make install"
+                ],
+                "rep":
+                [
+                    "yum -y install mpich",
+                    "yum -y install mpich-devel"
+                ],
+                "nfs":
+                [
+                    "su - mpiuser",
+                    "mkdir share",
+                    "echo \"/home/mpiuser/share *(rw,sync,no_root_squash,no_subtree_check)\" >> /etc/exports",
+                    "exportfs -a",
+                    "sudo systemctl enable nfs-utils",
+                    "sudo systemctl start nfs-utils"
+                ],
+                "mpiuser":
+                [
+                    "adduser mpiuser",
+                    "passwd mpiuser"
+                ],
+                "ssh":
+                [
+                    "su - mpiuser",
+                    "mkdir .ssh",
+                    "ssh-keygen -t dsa",
+                    "cd ~/.ssh",
+                    "ssh-copy-id -f",
+                    "eval `ssh-agent`",
+                    "ssh-add ~/.ssh/id_dsa"
+                ],
+                "path":
+                [
+                    "echo \"PATH=/usr/lib64/mpich/bin:$PATH \" >> ~/.bash_profile",
+                    "echo \"export PATH \" >>~/.bash_profile"
+                ]
+            },
+            "Compute":
+            {
+                "latest":
+                [
+                    "sudo yum -y install nfs-utils",
+                    "sudo systemctl enable nfs-utils",
+                    "sudo systemctl start nfs-utils",
+                    "su - mpiuser",
+                    "mkdir share",
+                    "sudo mount -t nfs manager:/home/mpiuser/share ~/share",
+                    "echo \"manager:/home/mpiuser/share /home/mpiuser/share nfs\" >> /etc/fstab",
+                    "cd ~share/mpich-4.0.2",
+                    "./configure --prefix=/usr/local",
+                    "make",
+                    "sudo make install"
+                ],
+                "rep":
+                [
+                    "yum -y install mpich",
+                    "yum -y install mpich-devel"
+                ],
+                "mpiuser":
+                [
+                    "adduser mpiuser",
+                    "passwd mpiuser"
+                ]
+            }
+        }
+    },
+
+    "CentOS Stream 8 (20201203) 64bit":
+    {
+        "command":
+        {
+            "Head":
+            {
+                "latest": 
+                [
+                    "yum -y install python3",
+                    "su - mpiuser",
+                    "cd ~/share",
+                    "wget https://www.mpich.org/static/downloads/4.0.2/mpich-4.0.2.tar.gz",
+                    "tar -xzf mpich-4.0.2.tar.gz",
+                    "cd mpich-4.0.2",
+                    "./configure --prefix=/usr/local",
+                    "make",
+                    "sudo make install"
+                ],
+                "rep":
+                [
+                    "yum -y install mpich",
+                    "yum -y install mpich-devel"
+                ],
+                "nfs":
+                [
+                    "su - mpiuser",
+                    "mkdir share",
+                    "echo \"/home/mpiuser/share *(rw,sync,no_root_squash,no_subtree_check)\" >> /etc/exports",
+                    "exportfs -a",
+                    "sudo systemctl enable nfs-utils",
+                    "sudo systemctl start nfs-utils"
+                ],
+                "mpiuser":
+                [
+                    "adduser mpiuser",
+                    "passwd mpiuser"
+                ],
+                "ssh":
+                [
+                    "su - mpiuser",
+                    "mkdir .ssh",
+                    "ssh-keygen -t dsa",
+                    "cd ~/.ssh",
+                    "ssh-copy-id -f",
+                    "eval `ssh-agent`",
+                    "ssh-add ~/.ssh/id_dsa"
+                ],
+                "path":
+                [
+                    "echo \"PATH=/usr/lib64/mpich/bin:$PATH \" >> ~/.bash_profile",
+                    "echo \"export PATH \" >>~/.bash_profile"
+                ]
+            },
+            "Compute":
+            {
+                "latest":
+                [
+                    "sudo yum -y install nfs-utils",
+                    "sudo systemctl enable nfs-utils",
+                    "sudo systemctl start nfs-utils",
+                    "su - mpiuser",
+                    "mkdir share",
+                    "sudo mount -t nfs manager:/home/mpiuser/share ~/share",
+                    "echo \"manager:/home/mpiuser/share /home/mpiuser/share nfs\" >> /etc/fstab",
+                    "cd ~share/mpich-4.0.2",
+                    "./configure --prefix=/usr/local",
+                    "make",
+                    "sudo make install"
+                ],
+                "rep":
+                [
+                    "yum -y install mpich",
+                    "yum -y install mpich-devel"
+                ],
+                "mpiuser":
+                [
+                    "adduser mpiuser",
+                    "passwd mpiuser"
+                ],
+                "path":
+                [
+                    "echo \"PATH=/usr/lib64/mpich/bin:$PATH \" >> ~/.bash_profile",
+                    "echo \"export PATH \" >>~/.bash_profile"
+                ]
+            }
+        }
+    }
+}

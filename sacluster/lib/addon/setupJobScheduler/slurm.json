@@ -1,0 +1,156 @@
+{
+    "CentOS 7.9 (2009) 64bit":
+    {
+        "command":
+        {
+            "Head":
+            {
+                "slurmuser":
+                [
+                    "adduser mpiuser",
+                    "passwd mpiuser"
+                ]
+            },
+            "Compute":
+            {
+                "rep":
+                [
+                    "yum -y install"
+                ],
+                "slurmuser":
+                [
+                    "adduser mpiuser",
+                    "passwd mpiuser"
+                ]
+            }
+        }
+    },
+
+    "CentOS Stream 8 (20201203) 64bit":
+    {
+        "Head":
+        {
+            "munge":
+            {
+                "mungeuser":
+                [
+                    "export MUNGEUSER=1005; groupadd -g $MUNGEUSER munge; useradd -m -d /var/lib/munge -u $MUNGEUSER -g munge  -s /sbin/nologin munge"
+                ],
+                "install":
+                [
+                    "yum install -y munge munge-libs",
+                    "yum install -y rng-tools"
+                ],
+                "munge-key":
+                [
+                    "rngd -r /dev/urandom",
+                    "/usr/sbin/create-munge-key -r",
+                    "dd if=/dev/urandom bs=1 count=1024 > /etc/munge/munge.key",
+                    "chown munge: /etc/munge/munge.key",
+                    "chmod 400 /etc/munge/munge.key",
+                    "scp /etc/munge/munge.key"
+                ],
+                "daemon":
+                [
+                    "systemctl enable munge",
+                    "systemctl start munge"
+                ]
+            },
+            "slurm":
+            {
+                "slurmuser":
+                [
+                    "export SLURMUSER=1006; groupadd -g $SLURMUSER slurm; useradd  -m -c \"SLURM workload manager \" -d /var/lib/slurm -u $SLURMUSER -g slurm  -s /bin/bash slurm"
+                ],
+                "install":
+                [
+                    "dnf config-manager --set-enabled powertools",
+                    "yum makecache --refresh",
+                    "yum -y install slurm",
+                    "yum -y install slurm-slurmd",
+                    "yum -y install slurm-slurmctld"
+                ],
+                "conf":[
+                    "mkdir -p /var/spool/slurm/ctld",
+                    "mkdir /var/spool/slurm/d",
+                    "mkdir /var/spool/slurmctld",
+                    "chown slurm: /var/spool/slurmctld",
+                    "chmod 755 /var/spool/slurmctld",
+                    "touch /var/log/slurmctld.log",
+                    "chown slurm: /var/log/slurmctld.log",
+                    "chmod 777 /var/log",
+                    "touch /var/log/slurm_jobacct.log /var/log/slurm_jobcomp.log",
+                    "chown slurm: /var/log/slurm_jobacct.log /var/log/slurm_jobcomp.log",
+                    "chown -R slurm:slurm /var/lib/slurm",
+                    "chown -R slurm:slurm /var/log/slurm"
+                ],
+                "daemon":[
+                    "systemctl enable slurmctld",
+                    "systemctl enable slurmd",
+                    "systemctl start slurmctld",
+                    "systemctl start slurmd"
+
+                ]
+            }
+               
+        },
+        "Compute":
+        {
+            "munge":
+            {
+                "mungeuser":
+                [
+                    "export MUNGEUSER=1005; groupadd -g $MUNGEUSER munge; useradd -m -d /var/lib/munge -u $MUNGEUSER -g munge  -s /sbin/nologin munge"
+                ],
+                "install":
+                [
+                    "yum install epel-release -y",
+                    "yum install -y munge munge-libs"
+                ],
+                "munge-key":
+                [
+                    "chown -R munge: /etc/munge/ /var/log/munge/",
+                    "chmod 0700 /etc/munge/ /var/log/munge/"
+                ],
+                "daemon":
+                [
+                    "systemctl enable munge",
+                    "systemctl start munge"
+                ]
+            },
+            "slurm":
+            {
+                "slurmuser":
+                [
+                    "export SLURMUSER=1006; groupadd -g $SLURMUSER slurm; useradd  -m -c \"SLURM workload manager \" -d /var/lib/slurm -u $SLURMUSER -g slurm  -s /bin/bash slurm"
+                ],
+                "install":[
+                    "dnf config-manager --set-enabled powertools",
+                    "yum makecache --refresh",
+                    "yum -y install slurm",
+                    "yum -y install slurm-slurmd",
+                    "yum -y install slurm-slurmctld"
+                ],
+                "conf":[
+                    "mkdir -p /var/spool/slurm/ctld",
+                    "mkdir /var/spool/slurm/d",
+                    "mkdir /var/spool/slurmd",
+                    "chown slurm: /var/spool/slurmd",
+                    "chmod 755 /var/spool/slurmd",
+                    "touch /var/log/slurmd.log",
+                    "chown slurm: /var/log/slurmd.log",
+                    "chown -R slurm:slurm /var/lib/slurm",
+                    "chown -R slurm:slurm /var/log/slurm"
+                ],
+                "daemon":[
+                    "systemctl enable slurmctld",
+                    "systemctl enable slurmd",
+                    "systemctl start slurmctld",
+                    "systemctl start slurmd"
+                ]
+
+
+            }
+        }
+    }
+}

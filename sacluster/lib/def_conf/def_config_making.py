@@ -13,18 +13,19 @@ sys.path.append(common_path + "/lib/others")
 from config_function import set_parm, conf_pattern_main, conf_pattern_1, conf_pattern_2
 from info_print import printout
 from def_config import def_config_main
+from def_config_middle import def_config_main_middle
 #from config_validation import config_validation
 import logging
 logger = logging.getLogger("sacluster").getChild(os.path.basename(__file__))
 
 
-def make_dirs(path, filename, info_list = [1,0,0,0], fp = ""):
+def make_dirs(path, filename, default_filename, info_list = [1,0,0,0], fp = ""):
     
     while(True):
         #ディレクトリの作成
         try:
             logger.debug('Making directories to save config file')
-            _ = printout("Making a directory to save config file...", info_type = 0, info_list = info_list, fp = fp)
+            _ = printout("Making directories to save config file...", info_type = 0, info_list = info_list, fp = fp)
             os.makedirs(path, exist_ok = True)
             break
             
@@ -46,14 +47,14 @@ def make_dirs(path, filename, info_list = [1,0,0,0], fp = ""):
                 logger.debug('Directory and filename are set')
             #パス内にファイル名が含まれていない場合
             else:
-                filename = "config.json"
+                filename = default_filename
                 path = out_path
                 logger.debug('New directory is set')
-                logger.debug('The config filename is automatically set to config.json')
+                logger.debug('The config filename is automatically set to {}'.format(filename))
                
     return path, filename
 
-def check_dir_existence(path, filename, info_list = [1,0,0,0], fp = ""):
+def check_dir_existence(path, filename, default_filename, info_list = [1,0,0,0], fp = ""):
     while(True):
         logger.debug('Checking the output directory')
         _ = printout("Checking the output directory...", info_type = 0, info_list = info_list, fp = fp)
@@ -79,23 +80,23 @@ def check_dir_existence(path, filename, info_list = [1,0,0,0], fp = ""):
                     
                 #パス内にファイル名が含まれていない場合
                 else:
-                    filename = "config.json"
+                    filename = default_filename
                     path = out_path 
                     logger.debug('New directory is set')
-                    logger.debug('The config filename is automatically set to config.json')
+                    logger.debug('The config filename is automatically set to {}'.format(default_filename))
                
             #ディレクトリを生成
             else:
-                path, filename = make_dirs(path, filename, info_list = info_list, fp = fp)
+                path, filename = make_dirs(path = path, filename = filename, default_filename = default_filename, info_list = info_list, fp = fp)
         #ディレクトリが存在する場合
         else:
             logger.debug('Existence of specified file has been confirmed')
             return path, filename
     
 
-def check_dir(path, filename, info_list = [1,0,0,0], fp = ""):
+def check_dir(path, filename, default_filename, info_list = [1,0,0,0], fp = ""):
     #パスとファイルの存在確認
-    path, filename = check_dir_existence(path = path, filename = filename, info_list = info_list, fp = fp)
+    path, filename = check_dir_existence(path = path, filename = filename, default_filename = default_filename, info_list = info_list, fp = fp)
     
     #パスのアクセス確認
     while(True):
@@ -113,28 +114,28 @@ def check_dir(path, filename, info_list = [1,0,0,0], fp = ""):
                 logger.debug('New directory and filename are set')
                 
             else:
-                filename = "config.json"
+                filename = default_filename
                 path = out_path
                 logger.debug('New directory is set')
-                logger.debug('The config filename is automatically set to config.json')
+                logger.debug('The config filename is automatically set to {}'.format(filename))
                 
             #パスとファイルの存在確認
-            path, filename = check_dir_existence(path = path, filename = filename, info_list = info_list, fp = fp)
+            path, filename = check_dir_existence(path = path, filename = filename, default_filename = default_filename, info_list = info_list, fp = fp)
                
         else:
             return path, filename
     
             
-def check_filename(path, filename, info_list = [1,0,0,0], fp = ""):
+def check_filename(path, filename, default_filename, info_list = [1,0,0,0], fp = ""):
     index = 0
     file_list = os.listdir(path)
     
     logger.debug('Checking filename')
     printout("Checking filename...", info_type = 0, info_list = info_list, fp = fp)
     if(filename in file_list):
-        if(filename != "config.json"):
+        if(filename != default_filename):
             index = 1
-            filename = "config.json"
+            filename = default_filename
             logger.warining("the specified filename exists in the directory")
             _ = printout("Warning: the specified filename exists in the directory.", info_type = 0, info_list = info_list, fp = fp)
             
@@ -142,7 +143,7 @@ def check_filename(path, filename, info_list = [1,0,0,0], fp = ""):
         while(True):
             if(filename not in file_list):
                 break
-            filename = "config_" + str(count) + ".json"
+            filename = "{}_{}.json".format(default_filename.split(".")[0], count)
             count += 1
         
         if(index == 1):
@@ -156,7 +157,13 @@ def out_config(filename, path, config_param):
         json.dump(config_param, f, indent=4, ensure_ascii=False)
     
 
-def config_making_main(ext_info, out_path = "", make_dir_index = False, info_list = [1,0,0,0], fp = ""):
+def config_making_main(ext_info, out_path = "", make_dir_index = False, info_list = [1,0,0,0], fp = "", m_index = False):
+    if(m_index == False):
+        default_dir = "/config"
+        default_filename = "config.json"
+    else:
+        default_dir = "/config_middle"
+        default_filename = "config_middle.json"
     
     if(out_path != ""):
         #configファイルの拡張子の確認
@@ -167,28 +174,33 @@ def config_making_main(ext_info, out_path = "", make_dir_index = False, info_lis
             
             if(out_path == ""):
                 logger.debug('The directory to be saved is automatically set to /config')
-                out_path = common_path + "/config"
+                out_path = home_path + default_dir
         else:
             logger.debug('The config filename was automatically set to config.json')
-            filename = "config.json"
+            filename = default_filename
         
         #config file出力のためのディレクトリの作成
         if(make_dir_index == True):
-            out_path, filename = make_dirs(out_path, filename, info_list = info_list, fp = fp)
-        out_path, filename = check_dir(out_path, filename, info_list = info_list, fp = fp)
-        out_path, filename = check_filename(out_path, filename, info_list = info_list, fp = fp)
+            out_path, filename = make_dirs(out_path, filename, default_filename, info_list = info_list, fp = fp)
+        out_path, filename = check_dir(out_path, filename, default_filename, info_list = info_list, fp = fp)
+        out_path, filename = check_filename(path = out_path, filename = filename, default_filename = default_filename, info_list = info_list, fp = fp)
         
     else:
-        filename = "config.json"
-        out_path = home_path + "/config"
-        out_path, filename = check_filename(out_path, filename, info_list = info_list, fp = fp)
+        filename = default_filename
+        out_path = home_path + default_dir
+        out_path, filename = check_filename(path = out_path, filename = filename, default_filename = default_filename, info_list = info_list, fp = fp)
         
     _ = printout("Out directory:: " + str(out_path), info_type = 0, info_list = info_list, fp = fp)
     _ = printout("Out filename :: " + str(filename), info_type = 0, info_list = info_list, fp = fp)
     logger.debug('Out directory:: ' + str(out_path))
     logger.debug('Out filename ::' + str(filename))
     
-    config_param = def_config_main(ext_info, fp = fp, info_list = info_list)
+    if(m_index == False):
+        _ = printout("Start definition of config params (Infrastructure)...", info_list = info_list, fp = fp)
+        config_param = def_config_main(ext_info, fp = fp, info_list = info_list)
+    else:
+        _ = printout("Start definition of config params (Middle ware)...", info_list = info_list, fp = fp)
+        config_param = def_config_main_middle(ext_info, fp = fp, info_list = info_list)
         
     logger.debug('save config params')
     out_config(filename, out_path, config_param)

@@ -1,0 +1,392 @@
+{
+   "Common":
+    {
+        "Firewall":
+        {
+            "Zone":{
+                "CentOS 7.9 (2009) 64bit":
+                {
+                    "Head": [
+                        "firewall-cmd --zone=trusted --change-interface=eth1 --permanent",
+                        "firewall-cmd --reload"
+                    ],
+                    "Compute":[
+                        "firewall-cmd --zone=trusted --change-interface=eth0 --permanent",
+                        "firewall-cmd --zone=trusted --change-interface=eth1 --permanent",
+                        "firewall-cmd --reload"
+                    ]
+                },
+                "CentOS Stream 8 (20201203) 64bit":
+                {
+                    "Head": [
+                        "firewall-cmd --zone=trusted --change-interface=eth1 --permanent",
+                        "firewall-cmd --reload"
+                    ],
+                    "Compute":[
+                        "firewall-cmd --zone=trusted --change-interface=eth0 --permanent",
+                        "firewall-cmd --zone=trusted --change-interface=eth1 --permanent",
+                        "firewall-cmd --reload"
+                    ]
+                }
+            },
+            "sub":
+            {
+                "reload": "--reload"
+            },
+            "Proxy":
+            {
+                "squid":
+                {
+                    "CentOS 7.9 (2009) 64bit":
+                    {
+                        "Head"      : 
+                        [
+                            "firewall-cmd --permanent --zone=trusted --add-port=3128/tcp",
+                            "firewall-cmd --reload"
+                        ],
+                        "Compute"   : 
+                        [
+                            "firewall-cmd --permanent --zone=trusted --add-port=3128/tcp",
+                            "firewall-cmd --reload"
+                        ]
+                    },
+                    "CentOS Stream 8 (20201203) 64bit":
+                    {
+                        "Head"      : 
+                        [
+                            "firewall-cmd --permanent --zone=trusted --add-port=3128/tcp",
+                            "firewall-cmd --reload"
+                        ],
+                        "Compute"   : 
+                        [
+                            "firewall-cmd --permanent --zone=trusted --add-port=3128/tcp",
+                            "firewall-cmd --reload"
+                        ]
+                    }
+                }
+            },
+            "Nfs":
+            {
+                "Nfs-utils":
+                {
+                    "CentOS 7.9 (2009) 64bit":
+                    {
+                        "Head": 
+                        [
+                            "firewall-cmd --add-port=3128/tcp --permanent",
+                            "firewall-cmd --reload"
+                        ],
+                        "Compute": 
+                        [
+                            "firewall-cmd --add-port=3128/tcp --permanent",
+                            "firewall-cmd --reload"
+                        ]
+                    },
+                    "CentOS Stream 8 (20201203) 64bit":
+                    {
+                        "Head": 
+                        [
+                            "firewall-cmd --add-port=3128/tcp --permanent",
+                            "firewall-cmd --reload"
+                        ],
+                        "Compute": 
+                        [
+                            "firewall-cmd --add-port=3128/tcp --permanent",
+                            "firewall-cmd --reload"
+                        ]
+                    }
+                }
+            },
+            "Monitor":
+            {
+                "Ganglia":
+                {
+                    "CentOS 7.9 (2009) 64bit":
+                    {
+                        "Head": 
+                        [
+                            "firewall-cmd --add-port=8649/tcp --permanent", 
+                            "firewall-cmd --add-port=8649/udp --permanent",
+                            "firewall-cmd --add-port=8651/tcp --permanent", 
+                            "firewall-cmd --add-port=8652/tcp --permanent",
+                            "firewall-cmd --reload"
+                        ],
+                        "Compute":
+                        [
+                            "firewall-cmd --add-port=8649/tcp --permanent", 
+                            "firewall-cmd --add-port=8649/udp --permanent",
+                            "firewall-cmd --reload"
+                        ]
+                    },
+                    "CentOS Stream 8 (20201203) 64bit":
+                    {
+                        "Head": 
+                        [
+                            "firewall-cmd --add-port=8649/tcp --permanent", 
+                            "firewall-cmd --add-port=8649/udp --permanent",
+                            "firewall-cmd --add-port=8651/tcp --permanent", 
+                            "firewall-cmd --add-port=8652/tcp --permanent",
+                            "firewall-cmd --reload"
+                        ],
+                        "Compute":
+                        [
+                            "firewall-cmd --add-port=8649/tcp --permanent", 
+                            "firewall-cmd --add-port=8649/udp --permanent",
+                            "firewall-cmd --reload"
+                        ]
+
+                    }
+                }
+            }
+        }, "firewall_comment": "End of firewall info",
+
+        "hosts":
+        {
+            "cmd": "echo",
+            "Ubuntu": "/etc/hosts",
+            "CentOS": "/etc/hosts"
+        }
+    }, "// common_comments": "END of common info",
+
+    "MiddleWare":
+    {
+        "Proxy":
+        {
+            "squid":
+            {
+                "Packege":
+                {
+                    "CentOS 7.9 (2009) 64bit": 
+                    {
+                        "Head": 
+                        [
+                            "yum -y install squid", 
+                            "yum -y install httpd-tools", 
+                            "yum -y update openssl"
+                        ],
+                        "Compute": []
+                    },
+                    "Ubuntu20.04": 
+                    {
+                        "Head": "",
+                        "Compute": ""
+                    },
+                    "CentOS Stream 8 (20201203) 64bit":
+                    {
+                        "Head": 
+                        [
+                            "yum -y install squid",
+                            "yum -y install httpd-tools", 
+                            "yum -y update openssl"
+                        ],
+                        "Compute": []
+                    }
+
+                },
+                "Port":
+                {
+                    "CentOS 7.9 (2009) 64bit": 
+                    {
+                        "Head"      : ["3128/tcp"],
+                        "Compute"   : ["3128/tcp"]
+                    },
+                    "CentOS Stream 8 (20201203) 64bit":
+                    {
+                        "Head"      : ["3128/tcp"],
+                        "Compute"   : ["3128/tcp"]
+                    }
+                },
+                "Daemon":
+                {
+                    "CentOS 7.9 (2009) 64bit":
+                    { 
+                        "Head": 
+                        [
+                            "systemctl start squid",
+                            "systemctl enable squid"
+                        ],
+                        "Compute":[]
+                    },
+                    "CentOS Stream 8 (20201203) 64bit":
+                    {
+                        "Head": 
+                        [
+                            "systemctl start squid", 
+                            "systemctl enable squid"
+                        ],
+                        "Compute":[]
+                    }
+                }
+            }, "// squid_comments": "END of squid"
+
+        }, "// proxy_comments": "END of Proxy",
+
+        "Nfs":
+        {
+            "Nfs-utils":
+            {
+                "Packege":
+                {
+                    "CentOS 7.9 (2009) 64bit":
+                    { 
+                        "Head": 
+                        [
+                            "yum -y install nfs-utils"
+                        ],
+                        "Compute": 
+                        [
+                            "yum -y install nfs-utils"
+                        ]
+                    },
+                    "Ubuntu20.04": 
+                    {
+                        "Head": 
+                        [
+                            "apt -y install nfs-utils"
+                        ],
+                        "Compute":
+                        [
+                            "apt -y install nfs-utils"
+                        ]
+                    },
+                    "CentOS Stream 8 (20201203) 64bit":
+                    {
+                        "Head": 
+                        [
+                            "yum -y install nfs-utils"
+                        ],
+                        "Compute": 
+                        [
+                            "yum -y install nfs-utils"
+                        ]
+                    }
+                },
+                "Port":
+                {
+                    "CentOS 7.9 (2009) 64bit": 
+                    {
+                        "Head": ["3128/tcp"],
+                        "Compute": ["3128/tcp"]
+                    },
+                    "CentOS Stream 8 (20201203) 64bit":
+                    {
+                        "Head": ["3128/tcp"],
+                        "Compute": ["3128/tcp"]
+                    }
+                },
+                "Daemon":
+                {
+                    "CentOS 7.9 (2009) 64bit":
+                    {
+                        "Head":
+                        [
+                            "systemctl start nfs-server",
+                            "systemctl enable nfs-server"
+                        ]
+                    },
+                    "CentOS Stream 8 (20201203) 64bit":
+                    {
+                        "Head": 
+                        [
+                            "systemctl start nfs-server",
+                            "systemctl enable nfs-server"
+                        ]
+                    }
+                },
+                "Command":
+                {
+
+                }
+            }, "// nfs-utils_comments": "END of nfs-utils"
+
+        }, "// nfs_comments": "END of NFS",
+
+        "Monitor":
+        {
+            "Ganglia":
+            {
+                "Packege": 
+                {
+                    "CentOS 7.9 (2009) 64bit": 
+                    {
+                        "Head": 
+                        [
+                            "yum -y install rrdtool rrdtool-devel",
+                            "yum -y install ganglia-web ganglia-gmetad ganglia-gmond",
+                            "yum -y install httpd httpd-tools",
+                            "yum -y install apr-devel zlib-devel libconfuse-devel expat-devel pcre-devel"
+                        ],
+                        "Compute": 
+                        [
+                            "yum -y install ganglia-gmond"
+                        ]
+                    },
+                    "CentOS Stream 8 (20201203) 64bit":
+                    {
+                        "Head": 
+                        [
+                            "yum -y install rrdtool",
+                            "yum -y install ganglia-web ganglia-gmetad ganglia-gmond",
+                            "yum -y install httpd httpd-tools",
+                            "yum -y install apr-devel zlib-devel libconfuse-devel expat-devel pcre-devel"
+                        ],
+                        "Compute": 
+                        [
+                            "yum -y install ganglia-gmond"
+                        ]
+                    }
+                },
+                "Port":
+                {
+                    "CentOS 7.9 (2009) 64bit": 
+                    {       
+                        "Head": ["8649/tcp", "8649/udp", "8651/tcp", "8652/tcp"],
+                        "Compute": ["8649/tcp", "8649/udp"]
+                    },
+                    "CentOS Stream 8 (20201203) 64bit":
+                    {
+                        "Head": ["8649/tcp", "8649/udp", "8651/tcp", "8652/tcp"],
+                        "Compute": ["8649/tcp", "8649/udp"]
+                    }
+                    
+                },
+                "Daemon":
+                {
+                    "CentOS 7.9 (2009) 64bit":
+                    {
+                        "Head": 
+                        [
+                            "systemctl start httpd gmond gmetad", 
+                            "systemctl enable httpd gmond gmetad"
+                        ],
+                        "Compute": 
+                        [
+                            "systemctl start gmond", 
+                            "systemctl enable gmond"
+                        ]
+                    },
+                    "CentOS Stream 8 (20201203) 64bit":
+                    {
+                        "Head": 
+                        [
+                            "systemctl start httpd gmond gmetad",
+                            "systemctl enable httpd gmond gmetad"
+                        ],
+                        "Compute": 
+                        [
+                            "systemctl start gmond", 
+                            "systemctl enable gmond"
+                        ]
+                    }
+                }
+            }, "// ganglia_comment": "END of Ganglia"
+
+        }, "// monitor_comment": "END of Monitor",
+
+        "Scheduler":
+        {
+
+        }, "// scheduler_comment": "END of Scheduler"
+
+    }, "// middleware_comment": "END of Middleware"
+}

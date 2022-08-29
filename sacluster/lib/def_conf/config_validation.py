@@ -99,8 +99,8 @@ def checking_config_details(ext_info, config_param, info_list = [1,0,0,0], fp = 
                 
                 #NFS typeの設定の確認
                 if(v["NFS type"] not in nfs_all_type):
-                    logger.error("ConfigError: NFS type should be select from " + ", ".join(nfs_all_type))
-                    _ = printout("ConfigError: NFS type should be select from " + ", ".join(nfs_all_type), info_type = 0, info_list = info_list, fp = fp)
+                    logger.error("ConfigError: NFS type should be selected from " + ", ".join(nfs_all_type))
+                    _ = printout("ConfigError: NFS type should be selected from " + ", ".join(nfs_all_type), info_type = 0, info_list = info_list, fp = fp)
                     config_param = redefine_config(ext_info, info_list = info_list, fp = fp)
                     return config_param
                 
@@ -108,8 +108,8 @@ def checking_config_details(ext_info, config_param, info_list = [1,0,0,0], fp = 
                 nfs_all_size_str = list(ext_info["NFS"][v["NFS type"]].keys())
                 nfs_all_size_int = [int(nfs_all_size_str[i]) for i in range(len(nfs_all_size_str))]
                 if(v["NFS size"] not in nfs_all_size_int):
-                    logger.error("ConfigError: NFS size should be select from " + ", ".join(nfs_all_size_str))
-                    _ = printout("ConfigError: NFS size should be select from " + ", ".join(nfs_all_size_str), info_type = 0, info_list = info_list, fp = fp)
+                    logger.error("ConfigError: NFS size should be selected from " + ", ".join(nfs_all_size_str))
+                    _ = printout("ConfigError: NFS size should be selected from " + ", ".join(nfs_all_size_str), info_type = 0, info_list = info_list, fp = fp)
                     config_param = redefine_config(ext_info, info_list = info_list, fp = fp)
                     return config_param
                 
@@ -233,16 +233,16 @@ def checking_config_details(ext_info, config_param, info_list = [1,0,0,0], fp = 
             #Monitor方法の指定を確認
             opt_list = list(ext_info["Monitor"].keys())
             if(config_param["Monitor"]["Monitor type"] not in opt_list):
-                logger.error("ConfigError: monitor method must be select from " + ",".join(opt_list))
-                _ = printout("ConfigError: monitor method must be select from " + ",".join(opt_list), info_type = 0, info_list = info_list, fp = fp)
+                logger.error("ConfigError: monitor method must be selected from " + ",".join(opt_list))
+                _ = printout("ConfigError: monitor method must be selected from " + ",".join(opt_list), info_type = 0, info_list = info_list, fp = fp)
                 config_param = redefine_config(ext_info, info_list = info_list, fp = fp)
                 return config_param
             
             #Monitorレベルの指定を確認
             opt_list = list(ext_info["Monitor_level"]["level"])
             if(config_param["Monitor"]["Monitor level"] not in opt_list):
-                logger.error("ConfigError: monitor level must be select a value between " + str(min(opt_list)) + " and " + str(max(opt_list)))
-                _ = printout("ConfigError: monitor level must be select a value between " + str(min(opt_list)) + " and " + str(max(opt_list)), info_type = 0, info_list = info_list, fp = fp)
+                logger.error("ConfigError: monitor level must be selected a value between " + str(min(opt_list)) + " and " + str(max(opt_list)))
+                _ = printout("ConfigError: monitor level must be selected a value between " + str(min(opt_list)) + " and " + str(max(opt_list)), info_type = 0, info_list = info_list, fp = fp)
                 config_param = redefine_config(ext_info, info_list = info_list, fp = fp)
                 return config_param
     #Monitorが設定されていない場合は自動指定
@@ -268,8 +268,8 @@ def checking_config_details(ext_info, config_param, info_list = [1,0,0,0], fp = 
         
     #コンピュートノード数が1の場合にCompute switchが指定されていないかどうかの確認
     if(config_param["Compute"]["Compute number"] == 1 and config_param["Compute"]["Compute switch"] == True):
-        logger.error("ConfigError: compute switch cannot be specify if the number of compute nodes is 1")
-        _ = printout("ConfigError: compute switch cannot be specify if the number of compute nodes is 1", info_type = 0, info_list = info_list, fp = fp)
+        logger.error("ConfigError: compute switch cannot be specified if the number of compute nodes is 1")
+        _ = printout("ConfigError: compute switch cannot be specified if the number of compute nodes is 1", info_type = 0, info_list = info_list, fp = fp)
         config_param = redefine_config(ext_info, info_list = info_list, fp = fp)
         return config_param
     
@@ -291,8 +291,8 @@ def server_val(config_param, ext_info, zone_list, info_list = [1,0,0,0], fp = ""
     opt_list_str = list(ext_info["Server"].keys())
     opt_list = [int(opt_list_str[i]) for i in range(len(opt_list_str))]
     if(config_param["Node"]["core"] not in opt_list):
-        logger.error("ConfigError: server core must be select from " + ",".join(opt_list_str))
-        _ = printout("ConfigError: server core must be select from " + ",".join(opt_list_str), info_type = 0, info_list = info_list, fp = fp)
+        logger.error("ConfigError: server core must be selected from " + ",".join(opt_list_str))
+        _ = printout("ConfigError: server core must be selected from " + ",".join(opt_list_str), info_type = 0, info_list = info_list, fp = fp)
         config_param = redefine_config(ext_info, info_list = info_list, fp = fp)
         return config_param, 1
     
@@ -300,8 +300,8 @@ def server_val(config_param, ext_info, zone_list, info_list = [1,0,0,0], fp = ""
     opt_list_str = list(ext_info["Server"][str(config_param["Node"]["core"])].keys())
     opt_list = [int(opt_list_str[i]) for i in range(len(opt_list_str))]
     if(config_param["Node"]["memory"] not in opt_list):
-        logger.error("ConfigError: server memory must be select from " + ",".join(opt_list_str))
-        _ = printout("ConfigError: server memory must be select from " + ",".join(opt_list_str), info_type = 0, info_list = info_list, fp = fp)
+        logger.error("ConfigError: server memory must be selected from " + ",".join(opt_list_str))
+        _ = printout("ConfigError: server memory must be selected from " + ",".join(opt_list_str), info_type = 0, info_list = info_list, fp = fp)
         config_param = redefine_config(ext_info, info_list = info_list, fp = fp)
         return config_param, 1
     
@@ -312,8 +312,8 @@ def server_val(config_param, ext_info, zone_list, info_list = [1,0,0,0], fp = ""
     #Diskのtypeが候補値から選択されているかどうかの確認
     opt_list = list(ext_info["Disk"].keys())
     if(config_param["Disk"]["Type"] not in opt_list):
-        logger.error("ConfigError: disk type must be select from " + ",".join(opt_list))
-        _ = printout("ConfigError: disk type must be select from " + ",".join(opt_list), info_type = 0, info_list = info_list, fp = fp)
+        logger.error("ConfigError: disk type must be selected from " + ",".join(opt_list))
+        _ = printout("ConfigError: disk type must be selected from " + ",".join(opt_list), info_type = 0, info_list = info_list, fp = fp)
         config_param = redefine_config(ext_info, info_list = info_list, fp = fp)
         return config_param, 1
         
@@ -321,24 +321,24 @@ def server_val(config_param, ext_info, zone_list, info_list = [1,0,0,0], fp = ""
     opt_list = ext_info["Disk"][config_param["Disk"]["Type"]]
     opt_list_str = [str(opt_list[i]) for i in range(len(opt_list))]
     if(config_param["Disk"]["Size"] not in opt_list):
-        logger.error("ConfigError: disk size must be select from " + ",".join(opt_list_str))
-        _ = printout("ConfigError: disk size must be select from " + ",".join(opt_list_str), info_type = 0, info_list = info_list, fp = fp)
+        logger.error("ConfigError: disk size must be selected from " + ",".join(opt_list_str))
+        _ = printout("ConfigError: disk size must be selected from " + ",".join(opt_list_str), info_type = 0, info_list = info_list, fp = fp)
         config_param = redefine_config(ext_info, info_list = info_list, fp = fp)
         return config_param, 1
     
     #Connection typeが候補値から選択されているかどうかの確認
     opt_list = ext_info["Connection"]
     if(config_param["Connection type"] not in opt_list):
-        logger.error("ConfigError: connection type must be select from " + ",".join(opt_list))
-        _ = printout("ConfigError: connection type must be select from " + ",".join(opt_list), info_type = 0, info_list = info_list, fp = fp)
+        logger.error("ConfigError: connection type must be selected from " + ",".join(opt_list))
+        _ = printout("ConfigError: connection type must be selected from " + ",".join(opt_list), info_type = 0, info_list = info_list, fp = fp)
         config_param = redefine_config(ext_info, info_list = info_list, fp = fp)
         return config_param, 1
     
     #OSが候補値から選択されているかどうかの確認
     opt_list = list(ext_info["OS"].keys())
     if(config_param["OS"]["name"] not in opt_list):
-        logger.error("ConfigError: os must be select from " + ",".join(opt_list))
-        _ = printout("ConfigError: os must be select from " + ",".join(opt_list), info_type = 0, info_list = info_list, fp = fp)
+        logger.error("ConfigError: os must be selected from " + ",".join(opt_list))
+        _ = printout("ConfigError: os must be selected from " + ",".join(opt_list), info_type = 0, info_list = info_list, fp = fp)
         config_param = redefine_config(ext_info, info_list = info_list, fp = fp)
         return config_param, 1
         
