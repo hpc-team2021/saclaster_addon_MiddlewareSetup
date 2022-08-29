@@ -14,7 +14,7 @@
         "#",
         "SwitchType=switch/none",
         "#",
-        "MpiDefault=none",
+        "MpiDefault=pmi2",
         "SlurmctldPidFile=/var/run/slurmctld.pid",
         "SlurmdPidFile=/var/run/slurmd.pid",
         "#ProctrackType=proctrack/cgroup",
