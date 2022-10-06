@@ -42,7 +42,7 @@ Sakura HPC ManagerではSaclusterと同様にユーザによるコマンド入�
 __プロトタイプの実行方法__
 
 ```bash
-git clone https://github.com/hpc-team2020/sacluster.git
+git clone https://github.com/hpc-team2021/saclaster_addon_MiddlewareSetup.git
 # pythonパッケージの自動インストール
 pip install Mockup-0.0.1.tar.gz
 # クラスタ構築
