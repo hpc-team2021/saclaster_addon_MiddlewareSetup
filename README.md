@@ -88,7 +88,7 @@ __Sakura HPC Managerオプション一覧__
 
 # DEMO
 詳しい使い方は [Wiki](https://github.com/hpc-team2020/sacluster/wiki) をご覧ください。
-### saclusterのデモ動画
+### デモ動画
 
 <br>
 
