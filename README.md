@@ -8,6 +8,13 @@ __現在はクラスタ構築の機能のみ公開中__
 ※_ユーザーの誤操作により料金が発生した場合、または第三者によりユーザーのアカウントが使用された場合にも我々は一切の責任を負いかねますのでご了承ください。_<br>
 
 
+# Sakura HPC Manager
+
+Saclusterの機能にHPCとして使用できる環境構築を追加したシステム<br>
+
+Sakura HPC ManagerではSaclusterと同様にユーザによるコマンド入力のみで、IPアドレスの自動割り当て・SSH環境の自動構築・ 並列計算環境・ジョブスケジューリング環境・モニタリング環境の自動構築を行うことができます。<br>
+
+
 # Features
 
 現段階で大規模なクラスタ構築を行うためには、GUIでサーバーを1つずつ立ち上げるか、複雑なAPIを叩くしか方法がありませんでした。<br>
@@ -39,12 +46,12 @@ git clone https://github.com/hpc-team2020/sacluster.git
 # pythonパッケージの自動インストール
 pip install Mockup-0.0.1.tar.gz
 # クラスタ構築
-python lib/command/command_pro.py [オプション]
+python lib/command/command_pro.py [saclasterのオプション] [Sakura HPC Managerのオプション]
 ```
 
 <br>
 
-__オプション一覧__
+__saclasterオプション一覧__
 
 
 | オプション | パラメータの有無 | パラメータ（有の場合） | 説明 |
@@ -58,6 +65,18 @@ __オプション一覧__
 | -dryrun | 無 | - | 試運転モード(API を仕様しない処理のみ実行) |
 
 <br>
+
+<br>
+
+__Sakura HPC Managerオプション一覧__
+
+| オプション | パラメータの有無 | 説明 | 
+| --- | --- | --- | 
+| -m | 無 | ミドルウェアの構築を行う | 
+
+
+<br>
+
 
 
 
@@ -73,7 +92,7 @@ __オプション一覧__
 
 # Author
 2021
-* 作成者： 
+* 作成者： Kousuke Tsuji , Daiki Murayama , Ayumi Moriyasu
 * 所属： Kyushu Institute of Technology
 * E-mail:sakura.hpc2021@gmail.com
 * 
