@@ -16,13 +16,9 @@ Sakura HPC ManagerではSaclusterと同様にユーザによるコマンド入�
 
 
 # Features
-
-現段階で大規模なクラスタ構築を行うためには、GUIでサーバーを1つずつ立ち上げるか、複雑なAPIを叩くしか方法がありませんでした。<br>
-どんな人でも簡単にHPCクラスタ構築を行えるようにするために、私たちはさくらのクラウドを使用したSaclusterの作成に取り組みました。<br>
-
+現在前年度チームにより、どんな人でも簡単にクラスタの自動構築を行うsaclusterが開発されています。<br>
 ユーザーがクラスタ構築のためのパラメータを指定するとsaclusterはAPIを生成し、実行します。<br>
 設定はテンプレート化されるため、同じ構造のクラスタを構築する際はパラメータを再度指定する必要はありません。<br>
-
 
 ### saclusterのメリット
 - 少数のパラメータで簡単にクラスタ構築が可能
@@ -37,6 +33,16 @@ Sakura HPC ManagerではSaclusterと同様にユーザによるコマンド入�
 - クラスタ変更 (7/15_公開予定)
 
 <br>
+
+今年度チームは、saclusterにHPCの機能を追加したSakura HPC Managerの開発を進めました。<br>
+追加した機能は以下４点です。<br>
+- ローカルIPアドレス自動割り当て
+- 監視モニタ(Ganglia)
+- 並列計算機能(mpich)
+- リソース自動管理(slurm)
+
+<br>
+
 
 # Quick Start
 __プロトタイプの実行方法__
@@ -95,7 +101,6 @@ __Sakura HPC Managerオプション一覧__
 * 作成者： Kousuke Tsuji , Daiki Murayama , Ayumi Moriyasu
 * 所属： Kyushu Institute of Technology
 * E-mail:sakura.hpc2021@gmail.com
-* 
 * About us: https://qiita.com/sakura_hpc2021
 
 2020
