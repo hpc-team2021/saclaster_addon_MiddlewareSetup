@@ -1,4 +1,5 @@
-# sacluster
+# System
+### sacluster
 
 さくらのクラウドを使用したクラスタ構築に特化したユーザの手間を軽減するスクリプトシステム<br>
 __現在はクラスタ構築の機能のみ公開中__
@@ -7,8 +8,7 @@ __現在はクラスタ構築の機能のみ公開中__
 [さくらのクラウド利用料について](https://cloud.sakura.ad.jp/payment/)<br>
 ※_ユーザーの誤操作により料金が発生した場合、または第三者によりユーザーのアカウントが使用された場合にも我々は一切の責任を負いかねますのでご了承ください。_<br>
 
-
-# Sakura HPC Manager
+### Sakura HPC Manager
 
 Saclusterの機能にHPCとして使用できる環境構築を追加したシステム<br>
 
@@ -20,17 +20,17 @@ Sakura HPC ManagerではSaclusterと同様にユーザによるコマンド入�
 ユーザーがクラスタ構築のためのパラメータを指定するとsaclusterはAPIを生成し、実行します。<br>
 設定はテンプレート化されるため、同じ構造のクラスタを構築する際はパラメータを再度指定する必要はありません。<br>
 
-### saclusterのメリット
+### Pros of Sacluster
 - 少数のパラメータで簡単にクラスタ構築が可能
 - 構築の際、画面に向き合う必要がない
 - 何度も同じ設定を行う必要がない
 
-### saclusterの主な機能
-- クラスタ構築　（公開済）
-- クラスタ起動 （7/15_公開予定）
-- クラスタ停止 （7/15_公開予定）
-- クラスタ削除 (7/15_公開予定)
-- クラスタ変更 (7/15_公開予定)
+### Main Functions in Sacluster
+- クラスタ構築
+- クラスタ起動
+- クラスタ停止
+- クラスタ削除
+- クラスタ変更
 
 <br>
 
@@ -45,7 +45,7 @@ Sakura HPC ManagerではSaclusterと同様にユーザによるコマンド入�
 
 
 # Quick Start
-__プロトタイプの実行方法__
+__How to Run Prototype__
 
 ```bash
 git clone https://github.com/hpc-team2021/saclaster_addon_MiddlewareSetup.git
@@ -57,7 +57,7 @@ python lib/command/command_pro.py [saclasterのオプション] [Sakura HPC Mana
 
 <br>
 
-__saclasterオプション一覧__
+__Options in Saclaster__
 
 
 | オプション | パラメータの有無 | パラメータ（有の場合） | 説明 |
@@ -74,7 +74,7 @@ __saclasterオプション一覧__
 
 <br>
 
-__Sakura HPC Managerオプション一覧__
+__Option in Sakura HPC Manager__
 
 | オプション | パラメータの有無 | 説明 | 
 | --- | --- | --- | 
@@ -86,7 +86,7 @@ __Sakura HPC Managerオプション一覧__
 
 
 
-# DEMO
+# Demo
 詳しい使い方は [Wiki](https://github.com/hpc-team2020/sacluster/wiki) をご覧ください。
 ### デモ動画
 
